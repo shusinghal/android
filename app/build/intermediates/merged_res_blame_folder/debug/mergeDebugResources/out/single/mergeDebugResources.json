@@ -1,0 +1,30 @@
+[
+    {
+        "merged": "C:\\Users\\HP\\.gradle\\daemon\\8.10.2\\com.memorycurator.app-debug-57:\\drawable_bg_glass_panel.xml.flat",
+        "source": "C:\\Users\\HP\\.gradle\\daemon\\8.10.2\\com.memorycurator.app-main-59:\\drawable\\bg_glass_panel.xml"
+    },
+    {
+        "merged": "C:\\Users\\HP\\.gradle\\daemon\\8.10.2\\com.memorycurator.app-debug-57:\\drawable_bg_main.jpg.flat",
+        "source": "C:\\Users\\HP\\.gradle\\daemon\\8.10.2\\com.memorycurator.app-main-59:\\drawable\\bg_main.jpg"
+    },
+    {
+        "merged": "C:\\Users\\HP\\.gradle\\daemon\\8.10.2\\com.memorycurator.app-debug-57:\\drawable_dummy_photo.jpg.flat",
+        "source": "C:\\Users\\HP\\.gradle\\daemon\\8.10.2\\com.memorycurator.app-main-59:\\drawable\\dummy_photo.jpg"
+    },
+    {
+        "merged": "com.memorycurator.app-debug-57:/layout_item_timeline_card.xml.flat",
+        "source": "com.memorycurator.app-main-59:/layout/item_timeline_card.xml"
+    },
+    {
+        "merged": "C:\\Users\\HP\\.gradle\\daemon\\8.10.2\\com.memorycurator.app-debug-57:\\drawable_bg_photo_overlay.xml.flat",
+        "source": "C:\\Users\\HP\\.gradle\\daemon\\8.10.2\\com.memorycurator.app-main-59:\\drawable\\bg_photo_overlay.xml"
+    },
+    {
+        "merged": "C:\\Users\\HP\\.gradle\\daemon\\8.10.2\\com.memorycurator.app-debug-57:\\layout_activity_main.xml.flat",
+        "source": "C:\\Users\\HP\\.gradle\\daemon\\8.10.2\\com.memorycurator.app-main-59:\\layout\\activity_main.xml"
+    },
+    {
+        "merged": "C:\\Users\\HP\\.gradle\\daemon\\8.10.2\\com.memorycurator.app-debug-57:\\drawable_bg_glass_card.xml.flat",
+        "source": "C:\\Users\\HP\\.gradle\\daemon\\8.10.2\\com.memorycurator.app-main-59:\\drawable\\bg_glass_card.xml"
+    }
+]

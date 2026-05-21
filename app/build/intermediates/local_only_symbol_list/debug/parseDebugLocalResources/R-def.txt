@@ -1,0 +1,36 @@
+R_DEF: Internal format may change without notice
+local
+color accent_gold
+color bg_bottom
+color bg_middle
+color bg_top
+color glass_border
+color glass_white
+color text_primary
+color text_secondary
+drawable bg_glass_card
+drawable bg_glass_panel
+drawable bg_main
+drawable bg_photo_overlay
+drawable dummy_photo
+id backgroundImage
+id bottomBlur
+id bottomNavLayout
+id cardContainer
+id cardImage
+id headerBlur
+id headerLayout
+id navAlbums
+id navCleanup
+id navMemories
+id navTimeline
+id subtitleText
+id timelineDot
+id timelineLine
+id timelineRecyclerView
+id tvDate
+id tvLocationName
+id tvPhotoCount
+layout activity_main
+layout item_timeline_card
+style Theme.MemoryCurator
