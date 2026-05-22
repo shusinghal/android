@@ -25,6 +25,7 @@ import com.memorycurator.app.feature.albums.ui.AlbumsViewModelFactory
 import com.memorycurator.app.feature.gallery.ui.GalleryScreen
 import com.memorycurator.app.feature.timeline.data.TimelineGrouper
 import com.memorycurator.app.feature.timeline.model.TimelineGroup
+import com.memorycurator.app.feature.timeline.ui.TimelineDetailScreen
 import com.memorycurator.app.feature.timeline.ui.TimelineScreen
 import com.memorycurator.app.ui.gallery.GalleryViewModel
 import com.memorycurator.app.ui.theme.GlassTheme
@@ -76,13 +77,19 @@ fun MainNavigation(
         mutableStateOf(BottomNavItem.Timeline.route)
     }
 
+    var selectedGroup by remember { mutableStateOf<TimelineGroup?>(null) }
+
+
     // Call the stateless content version
     MainNavigationContent(
         selectedRoute = selectedRoute,
         onRouteSelected = { selectedRoute = it },
         timelineGroups = timelineGroups,
         galleryViewModel = viewModel,
-        albumsViewModel = albumsViewModel
+        albumsViewModel = albumsViewModel,
+        selectedGroup = selectedGroup,
+        onGroupSelected = { selectedGroup = it }
+
     )
 }
 
@@ -92,7 +99,9 @@ fun MainNavigationContent(
     onRouteSelected: (String) -> Unit,
     timelineGroups: List<TimelineGroup>,
     galleryViewModel: GalleryViewModel?,
-    albumsViewModel: AlbumsViewModel?
+    albumsViewModel: AlbumsViewModel?,
+    selectedGroup: TimelineGroup?,
+    onGroupSelected: (TimelineGroup?) -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
@@ -121,11 +130,20 @@ fun MainNavigationContent(
             Box(
                 modifier = Modifier.padding(padding)
             ) {
-                when (selectedRoute) {
+                when (selectedRoute)
+                {
                     "timeline" -> {
-                        TimelineScreen(
-                            groups = timelineGroups
-                        )
+                        if (selectedGroup != null) {
+                            TimelineDetailScreen(
+                                group = selectedGroup,
+                                onBack = { onGroupSelected(null) }
+                            )
+                        } else {
+                            TimelineScreen(
+                                groups = timelineGroups,
+                                onGroupClick = { onGroupSelected(it) }
+                            )
+                        }
                     }
 
                     "albums" -> {
@@ -166,7 +184,9 @@ fun MainNavigationPreview() {
             onRouteSelected = {},
             timelineGroups = emptyList(),
             galleryViewModel = null,
-            albumsViewModel = null
+            albumsViewModel = null,
+            selectedGroup = null, // Added
+            onGroupSelected = {}
         )
     }
 }
