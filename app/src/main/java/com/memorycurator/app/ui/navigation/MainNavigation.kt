@@ -74,18 +74,18 @@ fun MainNavigation(
 
     val items = listOf(
 
-        BottomNavItem.Photos,
+        BottomNavItem.Timeline,
+
+        BottomNavItem.Maps,
 
         BottomNavItem.Albums,
 
-        BottomNavItem.Timeline,
-
-        BottomNavItem.Cleanup
+        BottomNavItem.Profile
     )
 
     var selectedRoute by remember {
 //        mutableStateOf("photos")
-        mutableStateOf(BottomNavItem.Photos.route)
+        mutableStateOf(BottomNavItem.Timeline.route)
     }
 
     Box(

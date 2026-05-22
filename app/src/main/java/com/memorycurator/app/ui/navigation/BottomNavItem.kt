@@ -2,7 +2,10 @@ package com.memorycurator.app.ui.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.AutoAwesomeMotion
 import androidx.compose.material.icons.rounded.Collections
+import androidx.compose.material.icons.rounded.Map
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.PhotoLibrary
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -16,39 +19,27 @@ sealed class BottomNavItem(
     val icon: ImageVector
 ) {
 
-    data object Photos : BottomNavItem(
+    data object Timeline : BottomNavItem(
+        "timeline",
+        "Timeline",
+        Icons.Rounded.AutoAwesomeMotion
+    )
 
-        route = "photos",
-
-        label = "Photos",
-
-        icon = Icons.Rounded.PhotoLibrary
+    data object Maps : BottomNavItem(
+        "maps",
+        "Maps",
+        Icons.Rounded.Map
     )
 
     data object Albums : BottomNavItem(
-
-        route = "albums",
-
-        label = "Albums",
-
-        icon = Icons.Rounded.Collections
+        "albums",
+        "Albums",
+        Icons.Rounded.Collections
     )
 
-    data object Timeline : BottomNavItem(
-
-        route = "timeline",
-
-        label = "Timeline",
-
-        icon = Icons.Rounded.Schedule
-    )
-
-    data object Cleanup : BottomNavItem(
-
-        route = "cleanup",
-
-        label = "Cleanup",
-
-        icon = Icons.Rounded.AutoAwesome
+    data object Profile : BottomNavItem(
+        "profile",
+        "Profile",
+        Icons.Rounded.Person
     )
 }

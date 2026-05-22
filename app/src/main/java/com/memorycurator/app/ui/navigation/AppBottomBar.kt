@@ -20,10 +20,10 @@ fun AppBottomBar(
     onRouteSelected: (String) -> Unit
 ) {
     val items = listOf(
-        BottomNavItem.Photos,
-        BottomNavItem.Albums,
         BottomNavItem.Timeline,
-        BottomNavItem.Cleanup
+        BottomNavItem.Maps,
+        BottomNavItem.Albums,
+        BottomNavItem.Profile
     )
 
     NavigationBar(
