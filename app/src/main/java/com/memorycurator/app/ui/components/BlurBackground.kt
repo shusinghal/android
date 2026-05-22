@@ -10,10 +10,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.memorycurator.app.R
 import com.memorycurator.app.ui.core.glassBlur
 
 @Composable
+@Preview
 fun BlurBackground() {
 
     Box {

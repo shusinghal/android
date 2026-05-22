@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.memorycurator.app-mergeDebugResources-59:/values-mr/values-mr.xml",
+            "outputFile": "com.memorycurator.app-mergeDebugResources-64:/values-mr/values-mr.xml",
             "map": [
                 {
                     "source": "C:\\Users\\HP\\.gradle\\caches\\8.10.2\\transforms\\c023fb1819519e9954549d7b04302f3a\\transformed\\foundation-release\\res\\values-mr\\values-mr.xml",

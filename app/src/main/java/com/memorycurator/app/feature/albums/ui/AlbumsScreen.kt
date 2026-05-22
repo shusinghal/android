@@ -44,7 +44,7 @@ fun AlbumsScreen(
         modifier = Modifier.fillMaxSize()
     ) {
 
-        BlurBackground()
+//        BlurBackground()
 
         LazyColumn(
 

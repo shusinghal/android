@@ -8,14 +8,14 @@ import java.util.Locale
 
 object TimelineGrouper {
 
-    fun groupByMonth(
+    fun groupByDate(
 
         photos: List<MediaPhoto>
 
     ): List<TimelineGroup> {
 
         val formatter = SimpleDateFormat(
-            "MMMM yyyy",
+            "dd MMMM yyyy",
             Locale.getDefault()
         )
 

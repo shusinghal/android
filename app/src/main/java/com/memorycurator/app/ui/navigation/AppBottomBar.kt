@@ -11,8 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.memorycurator.app.ui.theme.AppTheme
+import com.memorycurator.app.ui.theme.GlassTheme
 
 @Composable
 fun AppBottomBar(
@@ -28,7 +30,7 @@ fun AppBottomBar(
 
     NavigationBar(
         modifier = Modifier
-            .padding(horizontal = 14.dp, vertical = 10.dp)
+            .padding(horizontal = 1.dp, vertical = 10.dp)
             .clip(RoundedCornerShape(28.dp)),
         containerColor = Color.White.copy(alpha = 0.08f),
         tonalElevation = 0.dp
@@ -63,5 +65,15 @@ fun AppBottomBar(
                 )
             )
         }
+    }
+}
+@Preview
+@Composable
+fun AppBottomBarPreview() {
+    GlassTheme {
+        AppBottomBar(
+            selectedRoute = BottomNavItem.Timeline.route,
+            onRouteSelected = {}
+        )
     }
 }

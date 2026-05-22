@@ -2,7 +2,6 @@ package com.memorycurator.app.feature.timeline.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -26,21 +25,24 @@ import com.memorycurator.app.feature.timeline.model.TimelineGroup
 import com.memorycurator.app.ui.components.BlurBackground
 import kotlin.text.uppercase
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 @Composable
 fun TimelineScreen(
     groups: List<TimelineGroup>
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
-        BlurBackground()
+//        BlurBackground()
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -53,6 +55,7 @@ fun TimelineScreen(
     }
 }
 
+
 @Composable
 fun TimelineCard(group: TimelineGroup) {
     val representativePhoto = group.photos.firstOrNull()
@@ -61,7 +64,7 @@ fun TimelineCard(group: TimelineGroup) {
     // Date Formatters matching the XML "JUL 12 FRI"
     val monthFormat = SimpleDateFormat("MMM", Locale.getDefault())
     val dayFormat = SimpleDateFormat("dd", Locale.getDefault())
-    val dayOfWeekFormat = SimpleDateFormat("EEE", Locale.getDefault())
+    val yearFormat = SimpleDateFormat("yyyy", Locale.getDefault())
 
     Row(
         modifier = Modifier
@@ -75,9 +78,9 @@ fun TimelineCard(group: TimelineGroup) {
             modifier = Modifier.width(45.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = monthFormat.format(date).uppercase(), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-            Text(text = dayFormat.format(date), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-            Text(text = dayOfWeekFormat.format(date).uppercase(), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            Text(text = "${monthFormat.format(date).uppercase()} ${dayFormat.format(date)}, ${yearFormat.format(date)}", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+//            Text(text = dayFormat.format(date), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+//            Text(text = dayOfWeekFormat.format(date).uppercase(), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
         }
 
         Spacer(modifier = Modifier.width(20.dp))
@@ -129,20 +132,35 @@ fun TimelineCard(group: TimelineGroup) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
-                verticalArrangement = Arrangement.Top
+                verticalArrangement = Arrangement.Bottom
             ) {
+//                Text(
+//                    text = group.title.uppercase(),
+//                    color = Color.White,
+//                    fontSize = 14.sp,
+//                    fontWeight = FontWeight.Bold
+//                )
                 Text(
-                    text = group.title.uppercase(),
-                    color = Color.White,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "${monthFormat.format(date).uppercase()} ${dayFormat.format(date)} | ${group.photos.size} photos",
+                    text = "${group.photos.size} ${if (group.photos.size == 1) "photo" else "photos"}",
                     color = Color.White.copy(alpha = 0.9f),
                     fontSize = 10.sp
                 )
             }
+        }
+    }
+}
+@Preview(showBackground = true)
+@Composable
+fun TimelineScreenPreview() {
+    val mockGroup = TimelineGroup(
+        title = "October 2024",
+        photos = emptyList() // or add mock photos
+    )
+
+    // Wrap in your theme
+    com.memorycurator.app.ui.theme.GlassTheme {
+        Box(modifier = Modifier.background(Color.Black)) { // Background for visibility
+            TimelineScreen(groups = listOf(mockGroup, mockGroup))
         }
     }
 }

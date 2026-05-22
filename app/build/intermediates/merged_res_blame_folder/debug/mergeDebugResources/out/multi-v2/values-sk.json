@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.memorycurator.app-mergeDebugResources-59:/values-sk/values-sk.xml",
+            "outputFile": "com.memorycurator.app-mergeDebugResources-64:/values-sk/values-sk.xml",
             "map": [
                 {
                     "source": "C:\\Users\\HP\\.gradle\\caches\\8.10.2\\transforms\\546b15a77e420b49f5f290172b0c3fce\\transformed\\appcompat-1.6.1\\res\\values-sk\\values-sk.xml",
