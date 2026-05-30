@@ -64,7 +64,7 @@ fun TimelineDetailScreen(
                     actions = {
                         // Room for "Select" / "Select All" options
                         TextButton(onClick = { /* TODO: Implement Selection */ }) {
-                            Text("Select", color = Color.White)
+                            Text("Best Takes", color = Color.White)
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
