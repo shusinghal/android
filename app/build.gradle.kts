@@ -62,4 +62,15 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     ksp("androidx.room:room-compiler:2.6.1")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    // AI - Face & Subject Analysis
+    implementation("com.google.mlkit:face-detection:16.1.6")
+
+    // AI - Custom Aesthetic & Similarity Models
+    implementation("org.tensorflow:tensorflow-lite:2.14.0")
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.4") // Makes handling images for TFLite much easier
+
+    // Background Processing
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+    implementation("androidx.palette:palette-ktx:1.0.0")
+
 }
