@@ -72,5 +72,24 @@ dependencies {
     // Background Processing
     implementation("androidx.work:work-runtime-ktx:2.9.0")
     implementation("androidx.palette:palette-ktx:1.0.0")
+    implementation(platform("androidx.compose:compose-bom:2024.04.01"))
+    implementation("androidx.compose.ui:ui-graphics")
+
+    // Lifecycle & Architecture
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.0")
+
+    // Asynchronous Execution
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
+
+    // Async Image Loading
+    implementation("io.coil-kt:coil-compose:2.6.0")
+
+    // On-Device AI: MediaPipe for Feature Extraction & Similarity
+    implementation("com.google.mediapipe:tasks-vision:0.10.14")
+
+    // TensorFlow Lite: Custom Image Quality Inference with GPU delegation
+    implementation("org.tensorflow:tensorflow-lite:2.14.0")
+    implementation("org.tensorflow:tensorflow-lite-gpu:2.14.0")
 
 }

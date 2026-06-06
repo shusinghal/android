@@ -17,3 +17,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "MemoryCurator"
 include(":app")
+include(":photo-cleaner")
