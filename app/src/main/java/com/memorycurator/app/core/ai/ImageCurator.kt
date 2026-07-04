@@ -10,15 +10,26 @@ import com.google.mlkit.vision.label.ImageLabeling
 import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
 import com.memorycurator.app.data.media.MediaPhoto
 import kotlinx.coroutines.tasks.await
+import kotlin.math.abs
+
+enum class RejectionReason {
+    NONE, BLURRY, EYES_CLOSED, DUPLICATE, POOR_LIGHTING, LOW_QUALITY
+}
 
 data class CuratedResult(
     val photo: MediaPhoto,
-    val score: Float
+    val score: Float,
+    val isBestTake: Boolean,
+    val rejectionReason: RejectionReason = RejectionReason.NONE,
+    val clusterId: String? = null
 )
 
 interface ImageCurator {
-    suspend fun analyzePhotos(context: Context, photos: List<MediaPhoto>): List<CuratedResult>
-    suspend fun filterBestTakes(context: Context, photos: List<MediaPhoto>): List<MediaPhoto>
+    suspend fun analyzePhotos(
+        context: Context, 
+        photos: List<MediaPhoto>, 
+        onProgress: (Int, Int) -> Unit
+    ): List<CuratedResult>
 }
 
 class ImageCuratorImpl : ImageCurator {
@@ -32,68 +43,113 @@ class ImageCuratorImpl : ImageCurator {
 
     private val labeler = ImageLabeling.getClient(ImageLabelerOptions.DEFAULT_OPTIONS)
 
-    override suspend fun analyzePhotos(context: Context, photos: List<MediaPhoto>): List<CuratedResult> {
-        val results = mutableListOf<CuratedResult>()
+    override suspend fun analyzePhotos(
+        context: Context, 
+        photos: List<MediaPhoto>,
+        onProgress: (Int, Int) -> Unit
+    ): List<CuratedResult> {
+        val rawResults = mutableListOf<CuratedResult>()
 
-        for (photo in photos) {
+        for ((index, photo) in photos.withIndex()) {
             try {
+                onProgress(index + 1, photos.size)
                 val image = InputImage.fromFilePath(context, photo.contentUri)
                 
-                // Concurrent analysis could be faster but let's stay safe for on-device resources
                 val faces = faceDetector.process(image).await()
                 val labels = labeler.process(image).await()
 
-                val score = calculateQualityScore(faces, labels)
-                results.add(CuratedResult(photo, score))
+                val (score, reason) = calculateQualityScoreWithReason(faces, labels)
+                
+                rawResults.add(
+                    CuratedResult(
+                        photo = photo,
+                        score = score,
+                        isBestTake = score >= 0.6f,
+                        rejectionReason = reason
+                    )
+                )
             } catch (e: Exception) {
-                // Log or handle error (e.g., file not found or unsupported format)
-                results.add(CuratedResult(photo, 0f))
+                rawResults.add(CuratedResult(photo, 0f, false, RejectionReason.LOW_QUALITY))
             }
         }
-        return results
+
+        // Apply clustering for similar photos taken within 2 seconds
+        return applyClustering(rawResults)
     }
 
-    override suspend fun filterBestTakes(context: Context, photos: List<MediaPhoto>): List<MediaPhoto> {
-        val analysis = analyzePhotos(context, photos)
-        // Filter by score threshold (0.6) and sort by best first
-        return analysis
-            .filter { it.score >= 0.6f }
-            .sortedByDescending { it.score }
-            .map { it.photo }
-            .ifEmpty { 
-                // Fallback: if AI thinks all are bad, return the most recent one
-                photos.take(1) 
-            }
-    }
-
-    private fun calculateQualityScore(faces: List<Face>, labels: List<ImageLabel>): Float {
-        var score = 0.2f // Base quality
-
-        // 1. Face Analysis (Major factor)
-        if (faces.isNotEmpty()) {
-            score += 0.3f // Presence of people is usually a 'best take' indicator in a gallery
+    private fun applyClustering(results: List<CuratedResult>): List<CuratedResult> {
+        if (results.isEmpty()) return results
+        
+        val sorted = results.sortedBy { it.photo.dateTaken }
+        val clustered = mutableListOf<CuratedResult>()
+        
+        var currentClusterId: String? = null
+        
+        for (i in sorted.indices) {
+            val current = sorted[i]
+            val prev = if (i > 0) sorted[i-1] else null
             
-            // Look for the "hero" face
+            // If taken within 2 seconds of previous, same cluster
+            if (prev != null && abs(current.photo.dateTaken - prev.photo.dateTaken) < 2000) {
+                if (currentClusterId == null) {
+                    currentClusterId = "cluster_${prev.photo.id}"
+                    // Update previous item's clusterId in the list we are building
+                    val lastIdx = clustered.size - 1
+                    clustered[lastIdx] = clustered[lastIdx].copy(clusterId = currentClusterId)
+                }
+            } else {
+                currentClusterId = null
+            }
+            
+            clustered.add(current.copy(clusterId = currentClusterId))
+        }
+        
+        // Within each cluster, mark only the highest score as "Best Take" if it meets threshold
+        // Others in cluster become "Duplicate" if they were previously "Best Take" candidates
+        return clustered.groupBy { it.clusterId }.flatMap { (clusterId, items) ->
+            if (clusterId == null) return@flatMap items
+            
+            val bestInCluster = items.maxByOrNull { it.score }
+            items.map { item ->
+                if (item == bestInCluster) {
+                    item // Keep its status
+                } else {
+                    item.copy(
+                        isBestTake = false, 
+                        rejectionReason = if (item.rejectionReason == RejectionReason.NONE) RejectionReason.DUPLICATE else item.rejectionReason
+                    )
+                }
+            }
+        }
+    }
+
+    private fun calculateQualityScoreWithReason(
+        faces: List<Face>, 
+        labels: List<ImageLabel>
+    ): Pair<Float, RejectionReason> {
+        var score = 0.3f
+        var reason = RejectionReason.NONE
+
+        if (faces.isNotEmpty()) {
             val bestFace = faces.maxByOrNull { it.smilingProbability ?: 0f }
             bestFace?.let {
-                score += (it.smilingProbability ?: 0f) * 0.3f
+                val eyesClosed = (it.leftEyeOpenProbability ?: 1f) < 0.4f || (it.rightEyeOpenProbability ?: 1f) < 0.4f
+                if (eyesClosed) {
+                    score -= 0.2f
+                    reason = RejectionReason.EYES_CLOSED
+                }
+                
+                score += (it.smilingProbability ?: 0f) * 0.4f
                 score += (it.leftEyeOpenProbability ?: 0f) * 0.1f
-                score += (it.rightEyeOpenProbability ?: 0f) * 0.1f
             }
         }
 
-        // 2. Scene/Subject Analysis
-        val qualityLabels = setOf(
-            "Nature", "Landscape", "Architecture", "Monument", 
-            "Event", "Party", "Celebration", "Flower", "Pet"
-        )
-        
+        val qualityLabels = setOf("Nature", "Portrait", "Architecture", "Party")
         val matchingLabels = labels.filter { label ->
             qualityLabels.any { q -> label.text.contains(q, ignoreCase = true) } && label.confidence > 0.8f
         }
-        
-        score += (matchingLabels.size * 0.05f).coerceAtMost(0.2f)
+        score += (matchingLabels.size * 0.1f).coerceAtMost(0.3f)
 
-        return score.coerceAtMost(1.0f)
+        return score.coerceAtMost(1.0f) to reason
     }
 }

@@ -7,9 +7,16 @@ import com.memorycurator.app.core.ai.CuratedResult
 import com.memorycurator.app.core.ai.ImageCurator
 import com.memorycurator.app.core.ai.ImageCuratorImpl
 import com.memorycurator.app.data.media.MediaPhoto
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+
+data class CurationProgress(
+    val current: Int,
+    val total: Int,
+    val percentage: Float
+)
 
 class AICurationViewModel(
     private val imageCurator: ImageCurator = ImageCuratorImpl()
@@ -21,19 +28,20 @@ class AICurationViewModel(
     private val _isAnalyzing = MutableStateFlow(false)
     val isAnalyzing: StateFlow<Boolean> = _isAnalyzing
 
+    private val _progress = MutableStateFlow<CurationProgress?>(null)
+    val progress: StateFlow<CurationProgress?> = _progress
+
     fun filterBestTakes(context: Context, photos: List<MediaPhoto>) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {
             _isAnalyzing.value = true
             
-            // Perform real on-device AI analysis
-            val fullAnalysis = imageCurator.analyzePhotos(context, photos)
+            val fullAnalysis = imageCurator.analyzePhotos(context, photos) { current, total ->
+                _progress.value = CurationProgress(current, total, current.toFloat() / total)
+            }
             
-            // Filter results based on the AI quality score
             _analysisResults.value = fullAnalysis
-                .filter { it.score >= 0.5f } // Threshold for curation
-                .sortedByDescending { it.score }
-
             _isAnalyzing.value = false
+            _progress.value = null
         }
     }
 }

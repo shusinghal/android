@@ -1,27 +1,42 @@
 package com.memorycurator.app.ui.screens
 
+import android.content.Context
+import android.net.Uri
+import android.provider.MediaStore
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.memorycurator.app.core.ai.CuratedResult
+import com.memorycurator.app.core.ai.RejectionReason
 import com.memorycurator.app.data.media.MediaPhoto
 import com.memorycurator.app.ui.components.PhotoCard
 import com.memorycurator.app.ui.models.PhotoItem
-import java.util.Locale
 
 @Composable
 fun AICurationScreen(
@@ -39,90 +54,240 @@ fun AICurationScreen(
     
     val analysisResults by viewModel.analysisResults.collectAsState()
     val isAnalyzing by viewModel.isAnalyzing.collectAsState()
+    val progress by viewModel.progress.collectAsState()
 
-    val photoItems = remember(analysisResults) {
-        analysisResults.map { result ->
-            PhotoItem(
-                id = result.photo.id,
-                imageUrl = result.photo.contentUri.toString(),
-                score = result.score,
-                badge = if (result.score > 0.8f) "Masterpiece" else "Best Take"
-            ) 
+    val keepers = remember(analysisResults) { analysisResults.filter { it.isBestTake } }
+    val forReview = remember(analysisResults) { analysisResults.filter { !it.isBestTake } }
+    
+    var showDeleteConfirm by remember { mutableStateOf(false) }
+
+    val trashLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            onBack() // Or refresh
         }
+    }
+
+    fun requestTrash(photos: List<Uri>) {
+        if (photos.isEmpty()) return
+        val pendingIntent = MediaStore.createTrashRequest(context.contentResolver, photos, true)
+        trashLauncher.launch(IntentSenderRequest.Builder(pendingIntent.intentSender).build())
+    }
+
+    if (showDeleteConfirm) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text("Move to Trash?") },
+            text = { Text("You are about to move ${forReview.size} photos to the system trash. They can be recovered within 30 days.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDeleteConfirm = false
+                    requestTrash(forReview.map { it.photo.contentUri })
+                }) {
+                    Text("Delete", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.9f))
+            .background(Color.Black)
     ) {
         // Header
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 48.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
-                tint = Color.White,
-                modifier = Modifier
-                    .size(24.dp)
-                    .clickable { onBack() }
+        CurationHeader(
+            onBack = onBack,
+            isAnalyzing = isAnalyzing,
+            resultCount = analysisResults.size,
+            onDeleteRejected = { 
+                showDeleteConfirm = true
+            }
+        )
+
+        if (isAnalyzing && progress != null) {
+            AnalysisProgressView(progress!!)
+        } else {
+            CurationResultsGrid(
+                keepers = keepers,
+                forReview = forReview
             )
-            
-            Spacer(modifier = Modifier.width(16.dp))
-            
-            Column {
-                Text(
-                    text = "AI Smart Curation",
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = if (isAnalyzing) "AI is analyzing composition and faces..." 
-                           else "${photoItems.size} high-quality takes identified",
-                    color = Color.White.copy(alpha = 0.7f),
-                    fontSize = 12.sp
-                )
+        }
+    }
+}
+
+@Composable
+fun CurationHeader(
+    onBack: () -> Unit,
+    isAnalyzing: Boolean,
+    resultCount: Int,
+    onDeleteRejected: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 48.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = onBack) {
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = Color.White)
+        }
+        
+        Column(modifier = Modifier.weight(1f)) {
+            Text("Smart Review", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text(
+                text = if (isAnalyzing) "Processing..." else "$resultCount photos analyzed",
+                color = Color.White.copy(alpha = 0.6f),
+                fontSize = 12.sp
+            )
+        }
+
+        if (!isAnalyzing && resultCount > 0) {
+            Button(
+                onClick = onDeleteRejected,
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Red.copy(alpha = 0.2f)),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(Icons.Default.DeleteSweep, null, modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Clean Up", fontSize = 12.sp)
+            }
+        }
+    }
+}
+
+@Composable
+fun AnalysisProgressView(progress: CurationProgress) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(32.dp)
+        ) {
+            LinearProgressIndicator(
+                progress = { progress.percentage },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .clip(CircleShape),
+                color = Color.White,
+                trackColor = Color.White.copy(alpha = 0.1f)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                "Analyzing ${progress.current} of ${progress.total} photos",
+                color = Color.White,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
+            )
+            Text(
+                "Detecting faces, smiles, and duplicates...",
+                color = Color.White.copy(alpha = 0.5f),
+                fontSize = 12.sp,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun CurationResultsGrid(
+    keepers: List<CuratedResult>,
+    forReview: List<CuratedResult>
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        contentPadding = PaddingValues(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.fillMaxSize()
+    ) {
+        if (keepers.isNotEmpty()) {
+            item(span = { GridItemSpan(2) }) {
+                SectionHeader("Keepers", Icons.Default.AutoAwesome)
+            }
+            items(keepers) { result ->
+                CurationPhotoCard(result, isKeeper = true)
             }
         }
 
-        if (isAnalyzing) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    CircularProgressIndicator(color = Color.White)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text("Scanning pixels...", color = Color.White.copy(alpha = 0.6f))
-                }
+        if (forReview.isNotEmpty()) {
+            item(span = { GridItemSpan(2) }) {
+                SectionHeader("For Review", Icons.Default.BatchPrediction)
             }
-        } else if (photoItems.isEmpty()) {
+            items(forReview) { result ->
+                CurationPhotoCard(result, isKeeper = false)
+            }
+        }
+    }
+}
+
+@Composable
+fun SectionHeader(title: String, icon: ImageVector) {
+    Row(
+        modifier = Modifier.padding(vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(icon, null, tint = Color.White, modifier = Modifier.size(20.dp))
+        Spacer(Modifier.width(8.dp))
+        Text(title, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+fun CurationPhotoCard(result: CuratedResult, isKeeper: Boolean) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+    ) {
+        PhotoCard(
+            photo = PhotoItem(
+                id = result.photo.id,
+                imageUrl = result.photo.contentUri.toString(),
+                score = result.score,
+                badge = if (isKeeper) "Best Take" else ""
+            )
+        )
+
+        // Overlay for Rejection Reason
+        if (!isKeeper && result.rejectionReason != RejectionReason.NONE) {
             Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(8.dp)
+                    .background(Color.Black.copy(alpha = 0.6f), CircleShape)
+                    .padding(6.dp)
             ) {
-                Text(
-                    text = "AI couldn't find standout photos in this group.",
-                    color = Color.White.copy(alpha = 0.5f),
-                    fontSize = 14.sp
+                Icon(
+                    imageVector = when (result.rejectionReason) {
+                        RejectionReason.EYES_CLOSED -> Icons.Default.VisibilityOff
+                        RejectionReason.DUPLICATE -> Icons.Default.CopyAll
+                        RejectionReason.BLURRY -> Icons.Default.BlurOn
+                        else -> Icons.Default.ErrorOutline
+                    },
+                    contentDescription = result.rejectionReason.name,
+                    tint = Color.White,
+                    modifier = Modifier.size(16.dp)
                 )
             }
-        } else {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                contentPadding = PaddingValues(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxSize()
+        }
+        
+        // Cluster Indicator
+        if (result.clusterId != null) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(8.dp)
+                    .background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
+                    .padding(horizontal = 6.dp, vertical = 2.dp)
             ) {
-                items(photoItems) { item ->
-                    PhotoCard(photo = item)
-                }
+                Text("Group", color = Color.White, fontSize = 10.sp)
             }
         }
     }
