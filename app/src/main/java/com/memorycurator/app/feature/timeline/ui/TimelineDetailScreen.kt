@@ -32,7 +32,8 @@ import com.memorycurator.app.feature.viewer.ui.ViewerScreen
 @Composable
 fun TimelineDetailScreen(
     group: TimelineGroup,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onBestTakesClick: (TimelineGroup) -> Unit
 ) {
     var selectedIndex by remember { mutableIntStateOf(-1) }
 
@@ -63,7 +64,7 @@ fun TimelineDetailScreen(
                     },
                     actions = {
                         // Room for "Select" / "Select All" options
-                        TextButton(onClick = { /* TODO: Implement Selection */ }) {
+                        TextButton(onClick = { onBestTakesClick(group) }) {
                             Text("Best Takes", color = Color.White)
                         }
                     },
@@ -128,7 +129,8 @@ fun TimelineDetailScreenPreview() {
     com.memorycurator.app.ui.theme.GlassTheme {
         TimelineDetailScreen(
             group = mockGroup,
-            onBack = {}
+            onBack = {},
+            onBestTakesClick = {}
         )
     }
 }

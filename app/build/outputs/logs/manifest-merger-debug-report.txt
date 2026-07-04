@@ -1,89 +1,107 @@
 -- Merging decision tree log ---
 manifest
-ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:2:1-28:12
-INJECTED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:2:1-28:12
-INJECTED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:2:1-28:12
-INJECTED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:2:1-28:12
-MERGED from [androidx.paging:paging-compose-android:3.3.2] C:\Users\HP\.gradle\caches\8.10.2\transforms\ca0fa9686be4224a564c6ee600d1b61f\transformed\paging-compose-release\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.paging:paging-common-android:3.3.2] C:\Users\HP\.gradle\caches\8.10.2\transforms\11cdeb71c0df6b4eb715f61311f17bec\transformed\paging-common-release\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.paging:paging-runtime:3.3.2] C:\Users\HP\.gradle\caches\8.10.2\transforms\e2645b593540b860aa29e5b78d2a945d\transformed\paging-runtime-3.3.2\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\HP\.gradle\caches\8.10.2\transforms\d1f28cfadb0220a7307dca370388738e\transformed\constraintlayout-2.1.4\AndroidManifest.xml:2:1-11:12
-MERGED from [io.coil-kt:coil-compose:2.6.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\44b9235a39474bb8071a1cbdef811336\transformed\coil-compose-2.6.0\AndroidManifest.xml:2:1-7:12
-MERGED from [io.coil-kt:coil-compose-base:2.6.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\112a23cfb5f90d6cf258546a17c6877c\transformed\coil-compose-base-2.6.0\AndroidManifest.xml:2:1-7:12
-MERGED from [io.coil-kt:coil:2.6.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\210de4cc382b3fa4a6be574842d3dd0e\transformed\coil-2.6.0\AndroidManifest.xml:2:1-7:12
-MERGED from [io.coil-kt:coil-base:2.6.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\e3b952649e919ffd55964424d03dbf1a\transformed\coil-base-2.6.0\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.appcompat:appcompat-resources:1.6.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\3eb3bcae10a6348848510c2719a489a4\transformed\appcompat-resources-1.6.1\AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.appcompat:appcompat:1.6.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\546b15a77e420b49f5f290172b0c3fce\transformed\appcompat-1.6.1\AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.fragment:fragment:1.3.6] C:\Users\HP\.gradle\caches\8.10.2\transforms\e35d6a7bfe3e5160b1e67bfe208086c3\transformed\fragment-1.3.6\AndroidManifest.xml:17:1-24:12
-MERGED from [androidx.activity:activity:1.9.2] C:\Users\HP\.gradle\caches\8.10.2\transforms\c09b9323c4d74e327d884e8b217d3f6c\transformed\activity-1.9.2\AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.compose.material3:material3-android:1.3.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\0d325be69e19cea6caac39825fe7ee9e\transformed\material3-release\AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.compose.material:material-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\4aa45595d9b531a528e088a1d2bbe686\transformed\material-release\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.animation:animation-core-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\2e77717671c7b3a73c456d3a938706fc\transformed\animation-core-release\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.material:material-ripple-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\cb8bf4838496149dbfb3bbc1f521e4bf\transformed\material-ripple-release\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.animation:animation-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\305da4bc1658c12d4ba272b64ecc8143\transformed\animation-release\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.foundation:foundation-layout-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\26f5f925ddaa5105796448bfbacf55bb\transformed\foundation-layout-release\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.foundation:foundation-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\c023fb1819519e9954549d7b04302f3a\transformed\foundation-release\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.ui:ui-tooling-data-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\979dda0b0fef88b16df9410d94e25afe\transformed\ui-tooling-data-release\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.ui:ui-unit-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\b41192ccd305e14ad5a01571f5fb5ee8\transformed\ui-unit-release\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.ui:ui-graphics-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\2bce0a8cd0fd16d25433f67fd843281e\transformed\ui-graphics-release\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.ui:ui-geometry-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\9a3991864af595bc97c60d9fc4afd9f1\transformed\ui-geometry-release\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.ui:ui-util-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\adf63a4e0d9f91f03c7feca10369cfa5\transformed\ui-util-release\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.ui:ui-text-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\325b58cb272baa5db5018c4e2c1ad5e9\transformed\ui-text-release\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.ui:ui-tooling-preview-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\1faba6f045c23e59ef58537ca6269b4a\transformed\ui-tooling-preview-release\AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.compose.ui:ui-tooling-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\2f5fbd355608de40e1f57358ee34dcd5\transformed\ui-tooling-release\AndroidManifest.xml:17:1-28:12
-MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\13a263aafb4a89aeb0169a34c0fb322d\transformed\savedstate-ktx-1.2.1\AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.savedstate:savedstate:1.2.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\0724aa48486088d8120f86ae4a1ffc14\transformed\savedstate-1.2.1\AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.recyclerview:recyclerview:1.2.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\19933b39f8b0a623711ffc5feeffa244\transformed\recyclerview-1.2.1\AndroidManifest.xml:17:1-24:12
-MERGED from [androidx.drawerlayout:drawerlayout:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\3b4bd9c0734d5fb905e9732026ecfe47\transformed\drawerlayout-1.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.viewpager:viewpager:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\4924c10506f5bd8c8f1d02a522cf2983\transformed\viewpager-1.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.customview:customview:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\89c28314d188abf28ac800002c7f3247\transformed\customview-1.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.emoji2:emoji2-views-helper:1.3.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\32362d630576ce0708a963bc921fe682\transformed\emoji2-views-helper-1.3.0\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\905a797346d96e3d65621faf71055a4f\transformed\emoji2-1.3.0\AndroidManifest.xml:17:1-35:12
-MERGED from [androidx.autofill:autofill:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\b5f7c897f7dd201736defa604c84a53e\transformed\autofill-1.0.0\AndroidManifest.xml:17:1-24:12
-MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\c64193002918f210ac6decc127ca52e4\transformed\customview-poolingcontainer-1.0.0\AndroidManifest.xml:17:1-23:12
-MERGED from [androidx.core:core-ktx:1.13.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\544082c731f801108746467835e447de\transformed\core-ktx-1.13.1\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\72b4e3a01e71b6663b06b3fbebc72d7a\transformed\vectordrawable-animated-1.1.0\AndroidManifest.xml:17:1-24:12
-MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\5f08d77aeba66a532c4f4c9d1f472a28\transformed\vectordrawable-1.1.0\AndroidManifest.xml:17:1-24:12
-MERGED from [androidx.graphics:graphics-path:1.0.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\e758fbf766cf0f337bcd698375008432\transformed\graphics-path-1.0.1\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.loader:loader:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\3572bc837ff435c3d1a10238a218120d\transformed\loader-1.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.core:core:1.13.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9ff5bb8584f778d48a71d6accae5b226\transformed\core-1.13.1\AndroidManifest.xml:17:1-30:12
-MERGED from [androidx.lifecycle:lifecycle-runtime-compose-android:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\1e8fe055a79a12a462fc62ed6fab75ba\transformed\lifecycle-runtime-compose-release\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\2923fca1fca8203808d69f5714a12462\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:17:1-35:12
-MERGED from [androidx.lifecycle:lifecycle-runtime-android:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\a12643db57700645d575add36a17c86d\transformed\lifecycle-runtime-release\AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\5f994220cab79a91389885a72593eae2\transformed\lifecycle-livedata-core-2.8.7\AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.lifecycle:lifecycle-runtime-ktx-android:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\50641a8b31712d206a48da26b1179fcf\transformed\lifecycle-runtime-ktx-release\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\b91d21b712a6941ace8b164650c20625\transformed\lifecycle-viewmodel-2.8.7\AndroidManifest.xml:2:1-5:12
-MERGED from [androidx.lifecycle:lifecycle-viewmodel-android:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\b6df28706971e75258c473478d2455de\transformed\lifecycle-viewmodel-release\AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\f87b6f1ca9d8cf452d7654ed56113672\transformed\lifecycle-livedata-core-ktx-2.8.7\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.lifecycle:lifecycle-livedata:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\ef7ec6e5042cf471dc5521adab9f56f9\transformed\lifecycle-livedata-2.8.7\AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\e851bd3e928a45492bca03977bfb3abf\transformed\lifecycle-viewmodel-savedstate-2.8.7\AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\ffd0f7134c2e232cd49e28af44a7d0df\transformed\lifecycle-viewmodel-ktx-2.8.7\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.lifecycle:lifecycle-livedata-ktx:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\ff38978cb31d5b5a8c12bc98c5172d2a\transformed\lifecycle-livedata-ktx-2.8.7\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose-android:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\9c5b07e10f39d211b271ef1681242b7d\transformed\lifecycle-viewmodel-compose-release\AndroidManifest.xml:2:1-7:12
-MERGED from [com.google.accompanist:accompanist-drawablepainter:0.32.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\04b803b731a9bf4a1008dd44b36bd6b4\transformed\accompanist-drawablepainter-0.32.0\AndroidManifest.xml:17:1-23:12
-MERGED from [androidx.compose.material:material-icons-extended-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\1e196d57ea976629b30678360bd44473\transformed\material-icons-extended-release\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.material:material-icons-core-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\1656cd446f8ebfc42450515daff87c08\transformed\material-icons-core-release\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.ui:ui-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\20c9fc79fba025538ad03049924d2bc6\transformed\ui-release\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.activity:activity-ktx:1.9.2] C:\Users\HP\.gradle\caches\8.10.2\transforms\952b24f3cbe5d0191a51eba41f7112f4\transformed\activity-ktx-1.9.2\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.activity:activity-compose:1.9.2] C:\Users\HP\.gradle\caches\8.10.2\transforms\4c5dd32513bfc941b02530bd409b9f93\transformed\activity-compose-1.9.2\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.glance:glance-preview:1.1.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\dffc31a1fdbb4ecae59253059ece581e\transformed\glance-preview-1.1.1\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.room:room-runtime:2.6.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\adc55e8500833a424caacea5277cc5a0\transformed\room-runtime-2.6.1\AndroidManifest.xml:17:1-31:12
-MERGED from [androidx.room:room-ktx:2.6.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\8de667db3319007b43b382616d3b752d\transformed\room-ktx-2.6.1\AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.sqlite:sqlite-framework:2.4.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\696e1b82e265d846e3c0e04d4c5ea8f7\transformed\sqlite-framework-2.4.0\AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.sqlite:sqlite:2.4.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\96e5e3d656e17b926307d553a3281a4a\transformed\sqlite-2.4.0\AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.compose.runtime:runtime-saveable-android:1.7.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\e8737389ee01c1c7a3c89ef9e8feb050\transformed\runtime-saveable-release\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.compose.runtime:runtime-android:1.7.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9087d9b04ab96f2510b50af243811278\transformed\runtime-release\AndroidManifest.xml:2:1-7:12
-MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\4f4adbba042235b58712c82f13b226d9\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:17:1-27:12
-MERGED from [com.github.Dimezis:BlurView:version-2.0.6] C:\Users\HP\.gradle\caches\8.10.2\transforms\20621c95406722db6f0fc99dcf3d1fb8\transformed\BlurView-version-2.0.6\AndroidManifest.xml:2:1-11:12
-MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\1d174f2afa1777e8707f4b256990e260\transformed\core-runtime-2.2.0\AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:17:1-55:12
-MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9c16d6a1c03fe7b21dfb0f7bea1d2659\transformed\startup-runtime-1.1.1\AndroidManifest.xml:17:1-33:12
-MERGED from [androidx.tracing:tracing:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\7b086a4dee3df78417b354f86cfe7b04\transformed\tracing-1.0.0\AndroidManifest.xml:17:1-24:12
-MERGED from [androidx.exifinterface:exifinterface:1.3.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\510ac63ec9bef6568dcecc12d5131ff2\transformed\exifinterface-1.3.7\AndroidManifest.xml:17:1-24:12
-MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\f9ad98f13390b0eb32856dda46c361b1\transformed\interpolator-1.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\3aee694a4fe06ef90d0dbfc847390401\transformed\cursoradapter-1.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [androidx.annotation:annotation-experimental:1.4.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\f60136815ae45e2fe9b873a93f1ed29f\transformed\annotation-experimental-1.4.1\AndroidManifest.xml:2:1-7:12
-MERGED from [com.google.firebase:protolite-well-known-types:18.0.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\df36cbdbdfde10e405cf989576dc5986\transformed\protolite-well-known-types-18.0.1\AndroidManifest.xml:2:1-7:12
+ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:2:1-27:12
+INJECTED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:2:1-27:12
+INJECTED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:2:1-27:12
+INJECTED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:2:1-27:12
+MERGED from [androidx.paging:paging-compose-android:3.3.2] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\c614e93a28da716dcb7274cd44a90d69\transformed\paging-compose-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.paging:paging-common-android:3.3.2] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\689202510748f4ee1d4a9534ec63ee33\transformed\paging-common-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.paging:paging-runtime:3.3.2] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\bf7df94ab4a7a3c1ad9ce54a5794a9c1\transformed\paging-runtime-3.3.2\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\a853b1d93011072a96bf80d8b8ca3bf9\transformed\constraintlayout-2.1.4\AndroidManifest.xml:2:1-11:12
+MERGED from [com.google.mlkit:image-labeling:17.0.9] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\326d3b064c8865f86921f98773cc53af\transformed\image-labeling-17.0.9\AndroidManifest.xml:2:1-17:12
+MERGED from [com.google.mlkit:face-detection:16.1.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\c6ebc142da6493462d25bb9565a3fe4a\transformed\face-detection-16.1.7\AndroidManifest.xml:2:1-8:12
+MERGED from [com.google.mlkit:image-labeling-default-common:17.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\48f2a02d4ec7d6b5a1cce1e02bd4ace6\transformed\image-labeling-default-common-17.0.0\AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.mlkit:image-labeling-common:18.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\bbbfdb6f237dad9ad207b5002962f30e\transformed\image-labeling-common-18.1.0\AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.mlkit:vision-internal-vkp:18.2.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7dfa7bfb568ead56f66780c9a06066db\transformed\vision-internal-vkp-18.2.3\AndroidManifest.xml:2:1-20:12
+MERGED from [com.google.android.gms:play-services-mlkit-face-detection:17.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e5037893474a84e5cefb94a2d79f8ba\transformed\play-services-mlkit-face-detection-17.1.0\AndroidManifest.xml:2:1-18:12
+MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\438407aafb56d024b7e042b22a1cd388\transformed\vision-common-17.3.0\AndroidManifest.xml:2:1-18:12
+MERGED from [com.google.mlkit:common:18.11.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\85ceb1af94a283171d4e4decb21ce143\transformed\common-18.11.0\AndroidManifest.xml:2:1-26:12
+MERGED from [io.coil-kt:coil-compose:2.6.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\ffa9b37cae3fb78b8569350555aed520\transformed\coil-compose-2.6.0\AndroidManifest.xml:2:1-7:12
+MERGED from [io.coil-kt:coil-compose-base:2.6.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\c9dab9799fdde76252a9daa7ffb3f5fb\transformed\coil-compose-base-2.6.0\AndroidManifest.xml:2:1-7:12
+MERGED from [io.coil-kt:coil:2.6.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\63dc4f9dd203727ff6e24d301e97c161\transformed\coil-2.6.0\AndroidManifest.xml:2:1-7:12
+MERGED from [io.coil-kt:coil-base:2.6.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\f1adfb602e4f6a78dc2a0a6ec627ae0c\transformed\coil-base-2.6.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.appcompat:appcompat-resources:1.6.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\fba0d83cdd24b2753bc0650c1ac1ab4a\transformed\appcompat-resources-1.6.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.appcompat:appcompat:1.6.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\f279a97b51ba6a5a7740f22886f18c1f\transformed\appcompat-1.6.1\AndroidManifest.xml:17:1-22:12
+MERGED from [com.google.android.gms:play-services-base:18.5.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\32902463718ba0dfa4d4bd94a54c695a\transformed\play-services-base-18.5.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.room:room-runtime:2.6.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\2defff71f15ca9db6860e76a3a201d44\transformed\room-runtime-2.6.1\AndroidManifest.xml:17:1-31:12
+MERGED from [androidx.room:room-ktx:2.6.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\ddce0db99405efd4eeb959f0ae0f14c8\transformed\room-ktx-2.6.1\AndroidManifest.xml:17:1-22:12
+MERGED from [com.google.accompanist:accompanist-drawablepainter:0.32.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\2a7f2da2be1599ea307d859a9a58e935\transformed\accompanist-drawablepainter-0.32.0\AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.compose.material3:material3-android:1.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\c024d04dcc52e9bd6f473e28741d5194\transformed\material3-release\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.compose.material:material-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\54506959afc543436596fec03cd97b82\transformed\material-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.animation:animation-core-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\f43ba84176b913492d236b6757bc471b\transformed\animation-core-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.material:material-ripple-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\e3aab468d07f2d0f0e1f6274912d1781\transformed\material-ripple-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.animation:animation-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\1e2f7d641b053c6e036c952b9c12f0d4\transformed\animation-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.foundation:foundation-layout-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\317fc1c430bf93a95b401a0c7c8e112d\transformed\foundation-layout-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.foundation:foundation-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\a030f4a910890643b024b68591fe924b\transformed\foundation-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-tooling-data-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7a5b5c633ef90732ba7259270bd07ed6\transformed\ui-tooling-data-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-unit-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7fa96f78015fc78a3ae3204b7029d65c\transformed\ui-unit-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-graphics-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\90d61bccb6887c73425c82d00e0095e7\transformed\ui-graphics-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-geometry-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\e969cae5d9f7f31f79bf53c7b403af0b\transformed\ui-geometry-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-util-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\90c5bba26c9c74f64e63af115eb5d801\transformed\ui-util-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-text-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\9aeda03eef2621e323e3f73ee77cd34a\transformed\ui-text-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-tooling-preview-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\3246bdd3e172cca5586e2c5bd4c87c7f\transformed\ui-tooling-preview-release\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.compose.ui:ui-tooling-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\a7a1361ba31db55751fc683536df0027\transformed\ui-tooling-release\AndroidManifest.xml:17:1-28:12
+MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\c334ad32a41247e4fe69e2e59739a71a\transformed\savedstate-ktx-1.2.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.savedstate:savedstate:1.2.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\d82c95de0ae9814a55af6f6ca8526e7f\transformed\savedstate-1.2.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.recyclerview:recyclerview:1.2.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0c665c7119845bf2259459efb949fe42\transformed\recyclerview-1.2.1\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.drawerlayout:drawerlayout:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\886228a058a52316ba0d163b51a5648f\transformed\drawerlayout-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.viewpager:viewpager:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\cda8b126472f55cf3b3fc6cc71b8b8cf\transformed\viewpager-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.customview:customview:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\3ee0ef0f90def4cad92d60d12a1f76e8\transformed\customview-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.emoji2:emoji2-views-helper:1.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\910ccf9d422e4e15ca87e6ac3d6ed804\transformed\emoji2-views-helper-1.3.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\19c68e87f480bd61fa17874101b72854\transformed\emoji2-1.3.0\AndroidManifest.xml:17:1-35:12
+MERGED from [androidx.autofill:autofill:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\40e762a9366941e9c089a22e443ce66d\transformed\autofill-1.0.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\b77bd033e9d829c6e3c08607deb10c5d\transformed\customview-poolingcontainer-1.0.0\AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.core:core-ktx:1.13.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\c4e7f4942408ad8d55e3ccd069aa35ea\transformed\core-ktx-1.13.1\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\de60139e6625e23cf6851a8448d2abbc\transformed\vectordrawable-animated-1.1.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\97c1ae551ebed26ec0dd06b4b8e856be\transformed\vectordrawable-1.1.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.loader:loader:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\2e53b87c9b2b4da418db35c775435a33\transformed\loader-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.graphics:graphics-path:1.0.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\81da74b539fab8b29ba139369b37b304\transformed\graphics-path-1.0.1\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.core:core:1.13.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e66b3b1b3ab8194d5ec1b56f326eb26\transformed\core-1.13.1\AndroidManifest.xml:17:1-30:12
+MERGED from [androidx.lifecycle:lifecycle-runtime-compose-android:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\bfe40ae8fb75d30881f4b1dcb9a826a4\transformed\lifecycle-runtime-compose-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\d40a7b1d1011a8c7848851f2c9333d9e\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:17:1-35:12
+MERGED from [androidx.lifecycle:lifecycle-runtime-android:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\5e8a593b5adc33fea7ab19aa61c507d8\transformed\lifecycle-runtime-release\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\a800b9a0f5af96bd86e7039070c51498\transformed\lifecycle-livedata-core-2.8.7\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx-android:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\80b48a80f7f4355813899ee67e9822c4\transformed\lifecycle-runtime-ktx-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\679a1db2e3f218f4d7452b024448bcb9\transformed\lifecycle-livedata-core-ktx-2.8.7\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7cb5c530007b7cd7d975c64e8a8b4d4f\transformed\lifecycle-livedata-2.8.7\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\4de93303e527008b53da48cf881199f2\transformed\lifecycle-viewmodel-2.8.7\AndroidManifest.xml:2:1-5:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-android:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\5bcdfd1bf2d996ea33e87928029cf6e2\transformed\lifecycle-viewmodel-release\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.glance:glance-preview:1.1.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\e99795229d818d986d23694acea4baec\transformed\glance-preview-1.1.1\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.runtime:runtime-saveable-android:1.7.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\996944bb88813edecc42a8422e5fe4ec\transformed\runtime-saveable-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.runtime:runtime-android:1.7.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\22cf98d34da66c30aad7a46d0f14a74b\transformed\runtime-release\AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.mlkit:vision-interfaces:16.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\33edb99d9c928eac27c6480019d8632f\transformed\vision-interfaces-16.1.0\AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.android.gms:play-services-tasks:18.2.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\01b676a66df648d5ca9dbd9c62b602ae\transformed\play-services-tasks-18.2.0\AndroidManifest.xml:2:1-5:12
+MERGED from [com.google.android.gms:play-services-basement:18.4.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\dc17ee4cdc1de47fc3ebe8a204d2c735\transformed\play-services-basement-18.4.0\AndroidManifest.xml:2:1-9:12
+MERGED from [androidx.fragment:fragment:1.3.6] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\2f2d05e2a31ecbd6ab8557241730880b\transformed\fragment-1.3.6\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.activity:activity:1.9.2] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\d97708a4227387733b16644b0cef5726\transformed\activity-1.9.2\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0adcac28c56d7662ccf9b3097e49869f\transformed\lifecycle-viewmodel-savedstate-2.8.7\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\b5f65222316d5470461f8ddd7131e91d\transformed\lifecycle-viewmodel-ktx-2.8.7\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-livedata-ktx:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\9ce0b9c18f7f097d41c7a67166344869\transformed\lifecycle-livedata-ktx-2.8.7\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose-android:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\89d0924c3ff530348d60ab1dd845c2f1\transformed\lifecycle-viewmodel-compose-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.material:material-icons-extended-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\9eb66566e3a2fc55071864bb383f3443\transformed\material-icons-extended-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.material:material-icons-core-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\9132d102b611c2cab9c7757e203d7889\transformed\material-icons-core-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\680c5553d3c4cdb514eb640d2a357540\transformed\ui-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.activity:activity-ktx:1.9.2] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\e56e26d40d3587629d978a79822b4860\transformed\activity-ktx-1.9.2\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.activity:activity-compose:1.9.2] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\e178133e30e7ae091eeaf0fb33741b24\transformed\activity-compose-1.9.2\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.sqlite:sqlite-framework:2.4.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\e54a114752f56be2440a11a29053222b\transformed\sqlite-framework-2.4.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.sqlite:sqlite:2.4.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\704b70c583629c152caff79f1f674c80\transformed\sqlite-2.4.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\d468e1054ce29c0e748c87201fcdf9a1\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:17:1-27:12
+MERGED from [com.github.Dimezis:BlurView:version-2.0.6] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\6ef9513e4bcf99b7cbbb67094a799250\transformed\BlurView-version-2.0.6\AndroidManifest.xml:2:1-11:12
+MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7a0c051b5a522cff7a91f416c9f70a9e\transformed\core-runtime-2.2.0\AndroidManifest.xml:17:1-22:12
+MERGED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7c54e0c7475a06f3f8103873ee72b557\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:15:1-38:12
+MERGED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\599b7ee1b7b109fa708819493953f4b3\transformed\transport-runtime-2.2.6\AndroidManifest.xml:15:1-41:12
+MERGED from [com.google.android.datatransport:transport-api:2.2.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\ae3f7212559b901adeca70ff428be618\transformed\transport-api-2.2.1\AndroidManifest.xml:15:1-22:12
+MERGED from [com.google.firebase:firebase-components:16.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\f08164c10dab5b87a1624516d12ef6db\transformed\firebase-components-16.1.0\AndroidManifest.xml:15:1-23:12
+MERGED from [com.google.firebase:firebase-encoders-json:17.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\fa4775c1d4f6d2a6a84aec5f157bf94e\transformed\firebase-encoders-json-17.1.0\AndroidManifest.xml:15:1-23:12
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:17:1-55:12
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\3b0b65988417e7e46f336a4f6b228463\transformed\startup-runtime-1.1.1\AndroidManifest.xml:17:1-33:12
+MERGED from [androidx.tracing:tracing:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\968953a93206fac245c36bcfd0a59eb1\transformed\tracing-1.0.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.exifinterface:exifinterface:1.3.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\831252ed4d3c34457d1346d3d49f0590\transformed\exifinterface-1.3.7\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0bd864be9cacc6a4cad7fc675b912299\transformed\cursoradapter-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0b6567248189bfd5755f7093085ef4c8\transformed\interpolator-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.annotation:annotation-experimental:1.4.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\f25af7a5f97cf2915e4459e8570f6a0a\transformed\annotation-experimental-1.4.1\AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.firebase:protolite-well-known-types:18.0.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\72024991d4f7de4a92bc140cc9990abb\transformed\protolite-well-known-types-18.0.1\AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.android.odml:image:1.0.0-beta1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\b4bae8dc04c626997a4064b905eef803\transformed\image-1.0.0-beta1\AndroidManifest.xml:2:1-9:12
 	package
 		INJECTED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml
 	android:versionName
@@ -96,6 +114,10 @@ MERGED from [com.google.firebase:protolite-well-known-types:18.0.1] C:\Users\HP\
 		ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:3:5-63
 uses-permission#android.permission.INTERNET
 ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:5:5-67
+MERGED from [com.google.mlkit:vision-internal-vkp:18.2.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7dfa7bfb568ead56f66780c9a06066db\transformed\vision-internal-vkp-18.2.3\AndroidManifest.xml:8:5-67
+MERGED from [com.google.mlkit:vision-internal-vkp:18.2.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7dfa7bfb568ead56f66780c9a06066db\transformed\vision-internal-vkp-18.2.3\AndroidManifest.xml:8:5-67
+MERGED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7c54e0c7475a06f3f8103873ee72b557\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:26:5-67
+MERGED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7c54e0c7475a06f3f8103873ee72b557\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:26:5-67
 	android:name
 		ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:5:22-64
 uses-permission#android.permission.READ_MEDIA_IMAGES
@@ -107,329 +129,493 @@ ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.x
 	android:name
 		ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:7:26-81
 application
-ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:9:5-26:19
-INJECTED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:9:5-26:19
-MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\HP\.gradle\caches\8.10.2\transforms\d1f28cfadb0220a7307dca370388738e\transformed\constraintlayout-2.1.4\AndroidManifest.xml:9:5-20
-MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\HP\.gradle\caches\8.10.2\transforms\d1f28cfadb0220a7307dca370388738e\transformed\constraintlayout-2.1.4\AndroidManifest.xml:9:5-20
-MERGED from [androidx.compose.ui:ui-tooling-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\2f5fbd355608de40e1f57358ee34dcd5\transformed\ui-tooling-release\AndroidManifest.xml:22:5-26:19
-MERGED from [androidx.compose.ui:ui-tooling-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\2f5fbd355608de40e1f57358ee34dcd5\transformed\ui-tooling-release\AndroidManifest.xml:22:5-26:19
-MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\905a797346d96e3d65621faf71055a4f\transformed\emoji2-1.3.0\AndroidManifest.xml:23:5-33:19
-MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\905a797346d96e3d65621faf71055a4f\transformed\emoji2-1.3.0\AndroidManifest.xml:23:5-33:19
-MERGED from [androidx.core:core:1.13.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9ff5bb8584f778d48a71d6accae5b226\transformed\core-1.13.1\AndroidManifest.xml:28:5-89
-MERGED from [androidx.core:core:1.13.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9ff5bb8584f778d48a71d6accae5b226\transformed\core-1.13.1\AndroidManifest.xml:28:5-89
-MERGED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\2923fca1fca8203808d69f5714a12462\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:23:5-33:19
-MERGED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\2923fca1fca8203808d69f5714a12462\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:23:5-33:19
-MERGED from [androidx.room:room-runtime:2.6.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\adc55e8500833a424caacea5277cc5a0\transformed\room-runtime-2.6.1\AndroidManifest.xml:23:5-29:19
-MERGED from [androidx.room:room-runtime:2.6.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\adc55e8500833a424caacea5277cc5a0\transformed\room-runtime-2.6.1\AndroidManifest.xml:23:5-29:19
-MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\4f4adbba042235b58712c82f13b226d9\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:24:5-25:19
-MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\4f4adbba042235b58712c82f13b226d9\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:24:5-25:19
-MERGED from [com.github.Dimezis:BlurView:version-2.0.6] C:\Users\HP\.gradle\caches\8.10.2\transforms\20621c95406722db6f0fc99dcf3d1fb8\transformed\BlurView-version-2.0.6\AndroidManifest.xml:9:5-20
-MERGED from [com.github.Dimezis:BlurView:version-2.0.6] C:\Users\HP\.gradle\caches\8.10.2\transforms\20621c95406722db6f0fc99dcf3d1fb8\transformed\BlurView-version-2.0.6\AndroidManifest.xml:9:5-20
-MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:23:5-53:19
-MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:23:5-53:19
-MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9c16d6a1c03fe7b21dfb0f7bea1d2659\transformed\startup-runtime-1.1.1\AndroidManifest.xml:25:5-31:19
-MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9c16d6a1c03fe7b21dfb0f7bea1d2659\transformed\startup-runtime-1.1.1\AndroidManifest.xml:25:5-31:19
+ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:9:5-25:19
+INJECTED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:9:5-25:19
+MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\a853b1d93011072a96bf80d8b8ca3bf9\transformed\constraintlayout-2.1.4\AndroidManifest.xml:9:5-20
+MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\a853b1d93011072a96bf80d8b8ca3bf9\transformed\constraintlayout-2.1.4\AndroidManifest.xml:9:5-20
+MERGED from [com.google.mlkit:image-labeling:17.0.9] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\326d3b064c8865f86921f98773cc53af\transformed\image-labeling-17.0.9\AndroidManifest.xml:7:5-15:19
+MERGED from [com.google.mlkit:image-labeling:17.0.9] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\326d3b064c8865f86921f98773cc53af\transformed\image-labeling-17.0.9\AndroidManifest.xml:7:5-15:19
+MERGED from [com.google.mlkit:vision-internal-vkp:18.2.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7dfa7bfb568ead56f66780c9a06066db\transformed\vision-internal-vkp-18.2.3\AndroidManifest.xml:10:5-18:19
+MERGED from [com.google.mlkit:vision-internal-vkp:18.2.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7dfa7bfb568ead56f66780c9a06066db\transformed\vision-internal-vkp-18.2.3\AndroidManifest.xml:10:5-18:19
+MERGED from [com.google.android.gms:play-services-mlkit-face-detection:17.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e5037893474a84e5cefb94a2d79f8ba\transformed\play-services-mlkit-face-detection-17.1.0\AndroidManifest.xml:8:5-16:19
+MERGED from [com.google.android.gms:play-services-mlkit-face-detection:17.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e5037893474a84e5cefb94a2d79f8ba\transformed\play-services-mlkit-face-detection-17.1.0\AndroidManifest.xml:8:5-16:19
+MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\438407aafb56d024b7e042b22a1cd388\transformed\vision-common-17.3.0\AndroidManifest.xml:8:5-16:19
+MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\438407aafb56d024b7e042b22a1cd388\transformed\vision-common-17.3.0\AndroidManifest.xml:8:5-16:19
+MERGED from [com.google.mlkit:common:18.11.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\85ceb1af94a283171d4e4decb21ce143\transformed\common-18.11.0\AndroidManifest.xml:8:5-24:19
+MERGED from [com.google.mlkit:common:18.11.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\85ceb1af94a283171d4e4decb21ce143\transformed\common-18.11.0\AndroidManifest.xml:8:5-24:19
+MERGED from [com.google.android.gms:play-services-base:18.5.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\32902463718ba0dfa4d4bd94a54c695a\transformed\play-services-base-18.5.0\AndroidManifest.xml:4:5-6:19
+MERGED from [com.google.android.gms:play-services-base:18.5.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\32902463718ba0dfa4d4bd94a54c695a\transformed\play-services-base-18.5.0\AndroidManifest.xml:4:5-6:19
+MERGED from [androidx.room:room-runtime:2.6.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\2defff71f15ca9db6860e76a3a201d44\transformed\room-runtime-2.6.1\AndroidManifest.xml:23:5-29:19
+MERGED from [androidx.room:room-runtime:2.6.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\2defff71f15ca9db6860e76a3a201d44\transformed\room-runtime-2.6.1\AndroidManifest.xml:23:5-29:19
+MERGED from [androidx.compose.ui:ui-tooling-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\a7a1361ba31db55751fc683536df0027\transformed\ui-tooling-release\AndroidManifest.xml:22:5-26:19
+MERGED from [androidx.compose.ui:ui-tooling-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\a7a1361ba31db55751fc683536df0027\transformed\ui-tooling-release\AndroidManifest.xml:22:5-26:19
+MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\19c68e87f480bd61fa17874101b72854\transformed\emoji2-1.3.0\AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\19c68e87f480bd61fa17874101b72854\transformed\emoji2-1.3.0\AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.core:core:1.13.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e66b3b1b3ab8194d5ec1b56f326eb26\transformed\core-1.13.1\AndroidManifest.xml:28:5-89
+MERGED from [androidx.core:core:1.13.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e66b3b1b3ab8194d5ec1b56f326eb26\transformed\core-1.13.1\AndroidManifest.xml:28:5-89
+MERGED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\d40a7b1d1011a8c7848851f2c9333d9e\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\d40a7b1d1011a8c7848851f2c9333d9e\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:23:5-33:19
+MERGED from [com.google.android.gms:play-services-tasks:18.2.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\01b676a66df648d5ca9dbd9c62b602ae\transformed\play-services-tasks-18.2.0\AndroidManifest.xml:4:5-20
+MERGED from [com.google.android.gms:play-services-tasks:18.2.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\01b676a66df648d5ca9dbd9c62b602ae\transformed\play-services-tasks-18.2.0\AndroidManifest.xml:4:5-20
+MERGED from [com.google.android.gms:play-services-basement:18.4.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\dc17ee4cdc1de47fc3ebe8a204d2c735\transformed\play-services-basement-18.4.0\AndroidManifest.xml:5:5-7:19
+MERGED from [com.google.android.gms:play-services-basement:18.4.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\dc17ee4cdc1de47fc3ebe8a204d2c735\transformed\play-services-basement-18.4.0\AndroidManifest.xml:5:5-7:19
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\d468e1054ce29c0e748c87201fcdf9a1\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:24:5-25:19
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\d468e1054ce29c0e748c87201fcdf9a1\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:24:5-25:19
+MERGED from [com.github.Dimezis:BlurView:version-2.0.6] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\6ef9513e4bcf99b7cbbb67094a799250\transformed\BlurView-version-2.0.6\AndroidManifest.xml:9:5-20
+MERGED from [com.github.Dimezis:BlurView:version-2.0.6] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\6ef9513e4bcf99b7cbbb67094a799250\transformed\BlurView-version-2.0.6\AndroidManifest.xml:9:5-20
+MERGED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7c54e0c7475a06f3f8103873ee72b557\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:28:5-36:19
+MERGED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7c54e0c7475a06f3f8103873ee72b557\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:28:5-36:19
+MERGED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\599b7ee1b7b109fa708819493953f4b3\transformed\transport-runtime-2.2.6\AndroidManifest.xml:25:5-39:19
+MERGED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\599b7ee1b7b109fa708819493953f4b3\transformed\transport-runtime-2.2.6\AndroidManifest.xml:25:5-39:19
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:23:5-53:19
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:23:5-53:19
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\3b0b65988417e7e46f336a4f6b228463\transformed\startup-runtime-1.1.1\AndroidManifest.xml:25:5-31:19
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\3b0b65988417e7e46f336a4f6b228463\transformed\startup-runtime-1.1.1\AndroidManifest.xml:25:5-31:19
+MERGED from [com.google.android.odml:image:1.0.0-beta1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\b4bae8dc04c626997a4064b905eef803\transformed\image-1.0.0-beta1\AndroidManifest.xml:7:5-20
+MERGED from [com.google.android.odml:image:1.0.0-beta1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\b4bae8dc04c626997a4064b905eef803\transformed\image-1.0.0-beta1\AndroidManifest.xml:7:5-20
 	android:extractNativeLibs
 		INJECTED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml
 	android:appComponentFactory
-		ADDED from [androidx.core:core:1.13.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9ff5bb8584f778d48a71d6accae5b226\transformed\core-1.13.1\AndroidManifest.xml:28:18-86
+		ADDED from [androidx.core:core:1.13.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e66b3b1b3ab8194d5ec1b56f326eb26\transformed\core-1.13.1\AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:13:9-35
+		ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:12:9-35
 	android:label
-		ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:12:9-38
+		ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:11:9-38
 	android:icon
-		ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:11:9-58
-	android:allowBackup
-		ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:10:9-35
+		ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:10:9-58
 	android:theme
-		ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:14:9-51
+		ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:13:9-51
 activity#com.memorycurator.app.MainActivity
-ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:16:9-25:20
+ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:15:9-24:20
 	android:exported
-		ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:18:13-36
+		ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:17:13-36
 	android:name
-		ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:17:13-41
+		ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:16:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:20:13-23:29
+ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:19:13-22:29
 action#android.intent.action.MAIN
-ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:21:17-69
+ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:20:17-69
 	android:name
-		ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:21:25-66
+		ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:20:25-66
 category#android.intent.category.LAUNCHER
-ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:22:17-77
+ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:21:17-77
 	android:name
-		ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:22:27-74
+		ADDED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml:21:27-74
 uses-sdk
 INJECTED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml
 INJECTED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml
-MERGED from [androidx.paging:paging-compose-android:3.3.2] C:\Users\HP\.gradle\caches\8.10.2\transforms\ca0fa9686be4224a564c6ee600d1b61f\transformed\paging-compose-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.paging:paging-compose-android:3.3.2] C:\Users\HP\.gradle\caches\8.10.2\transforms\ca0fa9686be4224a564c6ee600d1b61f\transformed\paging-compose-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.paging:paging-common-android:3.3.2] C:\Users\HP\.gradle\caches\8.10.2\transforms\11cdeb71c0df6b4eb715f61311f17bec\transformed\paging-common-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.paging:paging-common-android:3.3.2] C:\Users\HP\.gradle\caches\8.10.2\transforms\11cdeb71c0df6b4eb715f61311f17bec\transformed\paging-common-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.paging:paging-runtime:3.3.2] C:\Users\HP\.gradle\caches\8.10.2\transforms\e2645b593540b860aa29e5b78d2a945d\transformed\paging-runtime-3.3.2\AndroidManifest.xml:5:5-44
-MERGED from [androidx.paging:paging-runtime:3.3.2] C:\Users\HP\.gradle\caches\8.10.2\transforms\e2645b593540b860aa29e5b78d2a945d\transformed\paging-runtime-3.3.2\AndroidManifest.xml:5:5-44
-MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\HP\.gradle\caches\8.10.2\transforms\d1f28cfadb0220a7307dca370388738e\transformed\constraintlayout-2.1.4\AndroidManifest.xml:5:5-7:41
-MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\HP\.gradle\caches\8.10.2\transforms\d1f28cfadb0220a7307dca370388738e\transformed\constraintlayout-2.1.4\AndroidManifest.xml:5:5-7:41
-MERGED from [io.coil-kt:coil-compose:2.6.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\44b9235a39474bb8071a1cbdef811336\transformed\coil-compose-2.6.0\AndroidManifest.xml:5:5-44
-MERGED from [io.coil-kt:coil-compose:2.6.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\44b9235a39474bb8071a1cbdef811336\transformed\coil-compose-2.6.0\AndroidManifest.xml:5:5-44
-MERGED from [io.coil-kt:coil-compose-base:2.6.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\112a23cfb5f90d6cf258546a17c6877c\transformed\coil-compose-base-2.6.0\AndroidManifest.xml:5:5-44
-MERGED from [io.coil-kt:coil-compose-base:2.6.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\112a23cfb5f90d6cf258546a17c6877c\transformed\coil-compose-base-2.6.0\AndroidManifest.xml:5:5-44
-MERGED from [io.coil-kt:coil:2.6.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\210de4cc382b3fa4a6be574842d3dd0e\transformed\coil-2.6.0\AndroidManifest.xml:5:5-44
-MERGED from [io.coil-kt:coil:2.6.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\210de4cc382b3fa4a6be574842d3dd0e\transformed\coil-2.6.0\AndroidManifest.xml:5:5-44
-MERGED from [io.coil-kt:coil-base:2.6.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\e3b952649e919ffd55964424d03dbf1a\transformed\coil-base-2.6.0\AndroidManifest.xml:5:5-44
-MERGED from [io.coil-kt:coil-base:2.6.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\e3b952649e919ffd55964424d03dbf1a\transformed\coil-base-2.6.0\AndroidManifest.xml:5:5-44
-MERGED from [androidx.appcompat:appcompat-resources:1.6.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\3eb3bcae10a6348848510c2719a489a4\transformed\appcompat-resources-1.6.1\AndroidManifest.xml:20:5-44
-MERGED from [androidx.appcompat:appcompat-resources:1.6.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\3eb3bcae10a6348848510c2719a489a4\transformed\appcompat-resources-1.6.1\AndroidManifest.xml:20:5-44
-MERGED from [androidx.appcompat:appcompat:1.6.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\546b15a77e420b49f5f290172b0c3fce\transformed\appcompat-1.6.1\AndroidManifest.xml:20:5-44
-MERGED from [androidx.appcompat:appcompat:1.6.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\546b15a77e420b49f5f290172b0c3fce\transformed\appcompat-1.6.1\AndroidManifest.xml:20:5-44
-MERGED from [androidx.fragment:fragment:1.3.6] C:\Users\HP\.gradle\caches\8.10.2\transforms\e35d6a7bfe3e5160b1e67bfe208086c3\transformed\fragment-1.3.6\AndroidManifest.xml:20:5-22:41
-MERGED from [androidx.fragment:fragment:1.3.6] C:\Users\HP\.gradle\caches\8.10.2\transforms\e35d6a7bfe3e5160b1e67bfe208086c3\transformed\fragment-1.3.6\AndroidManifest.xml:20:5-22:41
-MERGED from [androidx.activity:activity:1.9.2] C:\Users\HP\.gradle\caches\8.10.2\transforms\c09b9323c4d74e327d884e8b217d3f6c\transformed\activity-1.9.2\AndroidManifest.xml:20:5-44
-MERGED from [androidx.activity:activity:1.9.2] C:\Users\HP\.gradle\caches\8.10.2\transforms\c09b9323c4d74e327d884e8b217d3f6c\transformed\activity-1.9.2\AndroidManifest.xml:20:5-44
-MERGED from [androidx.compose.material3:material3-android:1.3.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\0d325be69e19cea6caac39825fe7ee9e\transformed\material3-release\AndroidManifest.xml:20:5-44
-MERGED from [androidx.compose.material3:material3-android:1.3.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\0d325be69e19cea6caac39825fe7ee9e\transformed\material3-release\AndroidManifest.xml:20:5-44
-MERGED from [androidx.compose.material:material-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\4aa45595d9b531a528e088a1d2bbe686\transformed\material-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.material:material-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\4aa45595d9b531a528e088a1d2bbe686\transformed\material-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.animation:animation-core-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\2e77717671c7b3a73c456d3a938706fc\transformed\animation-core-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.animation:animation-core-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\2e77717671c7b3a73c456d3a938706fc\transformed\animation-core-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.material:material-ripple-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\cb8bf4838496149dbfb3bbc1f521e4bf\transformed\material-ripple-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.material:material-ripple-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\cb8bf4838496149dbfb3bbc1f521e4bf\transformed\material-ripple-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.animation:animation-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\305da4bc1658c12d4ba272b64ecc8143\transformed\animation-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.animation:animation-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\305da4bc1658c12d4ba272b64ecc8143\transformed\animation-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.foundation:foundation-layout-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\26f5f925ddaa5105796448bfbacf55bb\transformed\foundation-layout-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.foundation:foundation-layout-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\26f5f925ddaa5105796448bfbacf55bb\transformed\foundation-layout-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.foundation:foundation-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\c023fb1819519e9954549d7b04302f3a\transformed\foundation-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.foundation:foundation-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\c023fb1819519e9954549d7b04302f3a\transformed\foundation-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-tooling-data-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\979dda0b0fef88b16df9410d94e25afe\transformed\ui-tooling-data-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-tooling-data-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\979dda0b0fef88b16df9410d94e25afe\transformed\ui-tooling-data-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-unit-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\b41192ccd305e14ad5a01571f5fb5ee8\transformed\ui-unit-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-unit-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\b41192ccd305e14ad5a01571f5fb5ee8\transformed\ui-unit-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-graphics-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\2bce0a8cd0fd16d25433f67fd843281e\transformed\ui-graphics-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-graphics-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\2bce0a8cd0fd16d25433f67fd843281e\transformed\ui-graphics-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-geometry-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\9a3991864af595bc97c60d9fc4afd9f1\transformed\ui-geometry-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-geometry-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\9a3991864af595bc97c60d9fc4afd9f1\transformed\ui-geometry-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-util-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\adf63a4e0d9f91f03c7feca10369cfa5\transformed\ui-util-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-util-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\adf63a4e0d9f91f03c7feca10369cfa5\transformed\ui-util-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-text-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\325b58cb272baa5db5018c4e2c1ad5e9\transformed\ui-text-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-text-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\325b58cb272baa5db5018c4e2c1ad5e9\transformed\ui-text-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-tooling-preview-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\1faba6f045c23e59ef58537ca6269b4a\transformed\ui-tooling-preview-release\AndroidManifest.xml:20:5-44
-MERGED from [androidx.compose.ui:ui-tooling-preview-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\1faba6f045c23e59ef58537ca6269b4a\transformed\ui-tooling-preview-release\AndroidManifest.xml:20:5-44
-MERGED from [androidx.compose.ui:ui-tooling-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\2f5fbd355608de40e1f57358ee34dcd5\transformed\ui-tooling-release\AndroidManifest.xml:20:5-44
-MERGED from [androidx.compose.ui:ui-tooling-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\2f5fbd355608de40e1f57358ee34dcd5\transformed\ui-tooling-release\AndroidManifest.xml:20:5-44
-MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\13a263aafb4a89aeb0169a34c0fb322d\transformed\savedstate-ktx-1.2.1\AndroidManifest.xml:20:5-44
-MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\13a263aafb4a89aeb0169a34c0fb322d\transformed\savedstate-ktx-1.2.1\AndroidManifest.xml:20:5-44
-MERGED from [androidx.savedstate:savedstate:1.2.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\0724aa48486088d8120f86ae4a1ffc14\transformed\savedstate-1.2.1\AndroidManifest.xml:20:5-44
-MERGED from [androidx.savedstate:savedstate:1.2.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\0724aa48486088d8120f86ae4a1ffc14\transformed\savedstate-1.2.1\AndroidManifest.xml:20:5-44
-MERGED from [androidx.recyclerview:recyclerview:1.2.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\19933b39f8b0a623711ffc5feeffa244\transformed\recyclerview-1.2.1\AndroidManifest.xml:20:5-22:41
-MERGED from [androidx.recyclerview:recyclerview:1.2.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\19933b39f8b0a623711ffc5feeffa244\transformed\recyclerview-1.2.1\AndroidManifest.xml:20:5-22:41
-MERGED from [androidx.drawerlayout:drawerlayout:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\3b4bd9c0734d5fb905e9732026ecfe47\transformed\drawerlayout-1.0.0\AndroidManifest.xml:20:5-44
-MERGED from [androidx.drawerlayout:drawerlayout:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\3b4bd9c0734d5fb905e9732026ecfe47\transformed\drawerlayout-1.0.0\AndroidManifest.xml:20:5-44
-MERGED from [androidx.viewpager:viewpager:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\4924c10506f5bd8c8f1d02a522cf2983\transformed\viewpager-1.0.0\AndroidManifest.xml:20:5-44
-MERGED from [androidx.viewpager:viewpager:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\4924c10506f5bd8c8f1d02a522cf2983\transformed\viewpager-1.0.0\AndroidManifest.xml:20:5-44
-MERGED from [androidx.customview:customview:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\89c28314d188abf28ac800002c7f3247\transformed\customview-1.0.0\AndroidManifest.xml:20:5-44
-MERGED from [androidx.customview:customview:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\89c28314d188abf28ac800002c7f3247\transformed\customview-1.0.0\AndroidManifest.xml:20:5-44
-MERGED from [androidx.emoji2:emoji2-views-helper:1.3.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\32362d630576ce0708a963bc921fe682\transformed\emoji2-views-helper-1.3.0\AndroidManifest.xml:5:5-44
-MERGED from [androidx.emoji2:emoji2-views-helper:1.3.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\32362d630576ce0708a963bc921fe682\transformed\emoji2-views-helper-1.3.0\AndroidManifest.xml:5:5-44
-MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\905a797346d96e3d65621faf71055a4f\transformed\emoji2-1.3.0\AndroidManifest.xml:21:5-44
-MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\905a797346d96e3d65621faf71055a4f\transformed\emoji2-1.3.0\AndroidManifest.xml:21:5-44
-MERGED from [androidx.autofill:autofill:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\b5f7c897f7dd201736defa604c84a53e\transformed\autofill-1.0.0\AndroidManifest.xml:20:5-22:41
-MERGED from [androidx.autofill:autofill:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\b5f7c897f7dd201736defa604c84a53e\transformed\autofill-1.0.0\AndroidManifest.xml:20:5-22:41
-MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\c64193002918f210ac6decc127ca52e4\transformed\customview-poolingcontainer-1.0.0\AndroidManifest.xml:20:5-21:38
-MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\c64193002918f210ac6decc127ca52e4\transformed\customview-poolingcontainer-1.0.0\AndroidManifest.xml:20:5-21:38
-MERGED from [androidx.core:core-ktx:1.13.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\544082c731f801108746467835e447de\transformed\core-ktx-1.13.1\AndroidManifest.xml:5:5-44
-MERGED from [androidx.core:core-ktx:1.13.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\544082c731f801108746467835e447de\transformed\core-ktx-1.13.1\AndroidManifest.xml:5:5-44
-MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\72b4e3a01e71b6663b06b3fbebc72d7a\transformed\vectordrawable-animated-1.1.0\AndroidManifest.xml:20:5-22:41
-MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\72b4e3a01e71b6663b06b3fbebc72d7a\transformed\vectordrawable-animated-1.1.0\AndroidManifest.xml:20:5-22:41
-MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\5f08d77aeba66a532c4f4c9d1f472a28\transformed\vectordrawable-1.1.0\AndroidManifest.xml:20:5-22:41
-MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\5f08d77aeba66a532c4f4c9d1f472a28\transformed\vectordrawable-1.1.0\AndroidManifest.xml:20:5-22:41
-MERGED from [androidx.graphics:graphics-path:1.0.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\e758fbf766cf0f337bcd698375008432\transformed\graphics-path-1.0.1\AndroidManifest.xml:5:5-44
-MERGED from [androidx.graphics:graphics-path:1.0.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\e758fbf766cf0f337bcd698375008432\transformed\graphics-path-1.0.1\AndroidManifest.xml:5:5-44
-MERGED from [androidx.loader:loader:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\3572bc837ff435c3d1a10238a218120d\transformed\loader-1.0.0\AndroidManifest.xml:20:5-44
-MERGED from [androidx.loader:loader:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\3572bc837ff435c3d1a10238a218120d\transformed\loader-1.0.0\AndroidManifest.xml:20:5-44
-MERGED from [androidx.core:core:1.13.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9ff5bb8584f778d48a71d6accae5b226\transformed\core-1.13.1\AndroidManifest.xml:20:5-44
-MERGED from [androidx.core:core:1.13.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9ff5bb8584f778d48a71d6accae5b226\transformed\core-1.13.1\AndroidManifest.xml:20:5-44
-MERGED from [androidx.lifecycle:lifecycle-runtime-compose-android:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\1e8fe055a79a12a462fc62ed6fab75ba\transformed\lifecycle-runtime-compose-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.lifecycle:lifecycle-runtime-compose-android:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\1e8fe055a79a12a462fc62ed6fab75ba\transformed\lifecycle-runtime-compose-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\2923fca1fca8203808d69f5714a12462\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:21:5-44
-MERGED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\2923fca1fca8203808d69f5714a12462\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:21:5-44
-MERGED from [androidx.lifecycle:lifecycle-runtime-android:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\a12643db57700645d575add36a17c86d\transformed\lifecycle-runtime-release\AndroidManifest.xml:20:5-44
-MERGED from [androidx.lifecycle:lifecycle-runtime-android:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\a12643db57700645d575add36a17c86d\transformed\lifecycle-runtime-release\AndroidManifest.xml:20:5-44
-MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\5f994220cab79a91389885a72593eae2\transformed\lifecycle-livedata-core-2.8.7\AndroidManifest.xml:20:5-44
-MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\5f994220cab79a91389885a72593eae2\transformed\lifecycle-livedata-core-2.8.7\AndroidManifest.xml:20:5-44
-MERGED from [androidx.lifecycle:lifecycle-runtime-ktx-android:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\50641a8b31712d206a48da26b1179fcf\transformed\lifecycle-runtime-ktx-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.lifecycle:lifecycle-runtime-ktx-android:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\50641a8b31712d206a48da26b1179fcf\transformed\lifecycle-runtime-ktx-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\b91d21b712a6941ace8b164650c20625\transformed\lifecycle-viewmodel-2.8.7\AndroidManifest.xml:4:5-43
-MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\b91d21b712a6941ace8b164650c20625\transformed\lifecycle-viewmodel-2.8.7\AndroidManifest.xml:4:5-43
-MERGED from [androidx.lifecycle:lifecycle-viewmodel-android:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\b6df28706971e75258c473478d2455de\transformed\lifecycle-viewmodel-release\AndroidManifest.xml:20:5-44
-MERGED from [androidx.lifecycle:lifecycle-viewmodel-android:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\b6df28706971e75258c473478d2455de\transformed\lifecycle-viewmodel-release\AndroidManifest.xml:20:5-44
-MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\f87b6f1ca9d8cf452d7654ed56113672\transformed\lifecycle-livedata-core-ktx-2.8.7\AndroidManifest.xml:5:5-44
-MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\f87b6f1ca9d8cf452d7654ed56113672\transformed\lifecycle-livedata-core-ktx-2.8.7\AndroidManifest.xml:5:5-44
-MERGED from [androidx.lifecycle:lifecycle-livedata:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\ef7ec6e5042cf471dc5521adab9f56f9\transformed\lifecycle-livedata-2.8.7\AndroidManifest.xml:20:5-44
-MERGED from [androidx.lifecycle:lifecycle-livedata:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\ef7ec6e5042cf471dc5521adab9f56f9\transformed\lifecycle-livedata-2.8.7\AndroidManifest.xml:20:5-44
-MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\e851bd3e928a45492bca03977bfb3abf\transformed\lifecycle-viewmodel-savedstate-2.8.7\AndroidManifest.xml:20:5-44
-MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\e851bd3e928a45492bca03977bfb3abf\transformed\lifecycle-viewmodel-savedstate-2.8.7\AndroidManifest.xml:20:5-44
-MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\ffd0f7134c2e232cd49e28af44a7d0df\transformed\lifecycle-viewmodel-ktx-2.8.7\AndroidManifest.xml:5:5-44
-MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\ffd0f7134c2e232cd49e28af44a7d0df\transformed\lifecycle-viewmodel-ktx-2.8.7\AndroidManifest.xml:5:5-44
-MERGED from [androidx.lifecycle:lifecycle-livedata-ktx:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\ff38978cb31d5b5a8c12bc98c5172d2a\transformed\lifecycle-livedata-ktx-2.8.7\AndroidManifest.xml:5:5-44
-MERGED from [androidx.lifecycle:lifecycle-livedata-ktx:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\ff38978cb31d5b5a8c12bc98c5172d2a\transformed\lifecycle-livedata-ktx-2.8.7\AndroidManifest.xml:5:5-44
-MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose-android:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\9c5b07e10f39d211b271ef1681242b7d\transformed\lifecycle-viewmodel-compose-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose-android:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\9c5b07e10f39d211b271ef1681242b7d\transformed\lifecycle-viewmodel-compose-release\AndroidManifest.xml:5:5-44
-MERGED from [com.google.accompanist:accompanist-drawablepainter:0.32.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\04b803b731a9bf4a1008dd44b36bd6b4\transformed\accompanist-drawablepainter-0.32.0\AndroidManifest.xml:21:5-44
-MERGED from [com.google.accompanist:accompanist-drawablepainter:0.32.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\04b803b731a9bf4a1008dd44b36bd6b4\transformed\accompanist-drawablepainter-0.32.0\AndroidManifest.xml:21:5-44
-MERGED from [androidx.compose.material:material-icons-extended-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\1e196d57ea976629b30678360bd44473\transformed\material-icons-extended-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.material:material-icons-extended-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\1e196d57ea976629b30678360bd44473\transformed\material-icons-extended-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.material:material-icons-core-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\1656cd446f8ebfc42450515daff87c08\transformed\material-icons-core-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.material:material-icons-core-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\1656cd446f8ebfc42450515daff87c08\transformed\material-icons-core-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\20c9fc79fba025538ad03049924d2bc6\transformed\ui-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.ui:ui-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\20c9fc79fba025538ad03049924d2bc6\transformed\ui-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.activity:activity-ktx:1.9.2] C:\Users\HP\.gradle\caches\8.10.2\transforms\952b24f3cbe5d0191a51eba41f7112f4\transformed\activity-ktx-1.9.2\AndroidManifest.xml:5:5-44
-MERGED from [androidx.activity:activity-ktx:1.9.2] C:\Users\HP\.gradle\caches\8.10.2\transforms\952b24f3cbe5d0191a51eba41f7112f4\transformed\activity-ktx-1.9.2\AndroidManifest.xml:5:5-44
-MERGED from [androidx.activity:activity-compose:1.9.2] C:\Users\HP\.gradle\caches\8.10.2\transforms\4c5dd32513bfc941b02530bd409b9f93\transformed\activity-compose-1.9.2\AndroidManifest.xml:5:5-44
-MERGED from [androidx.activity:activity-compose:1.9.2] C:\Users\HP\.gradle\caches\8.10.2\transforms\4c5dd32513bfc941b02530bd409b9f93\transformed\activity-compose-1.9.2\AndroidManifest.xml:5:5-44
-MERGED from [androidx.glance:glance-preview:1.1.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\dffc31a1fdbb4ecae59253059ece581e\transformed\glance-preview-1.1.1\AndroidManifest.xml:5:5-44
-MERGED from [androidx.glance:glance-preview:1.1.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\dffc31a1fdbb4ecae59253059ece581e\transformed\glance-preview-1.1.1\AndroidManifest.xml:5:5-44
-MERGED from [androidx.room:room-runtime:2.6.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\adc55e8500833a424caacea5277cc5a0\transformed\room-runtime-2.6.1\AndroidManifest.xml:21:5-44
-MERGED from [androidx.room:room-runtime:2.6.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\adc55e8500833a424caacea5277cc5a0\transformed\room-runtime-2.6.1\AndroidManifest.xml:21:5-44
-MERGED from [androidx.room:room-ktx:2.6.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\8de667db3319007b43b382616d3b752d\transformed\room-ktx-2.6.1\AndroidManifest.xml:20:5-44
-MERGED from [androidx.room:room-ktx:2.6.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\8de667db3319007b43b382616d3b752d\transformed\room-ktx-2.6.1\AndroidManifest.xml:20:5-44
-MERGED from [androidx.sqlite:sqlite-framework:2.4.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\696e1b82e265d846e3c0e04d4c5ea8f7\transformed\sqlite-framework-2.4.0\AndroidManifest.xml:20:5-44
-MERGED from [androidx.sqlite:sqlite-framework:2.4.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\696e1b82e265d846e3c0e04d4c5ea8f7\transformed\sqlite-framework-2.4.0\AndroidManifest.xml:20:5-44
-MERGED from [androidx.sqlite:sqlite:2.4.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\96e5e3d656e17b926307d553a3281a4a\transformed\sqlite-2.4.0\AndroidManifest.xml:20:5-44
-MERGED from [androidx.sqlite:sqlite:2.4.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\96e5e3d656e17b926307d553a3281a4a\transformed\sqlite-2.4.0\AndroidManifest.xml:20:5-44
-MERGED from [androidx.compose.runtime:runtime-saveable-android:1.7.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\e8737389ee01c1c7a3c89ef9e8feb050\transformed\runtime-saveable-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.runtime:runtime-saveable-android:1.7.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\e8737389ee01c1c7a3c89ef9e8feb050\transformed\runtime-saveable-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.runtime:runtime-android:1.7.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9087d9b04ab96f2510b50af243811278\transformed\runtime-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.compose.runtime:runtime-android:1.7.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9087d9b04ab96f2510b50af243811278\transformed\runtime-release\AndroidManifest.xml:5:5-44
-MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\4f4adbba042235b58712c82f13b226d9\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:20:5-22:41
-MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\4f4adbba042235b58712c82f13b226d9\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:20:5-22:41
-MERGED from [com.github.Dimezis:BlurView:version-2.0.6] C:\Users\HP\.gradle\caches\8.10.2\transforms\20621c95406722db6f0fc99dcf3d1fb8\transformed\BlurView-version-2.0.6\AndroidManifest.xml:5:5-7:41
-MERGED from [com.github.Dimezis:BlurView:version-2.0.6] C:\Users\HP\.gradle\caches\8.10.2\transforms\20621c95406722db6f0fc99dcf3d1fb8\transformed\BlurView-version-2.0.6\AndroidManifest.xml:5:5-7:41
-MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\1d174f2afa1777e8707f4b256990e260\transformed\core-runtime-2.2.0\AndroidManifest.xml:20:5-44
-MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\1d174f2afa1777e8707f4b256990e260\transformed\core-runtime-2.2.0\AndroidManifest.xml:20:5-44
-MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:21:5-44
-MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:21:5-44
-MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9c16d6a1c03fe7b21dfb0f7bea1d2659\transformed\startup-runtime-1.1.1\AndroidManifest.xml:21:5-23:41
-MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9c16d6a1c03fe7b21dfb0f7bea1d2659\transformed\startup-runtime-1.1.1\AndroidManifest.xml:21:5-23:41
-MERGED from [androidx.tracing:tracing:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\7b086a4dee3df78417b354f86cfe7b04\transformed\tracing-1.0.0\AndroidManifest.xml:20:5-22:41
-MERGED from [androidx.tracing:tracing:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\7b086a4dee3df78417b354f86cfe7b04\transformed\tracing-1.0.0\AndroidManifest.xml:20:5-22:41
-MERGED from [androidx.exifinterface:exifinterface:1.3.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\510ac63ec9bef6568dcecc12d5131ff2\transformed\exifinterface-1.3.7\AndroidManifest.xml:20:5-22:41
-MERGED from [androidx.exifinterface:exifinterface:1.3.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\510ac63ec9bef6568dcecc12d5131ff2\transformed\exifinterface-1.3.7\AndroidManifest.xml:20:5-22:41
-MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\f9ad98f13390b0eb32856dda46c361b1\transformed\interpolator-1.0.0\AndroidManifest.xml:20:5-44
-MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\f9ad98f13390b0eb32856dda46c361b1\transformed\interpolator-1.0.0\AndroidManifest.xml:20:5-44
-MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\3aee694a4fe06ef90d0dbfc847390401\transformed\cursoradapter-1.0.0\AndroidManifest.xml:20:5-44
-MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\3aee694a4fe06ef90d0dbfc847390401\transformed\cursoradapter-1.0.0\AndroidManifest.xml:20:5-44
-MERGED from [androidx.annotation:annotation-experimental:1.4.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\f60136815ae45e2fe9b873a93f1ed29f\transformed\annotation-experimental-1.4.1\AndroidManifest.xml:5:5-44
-MERGED from [androidx.annotation:annotation-experimental:1.4.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\f60136815ae45e2fe9b873a93f1ed29f\transformed\annotation-experimental-1.4.1\AndroidManifest.xml:5:5-44
-MERGED from [com.google.firebase:protolite-well-known-types:18.0.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\df36cbdbdfde10e405cf989576dc5986\transformed\protolite-well-known-types-18.0.1\AndroidManifest.xml:5:5-44
-MERGED from [com.google.firebase:protolite-well-known-types:18.0.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\df36cbdbdfde10e405cf989576dc5986\transformed\protolite-well-known-types-18.0.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.paging:paging-compose-android:3.3.2] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\c614e93a28da716dcb7274cd44a90d69\transformed\paging-compose-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.paging:paging-compose-android:3.3.2] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\c614e93a28da716dcb7274cd44a90d69\transformed\paging-compose-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.paging:paging-common-android:3.3.2] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\689202510748f4ee1d4a9534ec63ee33\transformed\paging-common-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.paging:paging-common-android:3.3.2] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\689202510748f4ee1d4a9534ec63ee33\transformed\paging-common-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.paging:paging-runtime:3.3.2] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\bf7df94ab4a7a3c1ad9ce54a5794a9c1\transformed\paging-runtime-3.3.2\AndroidManifest.xml:5:5-44
+MERGED from [androidx.paging:paging-runtime:3.3.2] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\bf7df94ab4a7a3c1ad9ce54a5794a9c1\transformed\paging-runtime-3.3.2\AndroidManifest.xml:5:5-44
+MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\a853b1d93011072a96bf80d8b8ca3bf9\transformed\constraintlayout-2.1.4\AndroidManifest.xml:5:5-7:41
+MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\a853b1d93011072a96bf80d8b8ca3bf9\transformed\constraintlayout-2.1.4\AndroidManifest.xml:5:5-7:41
+MERGED from [com.google.mlkit:image-labeling:17.0.9] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\326d3b064c8865f86921f98773cc53af\transformed\image-labeling-17.0.9\AndroidManifest.xml:5:5-44
+MERGED from [com.google.mlkit:image-labeling:17.0.9] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\326d3b064c8865f86921f98773cc53af\transformed\image-labeling-17.0.9\AndroidManifest.xml:5:5-44
+MERGED from [com.google.mlkit:face-detection:16.1.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\c6ebc142da6493462d25bb9565a3fe4a\transformed\face-detection-16.1.7\AndroidManifest.xml:6:5-44
+MERGED from [com.google.mlkit:face-detection:16.1.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\c6ebc142da6493462d25bb9565a3fe4a\transformed\face-detection-16.1.7\AndroidManifest.xml:6:5-44
+MERGED from [com.google.mlkit:image-labeling-default-common:17.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\48f2a02d4ec7d6b5a1cce1e02bd4ace6\transformed\image-labeling-default-common-17.0.0\AndroidManifest.xml:5:5-44
+MERGED from [com.google.mlkit:image-labeling-default-common:17.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\48f2a02d4ec7d6b5a1cce1e02bd4ace6\transformed\image-labeling-default-common-17.0.0\AndroidManifest.xml:5:5-44
+MERGED from [com.google.mlkit:image-labeling-common:18.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\bbbfdb6f237dad9ad207b5002962f30e\transformed\image-labeling-common-18.1.0\AndroidManifest.xml:5:5-44
+MERGED from [com.google.mlkit:image-labeling-common:18.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\bbbfdb6f237dad9ad207b5002962f30e\transformed\image-labeling-common-18.1.0\AndroidManifest.xml:5:5-44
+MERGED from [com.google.mlkit:vision-internal-vkp:18.2.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7dfa7bfb568ead56f66780c9a06066db\transformed\vision-internal-vkp-18.2.3\AndroidManifest.xml:5:5-44
+MERGED from [com.google.mlkit:vision-internal-vkp:18.2.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7dfa7bfb568ead56f66780c9a06066db\transformed\vision-internal-vkp-18.2.3\AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-mlkit-face-detection:17.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e5037893474a84e5cefb94a2d79f8ba\transformed\play-services-mlkit-face-detection-17.1.0\AndroidManifest.xml:6:5-44
+MERGED from [com.google.android.gms:play-services-mlkit-face-detection:17.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e5037893474a84e5cefb94a2d79f8ba\transformed\play-services-mlkit-face-detection-17.1.0\AndroidManifest.xml:6:5-44
+MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\438407aafb56d024b7e042b22a1cd388\transformed\vision-common-17.3.0\AndroidManifest.xml:6:5-44
+MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\438407aafb56d024b7e042b22a1cd388\transformed\vision-common-17.3.0\AndroidManifest.xml:6:5-44
+MERGED from [com.google.mlkit:common:18.11.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\85ceb1af94a283171d4e4decb21ce143\transformed\common-18.11.0\AndroidManifest.xml:6:5-44
+MERGED from [com.google.mlkit:common:18.11.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\85ceb1af94a283171d4e4decb21ce143\transformed\common-18.11.0\AndroidManifest.xml:6:5-44
+MERGED from [io.coil-kt:coil-compose:2.6.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\ffa9b37cae3fb78b8569350555aed520\transformed\coil-compose-2.6.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil-compose:2.6.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\ffa9b37cae3fb78b8569350555aed520\transformed\coil-compose-2.6.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil-compose-base:2.6.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\c9dab9799fdde76252a9daa7ffb3f5fb\transformed\coil-compose-base-2.6.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil-compose-base:2.6.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\c9dab9799fdde76252a9daa7ffb3f5fb\transformed\coil-compose-base-2.6.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil:2.6.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\63dc4f9dd203727ff6e24d301e97c161\transformed\coil-2.6.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil:2.6.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\63dc4f9dd203727ff6e24d301e97c161\transformed\coil-2.6.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil-base:2.6.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\f1adfb602e4f6a78dc2a0a6ec627ae0c\transformed\coil-base-2.6.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil-base:2.6.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\f1adfb602e4f6a78dc2a0a6ec627ae0c\transformed\coil-base-2.6.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.appcompat:appcompat-resources:1.6.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\fba0d83cdd24b2753bc0650c1ac1ab4a\transformed\appcompat-resources-1.6.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.appcompat:appcompat-resources:1.6.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\fba0d83cdd24b2753bc0650c1ac1ab4a\transformed\appcompat-resources-1.6.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.appcompat:appcompat:1.6.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\f279a97b51ba6a5a7740f22886f18c1f\transformed\appcompat-1.6.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.appcompat:appcompat:1.6.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\f279a97b51ba6a5a7740f22886f18c1f\transformed\appcompat-1.6.1\AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-base:18.5.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\32902463718ba0dfa4d4bd94a54c695a\transformed\play-services-base-18.5.0\AndroidManifest.xml:3:5-44
+MERGED from [com.google.android.gms:play-services-base:18.5.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\32902463718ba0dfa4d4bd94a54c695a\transformed\play-services-base-18.5.0\AndroidManifest.xml:3:5-44
+MERGED from [androidx.room:room-runtime:2.6.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\2defff71f15ca9db6860e76a3a201d44\transformed\room-runtime-2.6.1\AndroidManifest.xml:21:5-44
+MERGED from [androidx.room:room-runtime:2.6.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\2defff71f15ca9db6860e76a3a201d44\transformed\room-runtime-2.6.1\AndroidManifest.xml:21:5-44
+MERGED from [androidx.room:room-ktx:2.6.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\ddce0db99405efd4eeb959f0ae0f14c8\transformed\room-ktx-2.6.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.room:room-ktx:2.6.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\ddce0db99405efd4eeb959f0ae0f14c8\transformed\room-ktx-2.6.1\AndroidManifest.xml:20:5-44
+MERGED from [com.google.accompanist:accompanist-drawablepainter:0.32.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\2a7f2da2be1599ea307d859a9a58e935\transformed\accompanist-drawablepainter-0.32.0\AndroidManifest.xml:21:5-44
+MERGED from [com.google.accompanist:accompanist-drawablepainter:0.32.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\2a7f2da2be1599ea307d859a9a58e935\transformed\accompanist-drawablepainter-0.32.0\AndroidManifest.xml:21:5-44
+MERGED from [androidx.compose.material3:material3-android:1.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\c024d04dcc52e9bd6f473e28741d5194\transformed\material3-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.material3:material3-android:1.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\c024d04dcc52e9bd6f473e28741d5194\transformed\material3-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.material:material-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\54506959afc543436596fec03cd97b82\transformed\material-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\54506959afc543436596fec03cd97b82\transformed\material-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.animation:animation-core-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\f43ba84176b913492d236b6757bc471b\transformed\animation-core-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.animation:animation-core-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\f43ba84176b913492d236b6757bc471b\transformed\animation-core-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-ripple-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\e3aab468d07f2d0f0e1f6274912d1781\transformed\material-ripple-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-ripple-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\e3aab468d07f2d0f0e1f6274912d1781\transformed\material-ripple-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.animation:animation-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\1e2f7d641b053c6e036c952b9c12f0d4\transformed\animation-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.animation:animation-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\1e2f7d641b053c6e036c952b9c12f0d4\transformed\animation-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.foundation:foundation-layout-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\317fc1c430bf93a95b401a0c7c8e112d\transformed\foundation-layout-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.foundation:foundation-layout-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\317fc1c430bf93a95b401a0c7c8e112d\transformed\foundation-layout-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.foundation:foundation-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\a030f4a910890643b024b68591fe924b\transformed\foundation-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.foundation:foundation-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\a030f4a910890643b024b68591fe924b\transformed\foundation-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-tooling-data-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7a5b5c633ef90732ba7259270bd07ed6\transformed\ui-tooling-data-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-tooling-data-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7a5b5c633ef90732ba7259270bd07ed6\transformed\ui-tooling-data-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-unit-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7fa96f78015fc78a3ae3204b7029d65c\transformed\ui-unit-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-unit-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7fa96f78015fc78a3ae3204b7029d65c\transformed\ui-unit-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-graphics-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\90d61bccb6887c73425c82d00e0095e7\transformed\ui-graphics-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-graphics-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\90d61bccb6887c73425c82d00e0095e7\transformed\ui-graphics-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-geometry-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\e969cae5d9f7f31f79bf53c7b403af0b\transformed\ui-geometry-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-geometry-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\e969cae5d9f7f31f79bf53c7b403af0b\transformed\ui-geometry-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-util-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\90c5bba26c9c74f64e63af115eb5d801\transformed\ui-util-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-util-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\90c5bba26c9c74f64e63af115eb5d801\transformed\ui-util-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-text-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\9aeda03eef2621e323e3f73ee77cd34a\transformed\ui-text-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-text-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\9aeda03eef2621e323e3f73ee77cd34a\transformed\ui-text-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-tooling-preview-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\3246bdd3e172cca5586e2c5bd4c87c7f\transformed\ui-tooling-preview-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.ui:ui-tooling-preview-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\3246bdd3e172cca5586e2c5bd4c87c7f\transformed\ui-tooling-preview-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.ui:ui-tooling-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\a7a1361ba31db55751fc683536df0027\transformed\ui-tooling-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.ui:ui-tooling-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\a7a1361ba31db55751fc683536df0027\transformed\ui-tooling-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\c334ad32a41247e4fe69e2e59739a71a\transformed\savedstate-ktx-1.2.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\c334ad32a41247e4fe69e2e59739a71a\transformed\savedstate-ktx-1.2.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate:1.2.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\d82c95de0ae9814a55af6f6ca8526e7f\transformed\savedstate-1.2.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate:1.2.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\d82c95de0ae9814a55af6f6ca8526e7f\transformed\savedstate-1.2.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.recyclerview:recyclerview:1.2.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0c665c7119845bf2259459efb949fe42\transformed\recyclerview-1.2.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.recyclerview:recyclerview:1.2.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0c665c7119845bf2259459efb949fe42\transformed\recyclerview-1.2.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.drawerlayout:drawerlayout:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\886228a058a52316ba0d163b51a5648f\transformed\drawerlayout-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.drawerlayout:drawerlayout:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\886228a058a52316ba0d163b51a5648f\transformed\drawerlayout-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.viewpager:viewpager:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\cda8b126472f55cf3b3fc6cc71b8b8cf\transformed\viewpager-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.viewpager:viewpager:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\cda8b126472f55cf3b3fc6cc71b8b8cf\transformed\viewpager-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.customview:customview:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\3ee0ef0f90def4cad92d60d12a1f76e8\transformed\customview-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.customview:customview:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\3ee0ef0f90def4cad92d60d12a1f76e8\transformed\customview-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.emoji2:emoji2-views-helper:1.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\910ccf9d422e4e15ca87e6ac3d6ed804\transformed\emoji2-views-helper-1.3.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.emoji2:emoji2-views-helper:1.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\910ccf9d422e4e15ca87e6ac3d6ed804\transformed\emoji2-views-helper-1.3.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\19c68e87f480bd61fa17874101b72854\transformed\emoji2-1.3.0\AndroidManifest.xml:21:5-44
+MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\19c68e87f480bd61fa17874101b72854\transformed\emoji2-1.3.0\AndroidManifest.xml:21:5-44
+MERGED from [androidx.autofill:autofill:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\40e762a9366941e9c089a22e443ce66d\transformed\autofill-1.0.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.autofill:autofill:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\40e762a9366941e9c089a22e443ce66d\transformed\autofill-1.0.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\b77bd033e9d829c6e3c08607deb10c5d\transformed\customview-poolingcontainer-1.0.0\AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\b77bd033e9d829c6e3c08607deb10c5d\transformed\customview-poolingcontainer-1.0.0\AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.core:core-ktx:1.13.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\c4e7f4942408ad8d55e3ccd069aa35ea\transformed\core-ktx-1.13.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.core:core-ktx:1.13.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\c4e7f4942408ad8d55e3ccd069aa35ea\transformed\core-ktx-1.13.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\de60139e6625e23cf6851a8448d2abbc\transformed\vectordrawable-animated-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\de60139e6625e23cf6851a8448d2abbc\transformed\vectordrawable-animated-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\97c1ae551ebed26ec0dd06b4b8e856be\transformed\vectordrawable-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\97c1ae551ebed26ec0dd06b4b8e856be\transformed\vectordrawable-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.loader:loader:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\2e53b87c9b2b4da418db35c775435a33\transformed\loader-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.loader:loader:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\2e53b87c9b2b4da418db35c775435a33\transformed\loader-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.graphics:graphics-path:1.0.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\81da74b539fab8b29ba139369b37b304\transformed\graphics-path-1.0.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.graphics:graphics-path:1.0.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\81da74b539fab8b29ba139369b37b304\transformed\graphics-path-1.0.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.core:core:1.13.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e66b3b1b3ab8194d5ec1b56f326eb26\transformed\core-1.13.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.core:core:1.13.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e66b3b1b3ab8194d5ec1b56f326eb26\transformed\core-1.13.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-compose-android:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\bfe40ae8fb75d30881f4b1dcb9a826a4\transformed\lifecycle-runtime-compose-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-compose-android:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\bfe40ae8fb75d30881f4b1dcb9a826a4\transformed\lifecycle-runtime-compose-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\d40a7b1d1011a8c7848851f2c9333d9e\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:21:5-44
+MERGED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\d40a7b1d1011a8c7848851f2c9333d9e\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:21:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-android:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\5e8a593b5adc33fea7ab19aa61c507d8\transformed\lifecycle-runtime-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-android:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\5e8a593b5adc33fea7ab19aa61c507d8\transformed\lifecycle-runtime-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\a800b9a0f5af96bd86e7039070c51498\transformed\lifecycle-livedata-core-2.8.7\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\a800b9a0f5af96bd86e7039070c51498\transformed\lifecycle-livedata-core-2.8.7\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx-android:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\80b48a80f7f4355813899ee67e9822c4\transformed\lifecycle-runtime-ktx-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx-android:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\80b48a80f7f4355813899ee67e9822c4\transformed\lifecycle-runtime-ktx-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\679a1db2e3f218f4d7452b024448bcb9\transformed\lifecycle-livedata-core-ktx-2.8.7\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\679a1db2e3f218f4d7452b024448bcb9\transformed\lifecycle-livedata-core-ktx-2.8.7\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7cb5c530007b7cd7d975c64e8a8b4d4f\transformed\lifecycle-livedata-2.8.7\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7cb5c530007b7cd7d975c64e8a8b4d4f\transformed\lifecycle-livedata-2.8.7\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\4de93303e527008b53da48cf881199f2\transformed\lifecycle-viewmodel-2.8.7\AndroidManifest.xml:4:5-43
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\4de93303e527008b53da48cf881199f2\transformed\lifecycle-viewmodel-2.8.7\AndroidManifest.xml:4:5-43
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-android:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\5bcdfd1bf2d996ea33e87928029cf6e2\transformed\lifecycle-viewmodel-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-android:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\5bcdfd1bf2d996ea33e87928029cf6e2\transformed\lifecycle-viewmodel-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.glance:glance-preview:1.1.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\e99795229d818d986d23694acea4baec\transformed\glance-preview-1.1.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.glance:glance-preview:1.1.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\e99795229d818d986d23694acea4baec\transformed\glance-preview-1.1.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-saveable-android:1.7.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\996944bb88813edecc42a8422e5fe4ec\transformed\runtime-saveable-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-saveable-android:1.7.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\996944bb88813edecc42a8422e5fe4ec\transformed\runtime-saveable-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-android:1.7.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\22cf98d34da66c30aad7a46d0f14a74b\transformed\runtime-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-android:1.7.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\22cf98d34da66c30aad7a46d0f14a74b\transformed\runtime-release\AndroidManifest.xml:5:5-44
+MERGED from [com.google.mlkit:vision-interfaces:16.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\33edb99d9c928eac27c6480019d8632f\transformed\vision-interfaces-16.1.0\AndroidManifest.xml:5:5-44
+MERGED from [com.google.mlkit:vision-interfaces:16.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\33edb99d9c928eac27c6480019d8632f\transformed\vision-interfaces-16.1.0\AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-tasks:18.2.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\01b676a66df648d5ca9dbd9c62b602ae\transformed\play-services-tasks-18.2.0\AndroidManifest.xml:3:5-44
+MERGED from [com.google.android.gms:play-services-tasks:18.2.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\01b676a66df648d5ca9dbd9c62b602ae\transformed\play-services-tasks-18.2.0\AndroidManifest.xml:3:5-44
+MERGED from [com.google.android.gms:play-services-basement:18.4.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\dc17ee4cdc1de47fc3ebe8a204d2c735\transformed\play-services-basement-18.4.0\AndroidManifest.xml:3:5-44
+MERGED from [com.google.android.gms:play-services-basement:18.4.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\dc17ee4cdc1de47fc3ebe8a204d2c735\transformed\play-services-basement-18.4.0\AndroidManifest.xml:3:5-44
+MERGED from [androidx.fragment:fragment:1.3.6] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\2f2d05e2a31ecbd6ab8557241730880b\transformed\fragment-1.3.6\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.fragment:fragment:1.3.6] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\2f2d05e2a31ecbd6ab8557241730880b\transformed\fragment-1.3.6\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.activity:activity:1.9.2] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\d97708a4227387733b16644b0cef5726\transformed\activity-1.9.2\AndroidManifest.xml:20:5-44
+MERGED from [androidx.activity:activity:1.9.2] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\d97708a4227387733b16644b0cef5726\transformed\activity-1.9.2\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0adcac28c56d7662ccf9b3097e49869f\transformed\lifecycle-viewmodel-savedstate-2.8.7\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0adcac28c56d7662ccf9b3097e49869f\transformed\lifecycle-viewmodel-savedstate-2.8.7\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\b5f65222316d5470461f8ddd7131e91d\transformed\lifecycle-viewmodel-ktx-2.8.7\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\b5f65222316d5470461f8ddd7131e91d\transformed\lifecycle-viewmodel-ktx-2.8.7\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-ktx:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\9ce0b9c18f7f097d41c7a67166344869\transformed\lifecycle-livedata-ktx-2.8.7\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-ktx:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\9ce0b9c18f7f097d41c7a67166344869\transformed\lifecycle-livedata-ktx-2.8.7\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose-android:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\89d0924c3ff530348d60ab1dd845c2f1\transformed\lifecycle-viewmodel-compose-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose-android:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\89d0924c3ff530348d60ab1dd845c2f1\transformed\lifecycle-viewmodel-compose-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-icons-extended-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\9eb66566e3a2fc55071864bb383f3443\transformed\material-icons-extended-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-icons-extended-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\9eb66566e3a2fc55071864bb383f3443\transformed\material-icons-extended-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-icons-core-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\9132d102b611c2cab9c7757e203d7889\transformed\material-icons-core-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-icons-core-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\9132d102b611c2cab9c7757e203d7889\transformed\material-icons-core-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\680c5553d3c4cdb514eb640d2a357540\transformed\ui-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\680c5553d3c4cdb514eb640d2a357540\transformed\ui-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.activity:activity-ktx:1.9.2] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\e56e26d40d3587629d978a79822b4860\transformed\activity-ktx-1.9.2\AndroidManifest.xml:5:5-44
+MERGED from [androidx.activity:activity-ktx:1.9.2] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\e56e26d40d3587629d978a79822b4860\transformed\activity-ktx-1.9.2\AndroidManifest.xml:5:5-44
+MERGED from [androidx.activity:activity-compose:1.9.2] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\e178133e30e7ae091eeaf0fb33741b24\transformed\activity-compose-1.9.2\AndroidManifest.xml:5:5-44
+MERGED from [androidx.activity:activity-compose:1.9.2] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\e178133e30e7ae091eeaf0fb33741b24\transformed\activity-compose-1.9.2\AndroidManifest.xml:5:5-44
+MERGED from [androidx.sqlite:sqlite-framework:2.4.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\e54a114752f56be2440a11a29053222b\transformed\sqlite-framework-2.4.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.sqlite:sqlite-framework:2.4.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\e54a114752f56be2440a11a29053222b\transformed\sqlite-framework-2.4.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.sqlite:sqlite:2.4.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\704b70c583629c152caff79f1f674c80\transformed\sqlite-2.4.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.sqlite:sqlite:2.4.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\704b70c583629c152caff79f1f674c80\transformed\sqlite-2.4.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\d468e1054ce29c0e748c87201fcdf9a1\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\d468e1054ce29c0e748c87201fcdf9a1\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:20:5-22:41
+MERGED from [com.github.Dimezis:BlurView:version-2.0.6] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\6ef9513e4bcf99b7cbbb67094a799250\transformed\BlurView-version-2.0.6\AndroidManifest.xml:5:5-7:41
+MERGED from [com.github.Dimezis:BlurView:version-2.0.6] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\6ef9513e4bcf99b7cbbb67094a799250\transformed\BlurView-version-2.0.6\AndroidManifest.xml:5:5-7:41
+MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7a0c051b5a522cff7a91f416c9f70a9e\transformed\core-runtime-2.2.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7a0c051b5a522cff7a91f416c9f70a9e\transformed\core-runtime-2.2.0\AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7c54e0c7475a06f3f8103873ee72b557\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:19:5-21:41
+MERGED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7c54e0c7475a06f3f8103873ee72b557\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:19:5-21:41
+MERGED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\599b7ee1b7b109fa708819493953f4b3\transformed\transport-runtime-2.2.6\AndroidManifest.xml:18:5-20:41
+MERGED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\599b7ee1b7b109fa708819493953f4b3\transformed\transport-runtime-2.2.6\AndroidManifest.xml:18:5-20:41
+MERGED from [com.google.android.datatransport:transport-api:2.2.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\ae3f7212559b901adeca70ff428be618\transformed\transport-api-2.2.1\AndroidManifest.xml:18:5-20:41
+MERGED from [com.google.android.datatransport:transport-api:2.2.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\ae3f7212559b901adeca70ff428be618\transformed\transport-api-2.2.1\AndroidManifest.xml:18:5-20:41
+MERGED from [com.google.firebase:firebase-components:16.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\f08164c10dab5b87a1624516d12ef6db\transformed\firebase-components-16.1.0\AndroidManifest.xml:19:5-21:41
+MERGED from [com.google.firebase:firebase-components:16.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\f08164c10dab5b87a1624516d12ef6db\transformed\firebase-components-16.1.0\AndroidManifest.xml:19:5-21:41
+MERGED from [com.google.firebase:firebase-encoders-json:17.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\fa4775c1d4f6d2a6a84aec5f157bf94e\transformed\firebase-encoders-json-17.1.0\AndroidManifest.xml:19:5-21:41
+MERGED from [com.google.firebase:firebase-encoders-json:17.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\fa4775c1d4f6d2a6a84aec5f157bf94e\transformed\firebase-encoders-json-17.1.0\AndroidManifest.xml:19:5-21:41
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:21:5-44
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:21:5-44
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\3b0b65988417e7e46f336a4f6b228463\transformed\startup-runtime-1.1.1\AndroidManifest.xml:21:5-23:41
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\3b0b65988417e7e46f336a4f6b228463\transformed\startup-runtime-1.1.1\AndroidManifest.xml:21:5-23:41
+MERGED from [androidx.tracing:tracing:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\968953a93206fac245c36bcfd0a59eb1\transformed\tracing-1.0.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.tracing:tracing:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\968953a93206fac245c36bcfd0a59eb1\transformed\tracing-1.0.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.exifinterface:exifinterface:1.3.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\831252ed4d3c34457d1346d3d49f0590\transformed\exifinterface-1.3.7\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.exifinterface:exifinterface:1.3.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\831252ed4d3c34457d1346d3d49f0590\transformed\exifinterface-1.3.7\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0bd864be9cacc6a4cad7fc675b912299\transformed\cursoradapter-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0bd864be9cacc6a4cad7fc675b912299\transformed\cursoradapter-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0b6567248189bfd5755f7093085ef4c8\transformed\interpolator-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0b6567248189bfd5755f7093085ef4c8\transformed\interpolator-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.annotation:annotation-experimental:1.4.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\f25af7a5f97cf2915e4459e8570f6a0a\transformed\annotation-experimental-1.4.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.annotation:annotation-experimental:1.4.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\f25af7a5f97cf2915e4459e8570f6a0a\transformed\annotation-experimental-1.4.1\AndroidManifest.xml:5:5-44
+MERGED from [com.google.firebase:protolite-well-known-types:18.0.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\72024991d4f7de4a92bc140cc9990abb\transformed\protolite-well-known-types-18.0.1\AndroidManifest.xml:5:5-44
+MERGED from [com.google.firebase:protolite-well-known-types:18.0.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\72024991d4f7de4a92bc140cc9990abb\transformed\protolite-well-known-types-18.0.1\AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.odml:image:1.0.0-beta1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\b4bae8dc04c626997a4064b905eef803\transformed\image-1.0.0-beta1\AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.odml:image:1.0.0-beta1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\b4bae8dc04c626997a4064b905eef803\transformed\image-1.0.0-beta1\AndroidManifest.xml:5:5-44
 	android:targetSdkVersion
 		INJECTED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml
 	android:minSdkVersion
 		INJECTED from C:\Users\HP\Documents\Gallery app\GPT2\app\src\main\AndroidManifest.xml
-activity#androidx.compose.ui.tooling.PreviewActivity
-ADDED from [androidx.compose.ui:ui-tooling-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\2f5fbd355608de40e1f57358ee34dcd5\transformed\ui-tooling-release\AndroidManifest.xml:23:9-25:39
+service#com.google.mlkit.common.internal.MlKitComponentDiscoveryService
+ADDED from [com.google.mlkit:image-labeling:17.0.9] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\326d3b064c8865f86921f98773cc53af\transformed\image-labeling-17.0.9\AndroidManifest.xml:8:9-14:19
+MERGED from [com.google.mlkit:vision-internal-vkp:18.2.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7dfa7bfb568ead56f66780c9a06066db\transformed\vision-internal-vkp-18.2.3\AndroidManifest.xml:11:9-17:19
+MERGED from [com.google.mlkit:vision-internal-vkp:18.2.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7dfa7bfb568ead56f66780c9a06066db\transformed\vision-internal-vkp-18.2.3\AndroidManifest.xml:11:9-17:19
+MERGED from [com.google.android.gms:play-services-mlkit-face-detection:17.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e5037893474a84e5cefb94a2d79f8ba\transformed\play-services-mlkit-face-detection-17.1.0\AndroidManifest.xml:9:9-15:19
+MERGED from [com.google.android.gms:play-services-mlkit-face-detection:17.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e5037893474a84e5cefb94a2d79f8ba\transformed\play-services-mlkit-face-detection-17.1.0\AndroidManifest.xml:9:9-15:19
+MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\438407aafb56d024b7e042b22a1cd388\transformed\vision-common-17.3.0\AndroidManifest.xml:9:9-15:19
+MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\438407aafb56d024b7e042b22a1cd388\transformed\vision-common-17.3.0\AndroidManifest.xml:9:9-15:19
+MERGED from [com.google.mlkit:common:18.11.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\85ceb1af94a283171d4e4decb21ce143\transformed\common-18.11.0\AndroidManifest.xml:15:9-23:19
+MERGED from [com.google.mlkit:common:18.11.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\85ceb1af94a283171d4e4decb21ce143\transformed\common-18.11.0\AndroidManifest.xml:15:9-23:19
 	android:exported
-		ADDED from [androidx.compose.ui:ui-tooling-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\2f5fbd355608de40e1f57358ee34dcd5\transformed\ui-tooling-release\AndroidManifest.xml:25:13-36
+		ADDED from [com.google.mlkit:image-labeling:17.0.9] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\326d3b064c8865f86921f98773cc53af\transformed\image-labeling-17.0.9\AndroidManifest.xml:10:13-37
+	tools:targetApi
+		ADDED from [com.google.mlkit:common:18.11.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\85ceb1af94a283171d4e4decb21ce143\transformed\common-18.11.0\AndroidManifest.xml:19:13-32
+	android:directBootAware
+		ADDED from [com.google.mlkit:common:18.11.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\85ceb1af94a283171d4e4decb21ce143\transformed\common-18.11.0\AndroidManifest.xml:17:13-43
 	android:name
-		ADDED from [androidx.compose.ui:ui-tooling-android:1.7.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\2f5fbd355608de40e1f57358ee34dcd5\transformed\ui-tooling-release\AndroidManifest.xml:24:13-71
-provider#androidx.startup.InitializationProvider
-ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\905a797346d96e3d65621faf71055a4f\transformed\emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
-MERGED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\2923fca1fca8203808d69f5714a12462\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:24:9-32:20
-MERGED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\2923fca1fca8203808d69f5714a12462\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:24:9-32:20
-MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:24:9-32:20
-MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:24:9-32:20
-MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9c16d6a1c03fe7b21dfb0f7bea1d2659\transformed\startup-runtime-1.1.1\AndroidManifest.xml:26:9-30:34
-MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9c16d6a1c03fe7b21dfb0f7bea1d2659\transformed\startup-runtime-1.1.1\AndroidManifest.xml:26:9-30:34
-	tools:node
-		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\905a797346d96e3d65621faf71055a4f\transformed\emoji2-1.3.0\AndroidManifest.xml:28:13-31
+		ADDED from [com.google.mlkit:image-labeling:17.0.9] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\326d3b064c8865f86921f98773cc53af\transformed\image-labeling-17.0.9\AndroidManifest.xml:9:13-91
+meta-data#com.google.firebase.components:com.google.mlkit.vision.label.defaults.internal.BundledLabelRegistrar
+ADDED from [com.google.mlkit:image-labeling:17.0.9] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\326d3b064c8865f86921f98773cc53af\transformed\image-labeling-17.0.9\AndroidManifest.xml:11:13-13:85
+	android:value
+		ADDED from [com.google.mlkit:image-labeling:17.0.9] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\326d3b064c8865f86921f98773cc53af\transformed\image-labeling-17.0.9\AndroidManifest.xml:13:17-82
+	android:name
+		ADDED from [com.google.mlkit:image-labeling:17.0.9] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\326d3b064c8865f86921f98773cc53af\transformed\image-labeling-17.0.9\AndroidManifest.xml:12:17-132
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from [com.google.mlkit:vision-internal-vkp:18.2.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7dfa7bfb568ead56f66780c9a06066db\transformed\vision-internal-vkp-18.2.3\AndroidManifest.xml:7:5-79
+MERGED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7c54e0c7475a06f3f8103873ee72b557\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:25:5-79
+MERGED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7c54e0c7475a06f3f8103873ee72b557\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:25:5-79
+MERGED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\599b7ee1b7b109fa708819493953f4b3\transformed\transport-runtime-2.2.6\AndroidManifest.xml:22:5-79
+MERGED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\599b7ee1b7b109fa708819493953f4b3\transformed\transport-runtime-2.2.6\AndroidManifest.xml:22:5-79
+	android:name
+		ADDED from [com.google.mlkit:vision-internal-vkp:18.2.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7dfa7bfb568ead56f66780c9a06066db\transformed\vision-internal-vkp-18.2.3\AndroidManifest.xml:7:22-76
+meta-data#com.google.firebase.components:com.google.mlkit.vision.vkp.VkpRegistrar
+ADDED from [com.google.mlkit:vision-internal-vkp:18.2.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7dfa7bfb568ead56f66780c9a06066db\transformed\vision-internal-vkp-18.2.3\AndroidManifest.xml:14:13-16:85
+	android:value
+		ADDED from [com.google.mlkit:vision-internal-vkp:18.2.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7dfa7bfb568ead56f66780c9a06066db\transformed\vision-internal-vkp-18.2.3\AndroidManifest.xml:16:17-82
+	android:name
+		ADDED from [com.google.mlkit:vision-internal-vkp:18.2.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7dfa7bfb568ead56f66780c9a06066db\transformed\vision-internal-vkp-18.2.3\AndroidManifest.xml:15:17-103
+meta-data#com.google.firebase.components:com.google.mlkit.vision.face.internal.FaceRegistrar
+ADDED from [com.google.android.gms:play-services-mlkit-face-detection:17.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e5037893474a84e5cefb94a2d79f8ba\transformed\play-services-mlkit-face-detection-17.1.0\AndroidManifest.xml:12:13-14:85
+	android:value
+		ADDED from [com.google.android.gms:play-services-mlkit-face-detection:17.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e5037893474a84e5cefb94a2d79f8ba\transformed\play-services-mlkit-face-detection-17.1.0\AndroidManifest.xml:14:17-82
+	android:name
+		ADDED from [com.google.android.gms:play-services-mlkit-face-detection:17.1.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e5037893474a84e5cefb94a2d79f8ba\transformed\play-services-mlkit-face-detection-17.1.0\AndroidManifest.xml:13:17-114
+meta-data#com.google.firebase.components:com.google.mlkit.vision.common.internal.VisionCommonRegistrar
+ADDED from [com.google.mlkit:vision-common:17.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\438407aafb56d024b7e042b22a1cd388\transformed\vision-common-17.3.0\AndroidManifest.xml:12:13-14:85
+	android:value
+		ADDED from [com.google.mlkit:vision-common:17.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\438407aafb56d024b7e042b22a1cd388\transformed\vision-common-17.3.0\AndroidManifest.xml:14:17-82
+	android:name
+		ADDED from [com.google.mlkit:vision-common:17.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\438407aafb56d024b7e042b22a1cd388\transformed\vision-common-17.3.0\AndroidManifest.xml:13:17-124
+provider#com.google.mlkit.common.internal.MlKitInitProvider
+ADDED from [com.google.mlkit:common:18.11.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\85ceb1af94a283171d4e4decb21ce143\transformed\common-18.11.0\AndroidManifest.xml:9:9-13:38
 	android:authorities
-		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\905a797346d96e3d65621faf71055a4f\transformed\emoji2-1.3.0\AndroidManifest.xml:26:13-68
+		ADDED from [com.google.mlkit:common:18.11.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\85ceb1af94a283171d4e4decb21ce143\transformed\common-18.11.0\AndroidManifest.xml:11:13-69
 	android:exported
-		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\905a797346d96e3d65621faf71055a4f\transformed\emoji2-1.3.0\AndroidManifest.xml:27:13-37
+		ADDED from [com.google.mlkit:common:18.11.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\85ceb1af94a283171d4e4decb21ce143\transformed\common-18.11.0\AndroidManifest.xml:12:13-37
+	android:initOrder
+		ADDED from [com.google.mlkit:common:18.11.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\85ceb1af94a283171d4e4decb21ce143\transformed\common-18.11.0\AndroidManifest.xml:13:13-35
 	android:name
-		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\905a797346d96e3d65621faf71055a4f\transformed\emoji2-1.3.0\AndroidManifest.xml:25:13-67
-meta-data#androidx.emoji2.text.EmojiCompatInitializer
-ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\905a797346d96e3d65621faf71055a4f\transformed\emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
+		ADDED from [com.google.mlkit:common:18.11.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\85ceb1af94a283171d4e4decb21ce143\transformed\common-18.11.0\AndroidManifest.xml:10:13-78
+meta-data#com.google.firebase.components:com.google.mlkit.common.internal.CommonComponentRegistrar
+ADDED from [com.google.mlkit:common:18.11.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\85ceb1af94a283171d4e4decb21ce143\transformed\common-18.11.0\AndroidManifest.xml:20:13-22:85
 	android:value
-		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\905a797346d96e3d65621faf71055a4f\transformed\emoji2-1.3.0\AndroidManifest.xml:31:17-49
+		ADDED from [com.google.mlkit:common:18.11.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\85ceb1af94a283171d4e4decb21ce143\transformed\common-18.11.0\AndroidManifest.xml:22:17-82
 	android:name
-		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\.gradle\caches\8.10.2\transforms\905a797346d96e3d65621faf71055a4f\transformed\emoji2-1.3.0\AndroidManifest.xml:30:17-75
-permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
-ADDED from [androidx.core:core:1.13.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9ff5bb8584f778d48a71d6accae5b226\transformed\core-1.13.1\AndroidManifest.xml:22:5-24:47
-	android:protectionLevel
-		ADDED from [androidx.core:core:1.13.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9ff5bb8584f778d48a71d6accae5b226\transformed\core-1.13.1\AndroidManifest.xml:24:9-44
+		ADDED from [com.google.mlkit:common:18.11.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\85ceb1af94a283171d4e4decb21ce143\transformed\common-18.11.0\AndroidManifest.xml:21:17-120
+activity#com.google.android.gms.common.api.GoogleApiActivity
+ADDED from [com.google.android.gms:play-services-base:18.5.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\32902463718ba0dfa4d4bd94a54c695a\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:9-173
+	android:exported
+		ADDED from [com.google.android.gms:play-services-base:18.5.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\32902463718ba0dfa4d4bd94a54c695a\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:146-170
+	android:theme
+		ADDED from [com.google.android.gms:play-services-base:18.5.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\32902463718ba0dfa4d4bd94a54c695a\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:86-145
 	android:name
-		ADDED from [androidx.core:core:1.13.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9ff5bb8584f778d48a71d6accae5b226\transformed\core-1.13.1\AndroidManifest.xml:23:9-81
-permission#com.memorycurator.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
-ADDED from [androidx.core:core:1.13.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9ff5bb8584f778d48a71d6accae5b226\transformed\core-1.13.1\AndroidManifest.xml:22:5-24:47
-	android:protectionLevel
-		ADDED from [androidx.core:core:1.13.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9ff5bb8584f778d48a71d6accae5b226\transformed\core-1.13.1\AndroidManifest.xml:24:9-44
-	android:name
-		ADDED from [androidx.core:core:1.13.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9ff5bb8584f778d48a71d6accae5b226\transformed\core-1.13.1\AndroidManifest.xml:23:9-81
-uses-permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
-ADDED from [androidx.core:core:1.13.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9ff5bb8584f778d48a71d6accae5b226\transformed\core-1.13.1\AndroidManifest.xml:26:5-97
-	android:name
-		ADDED from [androidx.core:core:1.13.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9ff5bb8584f778d48a71d6accae5b226\transformed\core-1.13.1\AndroidManifest.xml:26:22-94
-uses-permission#com.memorycurator.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
-ADDED from [androidx.core:core:1.13.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9ff5bb8584f778d48a71d6accae5b226\transformed\core-1.13.1\AndroidManifest.xml:26:5-97
-	android:name
-		ADDED from [androidx.core:core:1.13.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\9ff5bb8584f778d48a71d6accae5b226\transformed\core-1.13.1\AndroidManifest.xml:26:22-94
-meta-data#androidx.lifecycle.ProcessLifecycleInitializer
-ADDED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\2923fca1fca8203808d69f5714a12462\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:29:13-31:52
-	android:value
-		ADDED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\2923fca1fca8203808d69f5714a12462\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:31:17-49
-	android:name
-		ADDED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\HP\.gradle\caches\8.10.2\transforms\2923fca1fca8203808d69f5714a12462\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:30:17-78
+		ADDED from [com.google.android.gms:play-services-base:18.5.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\32902463718ba0dfa4d4bd94a54c695a\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:19-85
 service#androidx.room.MultiInstanceInvalidationService
-ADDED from [androidx.room:room-runtime:2.6.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\adc55e8500833a424caacea5277cc5a0\transformed\room-runtime-2.6.1\AndroidManifest.xml:24:9-28:63
+ADDED from [androidx.room:room-runtime:2.6.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\2defff71f15ca9db6860e76a3a201d44\transformed\room-runtime-2.6.1\AndroidManifest.xml:24:9-28:63
 	android:exported
-		ADDED from [androidx.room:room-runtime:2.6.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\adc55e8500833a424caacea5277cc5a0\transformed\room-runtime-2.6.1\AndroidManifest.xml:27:13-37
+		ADDED from [androidx.room:room-runtime:2.6.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\2defff71f15ca9db6860e76a3a201d44\transformed\room-runtime-2.6.1\AndroidManifest.xml:27:13-37
 	tools:ignore
-		ADDED from [androidx.room:room-runtime:2.6.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\adc55e8500833a424caacea5277cc5a0\transformed\room-runtime-2.6.1\AndroidManifest.xml:28:13-60
+		ADDED from [androidx.room:room-runtime:2.6.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\2defff71f15ca9db6860e76a3a201d44\transformed\room-runtime-2.6.1\AndroidManifest.xml:28:13-60
 	android:directBootAware
-		ADDED from [androidx.room:room-runtime:2.6.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\adc55e8500833a424caacea5277cc5a0\transformed\room-runtime-2.6.1\AndroidManifest.xml:26:13-43
+		ADDED from [androidx.room:room-runtime:2.6.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\2defff71f15ca9db6860e76a3a201d44\transformed\room-runtime-2.6.1\AndroidManifest.xml:26:13-43
 	android:name
-		ADDED from [androidx.room:room-runtime:2.6.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\adc55e8500833a424caacea5277cc5a0\transformed\room-runtime-2.6.1\AndroidManifest.xml:25:13-74
-meta-data#androidx.profileinstaller.ProfileInstallerInitializer
-ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:29:13-31:52
-	android:value
-		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:31:17-49
-	android:name
-		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:30:17-85
-receiver#androidx.profileinstaller.ProfileInstallReceiver
-ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:34:9-52:20
-	android:enabled
-		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:37:13-35
+		ADDED from [androidx.room:room-runtime:2.6.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\2defff71f15ca9db6860e76a3a201d44\transformed\room-runtime-2.6.1\AndroidManifest.xml:25:13-74
+activity#androidx.compose.ui.tooling.PreviewActivity
+ADDED from [androidx.compose.ui:ui-tooling-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\a7a1361ba31db55751fc683536df0027\transformed\ui-tooling-release\AndroidManifest.xml:23:9-25:39
 	android:exported
-		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:38:13-36
+		ADDED from [androidx.compose.ui:ui-tooling-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\a7a1361ba31db55751fc683536df0027\transformed\ui-tooling-release\AndroidManifest.xml:25:13-36
+	android:name
+		ADDED from [androidx.compose.ui:ui-tooling-android:1.7.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\a7a1361ba31db55751fc683536df0027\transformed\ui-tooling-release\AndroidManifest.xml:24:13-71
+provider#androidx.startup.InitializationProvider
+ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\19c68e87f480bd61fa17874101b72854\transformed\emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\d40a7b1d1011a8c7848851f2c9333d9e\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\d40a7b1d1011a8c7848851f2c9333d9e\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\3b0b65988417e7e46f336a4f6b228463\transformed\startup-runtime-1.1.1\AndroidManifest.xml:26:9-30:34
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\3b0b65988417e7e46f336a4f6b228463\transformed\startup-runtime-1.1.1\AndroidManifest.xml:26:9-30:34
+	tools:node
+		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\19c68e87f480bd61fa17874101b72854\transformed\emoji2-1.3.0\AndroidManifest.xml:28:13-31
+	android:authorities
+		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\19c68e87f480bd61fa17874101b72854\transformed\emoji2-1.3.0\AndroidManifest.xml:26:13-68
+	android:exported
+		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\19c68e87f480bd61fa17874101b72854\transformed\emoji2-1.3.0\AndroidManifest.xml:27:13-37
+	android:name
+		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\19c68e87f480bd61fa17874101b72854\transformed\emoji2-1.3.0\AndroidManifest.xml:25:13-67
+meta-data#androidx.emoji2.text.EmojiCompatInitializer
+ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\19c68e87f480bd61fa17874101b72854\transformed\emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
+	android:value
+		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\19c68e87f480bd61fa17874101b72854\transformed\emoji2-1.3.0\AndroidManifest.xml:31:17-49
+	android:name
+		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\19c68e87f480bd61fa17874101b72854\transformed\emoji2-1.3.0\AndroidManifest.xml:30:17-75
+permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.13.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e66b3b1b3ab8194d5ec1b56f326eb26\transformed\core-1.13.1\AndroidManifest.xml:22:5-24:47
+	android:protectionLevel
+		ADDED from [androidx.core:core:1.13.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e66b3b1b3ab8194d5ec1b56f326eb26\transformed\core-1.13.1\AndroidManifest.xml:24:9-44
+	android:name
+		ADDED from [androidx.core:core:1.13.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e66b3b1b3ab8194d5ec1b56f326eb26\transformed\core-1.13.1\AndroidManifest.xml:23:9-81
+permission#com.memorycurator.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.13.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e66b3b1b3ab8194d5ec1b56f326eb26\transformed\core-1.13.1\AndroidManifest.xml:22:5-24:47
+	android:protectionLevel
+		ADDED from [androidx.core:core:1.13.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e66b3b1b3ab8194d5ec1b56f326eb26\transformed\core-1.13.1\AndroidManifest.xml:24:9-44
+	android:name
+		ADDED from [androidx.core:core:1.13.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e66b3b1b3ab8194d5ec1b56f326eb26\transformed\core-1.13.1\AndroidManifest.xml:23:9-81
+uses-permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.13.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e66b3b1b3ab8194d5ec1b56f326eb26\transformed\core-1.13.1\AndroidManifest.xml:26:5-97
+	android:name
+		ADDED from [androidx.core:core:1.13.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e66b3b1b3ab8194d5ec1b56f326eb26\transformed\core-1.13.1\AndroidManifest.xml:26:22-94
+uses-permission#com.memorycurator.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.13.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e66b3b1b3ab8194d5ec1b56f326eb26\transformed\core-1.13.1\AndroidManifest.xml:26:5-97
+	android:name
+		ADDED from [androidx.core:core:1.13.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\0e66b3b1b3ab8194d5ec1b56f326eb26\transformed\core-1.13.1\AndroidManifest.xml:26:22-94
+meta-data#androidx.lifecycle.ProcessLifecycleInitializer
+ADDED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\d40a7b1d1011a8c7848851f2c9333d9e\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:29:13-31:52
+	android:value
+		ADDED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\d40a7b1d1011a8c7848851f2c9333d9e\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:31:17-49
+	android:name
+		ADDED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\d40a7b1d1011a8c7848851f2c9333d9e\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:30:17-78
+meta-data#com.google.android.gms.version
+ADDED from [com.google.android.gms:play-services-basement:18.4.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\dc17ee4cdc1de47fc3ebe8a204d2c735\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:9-122
+	android:value
+		ADDED from [com.google.android.gms:play-services-basement:18.4.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\dc17ee4cdc1de47fc3ebe8a204d2c735\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:66-119
+	android:name
+		ADDED from [com.google.android.gms:play-services-basement:18.4.0] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\dc17ee4cdc1de47fc3ebe8a204d2c735\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:20-65
+service#com.google.android.datatransport.runtime.backends.TransportBackendDiscovery
+ADDED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7c54e0c7475a06f3f8103873ee72b557\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:29:9-35:19
+MERGED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\599b7ee1b7b109fa708819493953f4b3\transformed\transport-runtime-2.2.6\AndroidManifest.xml:36:9-38:40
+MERGED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\599b7ee1b7b109fa708819493953f4b3\transformed\transport-runtime-2.2.6\AndroidManifest.xml:36:9-38:40
+	android:exported
+		ADDED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7c54e0c7475a06f3f8103873ee72b557\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:31:13-37
+	android:name
+		ADDED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7c54e0c7475a06f3f8103873ee72b557\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:30:13-103
+meta-data#backend:com.google.android.datatransport.cct.CctBackendFactory
+ADDED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7c54e0c7475a06f3f8103873ee72b557\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:32:13-34:39
+	android:value
+		ADDED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7c54e0c7475a06f3f8103873ee72b557\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:34:17-36
+	android:name
+		ADDED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\7c54e0c7475a06f3f8103873ee72b557\transformed\transport-backend-cct-2.3.3\AndroidManifest.xml:33:17-94
+service#com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService
+ADDED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\599b7ee1b7b109fa708819493953f4b3\transformed\transport-runtime-2.2.6\AndroidManifest.xml:26:9-30:19
+	android:exported
+		ADDED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\599b7ee1b7b109fa708819493953f4b3\transformed\transport-runtime-2.2.6\AndroidManifest.xml:28:13-37
 	android:permission
-		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:39:13-57
+		ADDED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\599b7ee1b7b109fa708819493953f4b3\transformed\transport-runtime-2.2.6\AndroidManifest.xml:29:13-69
+	android:name
+		ADDED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\599b7ee1b7b109fa708819493953f4b3\transformed\transport-runtime-2.2.6\AndroidManifest.xml:27:13-117
+receiver#com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver
+ADDED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\599b7ee1b7b109fa708819493953f4b3\transformed\transport-runtime-2.2.6\AndroidManifest.xml:32:9-34:40
+	android:exported
+		ADDED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\599b7ee1b7b109fa708819493953f4b3\transformed\transport-runtime-2.2.6\AndroidManifest.xml:34:13-37
+	android:name
+		ADDED from [com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\599b7ee1b7b109fa708819493953f4b3\transformed\transport-runtime-2.2.6\AndroidManifest.xml:33:13-132
+meta-data#androidx.profileinstaller.ProfileInstallerInitializer
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:29:13-31:52
+	android:value
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:31:17-49
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:30:17-85
+receiver#androidx.profileinstaller.ProfileInstallReceiver
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:34:9-52:20
+	android:enabled
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:37:13-35
+	android:exported
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:38:13-36
+	android:permission
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:39:13-57
 	android:directBootAware
-		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:36:13-44
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:36:13-44
 	android:name
-		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:35:13-76
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:35:13-76
 intent-filter#action:name:androidx.profileinstaller.action.INSTALL_PROFILE
-ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:40:13-42:29
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:40:13-42:29
 action#androidx.profileinstaller.action.INSTALL_PROFILE
-ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:17-91
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:17-91
 	android:name
-		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:25-88
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:25-88
 intent-filter#action:name:androidx.profileinstaller.action.SKIP_FILE
-ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:43:13-45:29
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:43:13-45:29
 action#androidx.profileinstaller.action.SKIP_FILE
-ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:17-85
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:17-85
 	android:name
-		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:25-82
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:25-82
 intent-filter#action:name:androidx.profileinstaller.action.SAVE_PROFILE
-ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:46:13-48:29
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:46:13-48:29
 action#androidx.profileinstaller.action.SAVE_PROFILE
-ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:17-88
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:17-88
 	android:name
-		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:25-85
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:25-85
 intent-filter#action:name:androidx.profileinstaller.action.BENCHMARK_OPERATION
-ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:49:13-51:29
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:49:13-51:29
 action#androidx.profileinstaller.action.BENCHMARK_OPERATION
-ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:17-95
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:17-95
 	android:name
-		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\.gradle\caches\8.10.2\transforms\b36d3566d64ce924b91ae4b53afa00d6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:25-92
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\HP\Documents\Gallery app\GPT2\caches\9.6.0\transforms\494a94512c2216838674952ff74c0a1a\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:25-92

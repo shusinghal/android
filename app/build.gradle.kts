@@ -62,4 +62,9 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     ksp("androidx.room:room-compiler:2.6.1")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+
+    // ML Kit for on-device AI
+    implementation("com.google.mlkit:image-labeling:17.0.9")
+    implementation("com.google.mlkit:face-detection:16.1.7")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 }

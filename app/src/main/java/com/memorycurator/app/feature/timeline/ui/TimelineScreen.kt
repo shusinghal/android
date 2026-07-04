@@ -30,7 +30,8 @@ import java.util.*
 @Composable
 fun TimelineScreen(
     groups: List<TimelineGroup>,
-    onGroupClick: (TimelineGroup) -> Unit
+    onGroupClick: (TimelineGroup) -> Unit,
+    onBestTakesClick: (TimelineGroup) -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
 //        BlurBackground()
@@ -42,7 +43,8 @@ fun TimelineScreen(
             items(groups) { group ->
                 TimelineCard(
                     group = group,
-                    onClick = { onGroupClick(group) } // Pass the group click
+                    onClick = { onGroupClick(group) }, // Pass the group click
+                    onBestTakesClick = { onBestTakesClick(group) }
                 )
             }
         }
@@ -52,7 +54,8 @@ fun TimelineScreen(
     @Composable
     fun TimelineCard(
         group: TimelineGroup,
-        onClick: () -> Unit // Add this parameter
+        onClick: () -> Unit, // Add this parameter
+        onBestTakesClick: () -> Unit
     ) {
         val representativePhoto = group.photos.firstOrNull()
         val date = Date(representativePhoto?.dateTaken ?: 0L)
@@ -150,6 +153,29 @@ fun TimelineScreen(
                         fontSize = 10.sp
                     )
                 }
+
+                // Best Takes Button
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(12.dp),
+                    contentAlignment = Alignment.TopEnd
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
+                            .border(1.dp, Color.White.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                            .clickable { onBestTakesClick() }
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Text(
+                            text = "BEST TAKES",
+                            color = Color.White,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
             }
         }
     }
@@ -167,7 +193,8 @@ fun TimelineScreen(
             Box(modifier = Modifier.background(Color.Black)) { // Background for visibility
                 TimelineScreen(
                     groups = listOf(mockGroup, mockGroup),
-                    onGroupClick = {}
+                    onGroupClick = {},
+                    onBestTakesClick = {}
                 )
             }
         }

@@ -1,5 +1,70 @@
-/build/**
-/.gradle/**
-/gradle/**
-/.idea/**
-/feature/ai-curation/build/**
+# Built objects
+bin/
+gen/
+obj/
+
+# Gradle
+.gradle/
+build/
+*/build/
+
+# Local configuration file (contains local paths to SDKs)
+local.properties
+
+# Android Studio / IntelliJ IDEA
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/assetWizardSettings.xml
+.idea/navEditor.xml
+.idea/caches/
+.idea/modules/
+*.iml
+*.ipr
+*.iws
+
+# Keystore files
+*.jks
+*.keystore
+*.pk8
+*.pem
+
+# Log files
+*.log
+
+# Captures and profiling
+captures/
+*.hprof
+*.perf
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Large folders found in root
+caches/
+caches_old/
+daemon/
+jdks/
+native/
+.tmp/
+kotlin-profile/
+
+# Gradle Wrapper - Usually we keep the properties and jar, but ignore the rest
+# gradle/wrapper/gradle-wrapper.jar
+# gradle/wrapper/gradle-wrapper.properties
+# But if you have 'wrapper/' directory at root, ignore its content
+wrapper/
+
+# Large Files (GitHub limit is 100MB)
+# It is recommended to use Git LFS for these, or simply ignore them.
+*.zip
+*.tar
+*.gz
+*.rar
+*.exe
+*.dll
+*.so
+*.apk
+*.aab

@@ -27,6 +27,8 @@ import com.memorycurator.app.feature.timeline.data.TimelineGrouper
 import com.memorycurator.app.feature.timeline.model.TimelineGroup
 import com.memorycurator.app.feature.timeline.ui.TimelineDetailScreen
 import com.memorycurator.app.feature.timeline.ui.TimelineScreen
+import com.memorycurator.app.ui.screens.AICurationScreen
+import com.memorycurator.app.ui.screens.OnboardingScreen
 import com.memorycurator.app.ui.gallery.GalleryViewModel
 import com.memorycurator.app.ui.theme.GlassTheme
 import com.memorycurator.app.ui.components.BlurBackground
@@ -78,6 +80,27 @@ fun MainNavigation(
     }
 
     var selectedGroup by remember { mutableStateOf<TimelineGroup?>(null) }
+    var curationGroup by remember { mutableStateOf<TimelineGroup?>(null) }
+
+    var showOnboarding by remember {
+        mutableStateOf(
+            context.getSharedPreferences("prefs", android.content.Context.MODE_PRIVATE)
+                .getBoolean("first_run", true)
+        )
+    }
+
+    if (showOnboarding) {
+        OnboardingScreen(
+            onContinue = {
+                context.getSharedPreferences("prefs", android.content.Context.MODE_PRIVATE)
+                    .edit()
+                    .putBoolean("first_run", false)
+                    .apply()
+                showOnboarding = false
+            }
+        )
+        return
+    }
 
 
     // Call the stateless content version
@@ -88,8 +111,9 @@ fun MainNavigation(
         galleryViewModel = viewModel,
         albumsViewModel = albumsViewModel,
         selectedGroup = selectedGroup,
-        onGroupSelected = { selectedGroup = it }
-
+        onGroupSelected = { selectedGroup = it },
+        curationGroup = curationGroup,
+        onCurationGroupSelected = { curationGroup = it }
     )
 }
 
@@ -101,7 +125,9 @@ fun MainNavigationContent(
     galleryViewModel: GalleryViewModel?,
     albumsViewModel: AlbumsViewModel?,
     selectedGroup: TimelineGroup?,
-    onGroupSelected: (TimelineGroup?) -> Unit
+    onGroupSelected: (TimelineGroup?) -> Unit,
+    curationGroup: TimelineGroup?,
+    onCurationGroupSelected: (TimelineGroup?) -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
@@ -133,15 +159,22 @@ fun MainNavigationContent(
                 when (selectedRoute)
                 {
                     "timeline" -> {
-                        if (selectedGroup != null) {
+                        if (curationGroup != null) {
+                            AICurationScreen(
+                                photos = curationGroup.photos,
+                                onBack = { onCurationGroupSelected(null) }
+                            )
+                        } else if (selectedGroup != null) {
                             TimelineDetailScreen(
                                 group = selectedGroup,
-                                onBack = { onGroupSelected(null) }
+                                onBack = { onGroupSelected(null) },
+                                onBestTakesClick = { onCurationGroupSelected(it) }
                             )
                         } else {
                             TimelineScreen(
                                 groups = timelineGroups,
-                                onGroupClick = { onGroupSelected(it) }
+                                onGroupClick = { onGroupSelected(it) },
+                                onBestTakesClick = { onCurationGroupSelected(it) }
                             )
                         }
                     }
@@ -186,7 +219,9 @@ fun MainNavigationPreview() {
             galleryViewModel = null,
             albumsViewModel = null,
             selectedGroup = null, // Added
-            onGroupSelected = {}
+            onGroupSelected = {},
+            curationGroup = null,
+            onCurationGroupSelected = {}
         )
     }
 }
