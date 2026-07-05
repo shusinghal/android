@@ -23,5 +23,12 @@ data class MediaEntity(
 
     val height: Int,
 
-    val size: Long
+    val size: Long,
+
+    // AI Metadata
+    val aiScore: Float = -1f,
+    val isBestTake: Boolean = false,
+    val rejectionReason: String? = null,
+    val clusterId: String? = null,
+    val isManuallyModified: Boolean = false
 )

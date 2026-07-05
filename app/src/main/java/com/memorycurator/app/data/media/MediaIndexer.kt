@@ -119,7 +119,7 @@ class MediaIndexer(
                 }
             }
 
-            mediaDao.insertAll(mediaList)
+            mediaDao.insertNewMedia(mediaList)
         }
     }
 }

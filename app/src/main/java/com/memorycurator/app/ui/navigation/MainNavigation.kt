@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.memorycurator.app.data.local.DatabaseProvider
+import com.memorycurator.app.data.media.MediaRepository
+import com.memorycurator.app.data.media.MediaRepositoryImpl
 import com.memorycurator.app.feature.albums.data.AlbumsRepository
 import com.memorycurator.app.feature.albums.ui.AlbumsScreen
 import com.memorycurator.app.feature.albums.ui.AlbumsViewModel
@@ -38,6 +40,10 @@ fun MainNavigation(
     viewModel: GalleryViewModel
 ) {
     val context = LocalContext.current
+
+    val mediaRepository = remember {
+        MediaRepositoryImpl(context)
+    }
 
     val database = remember {
         DatabaseProvider.getDatabase(context)
@@ -113,7 +119,8 @@ fun MainNavigation(
         selectedGroup = selectedGroup,
         onGroupSelected = { selectedGroup = it },
         curationGroup = curationGroup,
-        onCurationGroupSelected = { curationGroup = it }
+        onCurationGroupSelected = { curationGroup = it },
+        mediaRepository = mediaRepository
     )
 }
 
@@ -127,22 +134,14 @@ fun MainNavigationContent(
     selectedGroup: TimelineGroup?,
     onGroupSelected: (TimelineGroup?) -> Unit,
     curationGroup: TimelineGroup?,
-    onCurationGroupSelected: (TimelineGroup?) -> Unit
+    onCurationGroupSelected: (TimelineGroup?) -> Unit,
+    mediaRepository: MediaRepository?
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
     )
         {
             BlurBackground()
-//            .background(
-//                brush = Brush.verticalGradient(
-//                    colors = listOf(
-//                        Color(0xFF0F1115),
-//                        Color(0xFF161A22),
-//                        Color(0xFF10131A)
-//                    )
-//                )
-//            )
 
         Scaffold(
             containerColor = Color.Transparent,
@@ -160,10 +159,13 @@ fun MainNavigationContent(
                 {
                     "timeline" -> {
                         if (curationGroup != null) {
-                            AICurationScreen(
-                                photos = curationGroup.photos,
-                                onBack = { onCurationGroupSelected(null) }
-                            )
+                            if (mediaRepository != null) {
+                                AICurationScreen(
+                                    photos = curationGroup.photos,
+                                    onBack = { onCurationGroupSelected(null) },
+                                    repository = mediaRepository
+                                )
+                            }
                         } else if (selectedGroup != null) {
                             TimelineDetailScreen(
                                 group = selectedGroup,
@@ -221,7 +223,8 @@ fun MainNavigationPreview() {
             selectedGroup = null, // Added
             onGroupSelected = {},
             curationGroup = null,
-            onCurationGroupSelected = {}
+            onCurationGroupSelected = {},
+            mediaRepository = null
         )
     }
 }

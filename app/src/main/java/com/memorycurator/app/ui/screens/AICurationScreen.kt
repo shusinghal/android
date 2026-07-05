@@ -11,6 +11,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -27,23 +29,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.memorycurator.app.core.ai.CuratedResult
 import com.memorycurator.app.core.ai.RejectionReason
 import com.memorycurator.app.data.media.MediaPhoto
+import com.memorycurator.app.data.media.MediaRepository
 import com.memorycurator.app.ui.components.PhotoCard
 import com.memorycurator.app.ui.models.PhotoItem
 
 @Composable
 fun AICurationScreen(
     photos: List<MediaPhoto>,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    repository: MediaRepository
 ) {
-    val viewModel: AICurationViewModel = viewModel()
+    val viewModel: AICurationViewModel = viewModel(
+        factory = AICurationViewModelFactory(repository)
+    )
     val context = LocalContext.current
     
     LaunchedEffect(photos) {
@@ -65,7 +73,7 @@ fun AICurationScreen(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) { result ->
         if (result.resultCode == android.app.Activity.RESULT_OK) {
-            onBack() // Or refresh
+            onBack()
         }
     }
 
@@ -101,14 +109,11 @@ fun AICurationScreen(
             .fillMaxSize()
             .background(Color.Black)
     ) {
-        // Header
         CurationHeader(
             onBack = onBack,
             isAnalyzing = isAnalyzing,
             resultCount = analysisResults.size,
-            onDeleteRejected = { 
-                showDeleteConfirm = true
-            }
+            onDeleteRejected = { showDeleteConfirm = true }
         )
 
         if (isAnalyzing && progress != null) {
@@ -116,12 +121,159 @@ fun AICurationScreen(
         } else {
             CurationResultsGrid(
                 keepers = keepers,
-                forReview = forReview
+                forReview = forReview,
+                onToggleBestTake = { viewModel.toggleBestTake(it) }
             )
         }
     }
 }
 
+@Composable
+fun CurationResultsGrid(
+    keepers: List<CuratedResult>,
+    forReview: List<CuratedResult>,
+    onToggleBestTake: (Long) -> Unit
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        contentPadding = PaddingValues(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.fillMaxSize()
+    ) {
+        if (keepers.isNotEmpty()) {
+            item(span = { GridItemSpan(2) }) {
+                SectionHeader("Keepers", Icons.Default.AutoAwesome)
+            }
+            items(keepers) { result ->
+                CurationPhotoCard(result, isKeeper = true, onToggleBestTake = onToggleBestTake)
+            }
+        }
+
+        if (forReview.isNotEmpty()) {
+            item(span = { GridItemSpan(2) }) {
+                SectionHeader("For Review", Icons.Default.BatchPrediction)
+            }
+            
+            // Handle Clusters in For Review
+            val clusteredItems = forReview.filter { it.clusterId != null }.groupBy { it.clusterId }
+            val nonClusteredItems = forReview.filter { it.clusterId == null }
+
+            // Show Non-Clustered first
+            items(nonClusteredItems) { result ->
+                CurationPhotoCard(result, isKeeper = false, onToggleBestTake = onToggleBestTake)
+            }
+
+            // Show Clustered in a Carousel
+            clusteredItems.forEach { (clusterId, items) ->
+                item(span = { GridItemSpan(2) }) {
+                    PhotoClusterCarousel(items, onToggleBestTake = onToggleBestTake)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun PhotoClusterCarousel(items: List<CuratedResult>, onToggleBestTake: (Long) -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White.copy(alpha = 0.05f), RoundedCornerShape(20.dp))
+            .padding(12.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Default.CopyAll, null, tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.size(16.dp))
+            Spacer(Modifier.width(8.dp))
+            Text("Similar photos", color = Color.White.copy(alpha = 0.5f), fontSize = 12.sp)
+        }
+        Spacer(Modifier.height(8.dp))
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(items) { result ->
+                Box(modifier = Modifier.width(120.dp).height(160.dp)) {
+                    CurationPhotoCard(result, isKeeper = false, onToggleBestTake = onToggleBestTake, compact = true)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun CurationPhotoCard(
+    result: CuratedResult, 
+    isKeeper: Boolean, 
+    onToggleBestTake: (Long) -> Unit,
+    compact: Boolean = false
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+    ) {
+        if (compact) {
+            AsyncImage(
+                model = result.photo.contentUri,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(20.dp))
+            )
+        } else {
+            PhotoCard(
+                photo = PhotoItem(
+                    id = result.photo.id,
+                    imageUrl = result.photo.contentUri.toString(),
+                    score = result.score,
+                    badge = if (isKeeper) "Best Take" else ""
+                )
+            )
+        }
+
+        // Toggle Button (Add/Remove from Best Takes)
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(8.dp)
+                .size(32.dp)
+                .background(Color.Black.copy(alpha = 0.5f), CircleShape)
+                .clickable { onToggleBestTake(result.photo.id) },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = if (isKeeper) Icons.Default.Favorite else Icons.Default.Add,
+                contentDescription = if (isKeeper) "Remove" else "Add",
+                tint = if (isKeeper) Color.Red else Color.White,
+                modifier = Modifier.size(18.dp)
+            )
+        }
+
+        // Overlay for Rejection Reason
+        if (!isKeeper && result.rejectionReason != RejectionReason.NONE) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(8.dp)
+                    .background(Color.Black.copy(alpha = 0.6f), CircleShape)
+                    .padding(6.dp)
+            ) {
+                Icon(
+                    imageVector = when (result.rejectionReason) {
+                        RejectionReason.EYES_CLOSED -> Icons.Default.VisibilityOff
+                        RejectionReason.DUPLICATE -> Icons.Default.CopyAll
+                        RejectionReason.BLURRY -> Icons.Default.BlurOn
+                        else -> Icons.Default.ErrorOutline
+                    },
+                    contentDescription = result.rejectionReason.name,
+                    tint = Color.White,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        }
+    }
+}
+
+// Reusing CurationHeader, AnalysisProgressView, SectionHeader from previous implementation
 @Composable
 fun CurationHeader(
     onBack: () -> Unit,
@@ -196,38 +348,6 @@ fun AnalysisProgressView(progress: CurationProgress) {
 }
 
 @Composable
-fun CurationResultsGrid(
-    keepers: List<CuratedResult>,
-    forReview: List<CuratedResult>
-) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        contentPadding = PaddingValues(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.fillMaxSize()
-    ) {
-        if (keepers.isNotEmpty()) {
-            item(span = { GridItemSpan(2) }) {
-                SectionHeader("Keepers", Icons.Default.AutoAwesome)
-            }
-            items(keepers) { result ->
-                CurationPhotoCard(result, isKeeper = true)
-            }
-        }
-
-        if (forReview.isNotEmpty()) {
-            item(span = { GridItemSpan(2) }) {
-                SectionHeader("For Review", Icons.Default.BatchPrediction)
-            }
-            items(forReview) { result ->
-                CurationPhotoCard(result, isKeeper = false)
-            }
-        }
-    }
-}
-
-@Composable
 fun SectionHeader(title: String, icon: ImageVector) {
     Row(
         modifier = Modifier.padding(vertical = 12.dp),
@@ -236,59 +356,5 @@ fun SectionHeader(title: String, icon: ImageVector) {
         Icon(icon, null, tint = Color.White, modifier = Modifier.size(20.dp))
         Spacer(Modifier.width(8.dp))
         Text(title, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-    }
-}
-
-@Composable
-fun CurationPhotoCard(result: CuratedResult, isKeeper: Boolean) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-    ) {
-        PhotoCard(
-            photo = PhotoItem(
-                id = result.photo.id,
-                imageUrl = result.photo.contentUri.toString(),
-                score = result.score,
-                badge = if (isKeeper) "Best Take" else ""
-            )
-        )
-
-        // Overlay for Rejection Reason
-        if (!isKeeper && result.rejectionReason != RejectionReason.NONE) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(8.dp)
-                    .background(Color.Black.copy(alpha = 0.6f), CircleShape)
-                    .padding(6.dp)
-            ) {
-                Icon(
-                    imageVector = when (result.rejectionReason) {
-                        RejectionReason.EYES_CLOSED -> Icons.Default.VisibilityOff
-                        RejectionReason.DUPLICATE -> Icons.Default.CopyAll
-                        RejectionReason.BLURRY -> Icons.Default.BlurOn
-                        else -> Icons.Default.ErrorOutline
-                    },
-                    contentDescription = result.rejectionReason.name,
-                    tint = Color.White,
-                    modifier = Modifier.size(16.dp)
-                )
-            }
-        }
-        
-        // Cluster Indicator
-        if (result.clusterId != null) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(8.dp)
-                    .background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
-                    .padding(horizontal = 6.dp, vertical = 2.dp)
-            ) {
-                Text("Group", color = Color.White, fontSize = 10.sp)
-            }
-        }
     }
 }

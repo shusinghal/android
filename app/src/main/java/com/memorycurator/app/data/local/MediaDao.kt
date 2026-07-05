@@ -1,32 +1,21 @@
 package com.memorycurator.app.data.local
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MediaDao {
 
-    @Insert(
-        onConflict = OnConflictStrategy.REPLACE
-    )
-    suspend fun insertAll(
-        media: List<MediaEntity>
-    )
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(media: List<MediaEntity>)
 
-    @Query(
-        """
-        SELECT * FROM media
-        ORDER BY dateTaken DESC
-        """
-    )
-    fun getAllMedia():
-            Flow<List<MediaEntity>>
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertNewMedia(media: List<MediaEntity>)
 
-    @Query(
-        """
+    @Query("SELECT * FROM media ORDER BY dateTaken DESC")
+    fun getAllMedia(): Flow<List<MediaEntity>>
+
+    @Query("""
         SELECT 
             folderName,
             uri AS thumbnailUri,
@@ -34,8 +23,15 @@ interface MediaDao {
         FROM media
         GROUP BY folderName
         ORDER BY photoCount DESC
-        """
-    )
-    fun getAlbums():
-            Flow<List<AlbumProjection>>
+    """)
+    fun getAlbums(): Flow<List<AlbumProjection>>
+
+    @Query("SELECT * FROM media WHERE id = :id")
+    suspend fun getMediaById(id: Long): MediaEntity?
+
+    @Query("SELECT * FROM media WHERE id IN (:ids)")
+    suspend fun getMediaByIds(ids: List<Long>): List<MediaEntity>
+
+    @Query("UPDATE media SET isBestTake = :isBest, isManuallyModified = 1 WHERE id = :id")
+    suspend fun updateBestTakeStatus(id: Long, isBest: Boolean)
 }
