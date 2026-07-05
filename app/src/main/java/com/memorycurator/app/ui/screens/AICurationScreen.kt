@@ -3,6 +3,7 @@ package com.memorycurator.app.ui.screens
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -17,6 +18,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -54,6 +56,13 @@ fun AICurationScreen(
     )
     val context = LocalContext.current
     
+    var selectedPhotoIndex by remember { mutableIntStateOf(-1) }
+    var viewerSourceIsKeepers by remember { mutableStateOf(true) }
+
+    BackHandler(enabled = selectedPhotoIndex >= 0) {
+        selectedPhotoIndex = -1
+    }
+
     LaunchedEffect(photos) {
         if (photos.isNotEmpty()) {
             viewModel.filterBestTakes(context, photos)
@@ -122,8 +131,29 @@ fun AICurationScreen(
             CurationResultsGrid(
                 keepers = keepers,
                 forReview = forReview,
-                onToggleBestTake = { viewModel.toggleBestTake(it) }
+                onToggleBestTake = { viewModel.toggleBestTake(it) },
+                onPhotoClick = { index, isKeeper ->
+                    selectedPhotoIndex = index
+                    viewerSourceIsKeepers = isKeeper
+                }
             )
+        }
+
+        if (selectedPhotoIndex >= 0) {
+            val viewerList = if (viewerSourceIsKeepers) keepers else forReview
+            if (selectedPhotoIndex < viewerList.size) {
+                CurationViewerScreen(
+                    results = viewerList,
+                    allResults = analysisResults,
+                    initialIndex = selectedPhotoIndex,
+                    onToggleAction = { id -> 
+                        viewModel.toggleBestTake(id)
+                    },
+                    onDismiss = { selectedPhotoIndex = -1 }
+                )
+            } else {
+                selectedPhotoIndex = -1
+            }
         }
     }
 }
@@ -132,7 +162,8 @@ fun AICurationScreen(
 fun CurationResultsGrid(
     keepers: List<CuratedResult>,
     forReview: List<CuratedResult>,
-    onToggleBestTake: (Long) -> Unit
+    onToggleBestTake: (Long) -> Unit,
+    onPhotoClick: (Int, Boolean) -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -145,8 +176,13 @@ fun CurationResultsGrid(
             item(span = { GridItemSpan(2) }) {
                 SectionHeader("Keepers", Icons.Default.AutoAwesome)
             }
-            items(keepers) { result ->
-                CurationPhotoCard(result, isKeeper = true, onToggleBestTake = onToggleBestTake)
+            itemsIndexed(keepers) { index, result ->
+                CurationPhotoCard(
+                    result = result, 
+                    isKeeper = true, 
+                    onToggleBestTake = onToggleBestTake,
+                    onClick = { onPhotoClick(index, true) }
+                )
             }
         }
 
@@ -155,46 +191,14 @@ fun CurationResultsGrid(
                 SectionHeader("For Review", Icons.Default.BatchPrediction)
             }
             
-            // Handle Clusters in For Review
-            val clusteredItems = forReview.filter { it.clusterId != null }.groupBy { it.clusterId }
-            val nonClusteredItems = forReview.filter { it.clusterId == null }
-
-            // Show Non-Clustered first
-            items(nonClusteredItems) { result ->
-                CurationPhotoCard(result, isKeeper = false, onToggleBestTake = onToggleBestTake)
-            }
-
-            // Show Clustered in a Carousel
-            clusteredItems.forEach { (clusterId, items) ->
-                item(span = { GridItemSpan(2) }) {
-                    PhotoClusterCarousel(items, onToggleBestTake = onToggleBestTake)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun PhotoClusterCarousel(items: List<CuratedResult>, onToggleBestTake: (Long) -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.White.copy(alpha = 0.05f), RoundedCornerShape(20.dp))
-            .padding(12.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Default.CopyAll, null, tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.size(16.dp))
-            Spacer(Modifier.width(8.dp))
-            Text("Similar photos", color = Color.White.copy(alpha = 0.5f), fontSize = 12.sp)
-        }
-        Spacer(Modifier.height(8.dp))
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(items) { result ->
-                Box(modifier = Modifier.width(120.dp).height(160.dp)) {
-                    CurationPhotoCard(result, isKeeper = false, onToggleBestTake = onToggleBestTake, compact = true)
-                }
+            // Just show all 'For Review' items in the grid, collective.
+            itemsIndexed(forReview) { index, result ->
+                CurationPhotoCard(
+                    result = result, 
+                    isKeeper = false, 
+                    onToggleBestTake = onToggleBestTake,
+                    onClick = { onPhotoClick(index, false) }
+                )
             }
         }
     }
@@ -205,12 +209,14 @@ fun CurationPhotoCard(
     result: CuratedResult, 
     isKeeper: Boolean, 
     onToggleBestTake: (Long) -> Unit,
+    onClick: () -> Unit,
     compact: Boolean = false
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
+            .clickable { onClick() }
     ) {
         if (compact) {
             AsyncImage(

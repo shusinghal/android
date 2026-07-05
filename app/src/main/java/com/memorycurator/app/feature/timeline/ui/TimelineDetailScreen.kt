@@ -1,5 +1,6 @@
 package com.memorycurator.app.feature.timeline.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.ui.tooling.preview.Preview
 import android.net.Uri
 import androidx.compose.foundation.clickable
@@ -36,6 +37,10 @@ fun TimelineDetailScreen(
     onBestTakesClick: (TimelineGroup) -> Unit
 ) {
     var selectedIndex by remember { mutableIntStateOf(-1) }
+
+    BackHandler(enabled = selectedIndex >= 0) {
+        selectedIndex = -1
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
 

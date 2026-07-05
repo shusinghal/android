@@ -1,5 +1,6 @@
 package com.memorycurator.app.ui.navigation
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -137,6 +138,15 @@ fun MainNavigationContent(
     onCurationGroupSelected: (TimelineGroup?) -> Unit,
     mediaRepository: MediaRepository?
 ) {
+    // Handle System Back Button
+    BackHandler(enabled = curationGroup != null || selectedGroup != null) {
+        if (curationGroup != null) {
+            onCurationGroupSelected(null)
+        } else if (selectedGroup != null) {
+            onGroupSelected(null)
+        }
+    }
+
     Box(
         modifier = Modifier.fillMaxSize()
     )
