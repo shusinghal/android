@@ -1,7 +1,9 @@
 package com.memorycurator.app.ui.screens
 
-import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.*
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,16 +12,15 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddPhotoAlternate
-import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -51,37 +52,47 @@ fun CurationViewerScreen(
     onDismiss: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val pagerState = rememberPagerState(
+    val mainPagerState = rememberPagerState(
         initialPage = initialIndex,
         pageCount = { results.size }
     )
 
-    var offsetY by remember { mutableFloatStateOf(0f) }
-    var bottomBarOffsetY by remember { mutableFloatStateOf(0f) }
-    var isBottomBarVisible by remember { mutableStateOf(true) }
-
-    val currentItem = if (results.isNotEmpty() && pagerState.currentPage < results.size) results[pagerState.currentPage] else null
-    val isBestTake = currentItem?.isBestTake ?: false
+    // Stage 1: Lift state
+    val liftOffsetY = remember { Animatable(0f) }
+    var isLifted by remember { mutableStateOf(false) }
     
-    // Find cluster members
-    val clusterMembers = remember(currentItem, allResults) {
-        if (currentItem?.clusterId != null) {
-            allResults.filter { it.clusterId == currentItem.clusterId }
+    // Tracking current drag for visual feedback
+    var currentDragY by remember { mutableFloatStateOf(0f) }
+
+    val currentMainItem = if (results.isNotEmpty() && mainPagerState.currentPage < results.size) results[mainPagerState.currentPage] else null
+    var focusedClusterPhoto by remember { mutableStateOf<CuratedResult?>(null) }
+    
+    val activeItem = focusedClusterPhoto ?: currentMainItem
+    val isBestTake = activeItem?.isBestTake ?: false
+
+    val clusterMembers = remember(currentMainItem, allResults) {
+        if (currentMainItem?.clusterId != null) {
+            allResults.filter { it.clusterId == currentMainItem.clusterId }
         } else {
             emptyList()
         }
     }
 
-    val overlayAlpha by animateFloatAsState(
-        targetValue = if (offsetY < 0) (-offsetY / 600f).coerceIn(0f, 0.8f) else 0f,
+    // Reset state when page changes
+    LaunchedEffect(mainPagerState.currentPage) {
+        liftOffsetY.snapTo(0f)
+        isLifted = false
+        currentDragY = 0f
+        focusedClusterPhoto = null
+    }
+
+    val overlayAlphaState = animateFloatAsState(
+        targetValue = if (currentDragY < 0 && isLifted) {
+            (-currentDragY / 400f).coerceIn(0f, 0.9f)
+        } else 0f,
         label = "overlayAlpha"
     )
-
-    val bottomBarAnimatedOffset by animateDpAsState(
-        targetValue = if (isBottomBarVisible) 0.dp else 120.dp,
-        label = "bottomBarOffset"
-    )
-
+    val overlayAlpha = overlayAlphaState.value
     val overlayColor = if (isBestTake) Color.Red else Color.Green
 
     Dialog(
@@ -93,35 +104,85 @@ fun CurationViewerScreen(
                 .fillMaxSize()
                 .background(Color.Black)
         ) {
-            // Main Content Area
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .pointerInput(pagerState.currentPage) {
-                        detectVerticalDragGestures(
-                            onVerticalDrag = { change, dragAmount ->
-                                change.consume()
-                                offsetY += dragAmount
-                            },
-                            onDragEnd = {
-                                if (offsetY < -300f) {
-                                    currentItem?.let { onToggleAction(it.photo.id) }
-                                    if (results.size <= 1) onDismiss()
-                                } else if (offsetY > 300f) {
-                                    onDismiss()
-                                }
-                                offsetY = 0f
-                            }
+            // Text shown UNDER the photo when lifted
+            if (isLifted || liftOffsetY.value < -50f) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = 150.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = if (isBestTake) "SWIPE AGAIN TO REMOVE" else "SWIPE AGAIN TO INCLUDE",
+                            color = overlayColor.copy(alpha = 0.8f),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Black
+                        )
+                        Text(
+                            text = "Confirmed on full swipe",
+                            color = Color.White.copy(alpha = 0.5f),
+                            fontSize = 12.sp
                         )
                     }
-                    .graphicsLayer {
-                        translationY = offsetY
-                        alpha = (1f - (kotlin.math.abs(offsetY) / 1000f)).coerceIn(0.2f, 1f)
-                    }
+                }
+            }
+
+            // Main Pager - This now owns the horizontal swipes
+            HorizontalPager(
+                state = mainPagerState,
+                modifier = Modifier.fillMaxSize(),
+                userScrollEnabled = focusedClusterPhoto == null && !isLifted,
+                pageSpacing = 16.dp
             ) { page ->
+                val isCurrentPage = page == mainPagerState.currentPage
+                
                 Box(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer {
+                            if (isCurrentPage && focusedClusterPhoto == null) {
+                                translationY = liftOffsetY.value + currentDragY.coerceAtMost(0f)
+                            }
+                        }
+                        .draggable(
+                            orientation = Orientation.Vertical,
+                            enabled = isCurrentPage && focusedClusterPhoto == null,
+                            onDragStarted = { },
+                            state = rememberDraggableState { delta ->
+                                currentDragY += delta
+                            },
+                            onDragStopped = { velocity ->
+                                coroutineScope.launch {
+                                    if (currentDragY < -150f) {
+                                        if (!isLifted) {
+                                            isLifted = true
+                                            liftOffsetY.animateTo(-250f, spring())
+                                        } else {
+                                            activeItem?.let { onToggleAction(it.photo.id) }
+                                            isLifted = false
+                                            liftOffsetY.animateTo(0f)
+                                            if (results.size <= 1) onDismiss()
+                                        }
+                                    } else if (currentDragY > 200f) {
+                                        if (isLifted) {
+                                            isLifted = false
+                                            liftOffsetY.animateTo(0f)
+                                        } else {
+                                            onDismiss()
+                                        }
+                                    } else {
+                                        // Snap back if didn't cross threshold
+                                        if (!isLifted) {
+                                            liftOffsetY.animateTo(0f)
+                                        } else {
+                                            liftOffsetY.animateTo(-250f)
+                                        }
+                                    }
+                                    currentDragY = 0f
+                                }
+                            }
+                        )
                         .pointerInput(Unit) {
                             detectTapGestures(onTap = { onDismiss() })
                         },
@@ -139,81 +200,107 @@ fun CurationViewerScreen(
                 }
             }
 
-            // Action Overlay
+            // Cluster Focus Overlay
+            AnimatedVisibility(
+                visible = focusedClusterPhoto != null,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                focusedClusterPhoto?.let { photo ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .graphicsLayer {
+                                translationY = liftOffsetY.value + currentDragY.coerceAtMost(0f)
+                            }
+                            .draggable(
+                                orientation = Orientation.Vertical,
+                                state = rememberDraggableState { delta ->
+                                    currentDragY += delta
+                                },
+                                onDragStopped = {
+                                    coroutineScope.launch {
+                                        if (currentDragY < -150f) {
+                                            if (!isLifted) {
+                                                isLifted = true
+                                                liftOffsetY.animateTo(-250f, spring())
+                                            } else {
+                                                onToggleAction(photo.photo.id)
+                                                isLifted = false
+                                                liftOffsetY.animateTo(0f)
+                                            }
+                                        } else if (currentDragY > 200f) {
+                                            if (isLifted) {
+                                                isLifted = false
+                                                liftOffsetY.animateTo(0f)
+                                            } else {
+                                                focusedClusterPhoto = null
+                                            }
+                                        }
+                                        currentDragY = 0f
+                                    }
+                                }
+                            )
+                            .pointerInput(Unit) {
+                                detectTapGestures(onTap = { focusedClusterPhoto = null })
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(photo.photo.contentUri)
+                                .crossfade(true)
+                                .build(),
+                            contentDescription = null,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                }
+            }
+
+            // Action Confirmation Overlay
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(overlayColor.copy(alpha = overlayAlpha)),
                 contentAlignment = Alignment.Center
             ) {
-                if (overlayAlpha > 0.2f) {
+                if (overlayAlpha > 0.3f) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = if (isBestTake) Icons.Default.DeleteForever else Icons.Default.AddPhotoAlternate,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(64.dp)
-                        )
-                        Text(
-                            text = if (isBestTake) "Removing from Best Takes" else "Including in Best Takes",
-                            color = Color.White,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Icon(Icons.Default.CheckCircle, null, tint = Color.White, modifier = Modifier.size(80.dp))
+                        Text("ACTION CONFIRMED", color = Color.White, fontWeight = FontWeight.Bold)
                     }
                 }
             }
 
-            // Cluster Carousel at bottom
-            if (clusterMembers.isNotEmpty()) {
+            // Bottom Carousel
+            if (clusterMembers.isNotEmpty() && !isLifted) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .offset(y = bottomBarAnimatedOffset)
                         .fillMaxWidth()
-                        .height(100.dp)
-                        .background(Color.Black.copy(alpha = 0.7f))
-                        .draggable(
-                            orientation = Orientation.Vertical,
-                            state = rememberDraggableState { delta ->
-                                bottomBarOffsetY += delta
-                            },
-                            onDragStopped = {
-                                if (bottomBarOffsetY > 50f) {
-                                    isBottomBarVisible = false
-                                } else if (bottomBarOffsetY < -50f) {
-                                    isBottomBarVisible = true
-                                }
-                                bottomBarOffsetY = 0f
-                            }
-                        )
+                        .padding(bottom = 32.dp)
+                        .navigationBarsPadding()
                 ) {
                     LazyRow(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         items(clusterMembers) { member ->
-                            val isSelected = member.photo.id == currentItem?.photo?.id
+                            val isSelected = member.photo.id == (activeItem?.photo?.id)
                             Box(
                                 modifier = Modifier
-                                    .size(70.dp)
+                                    .size(60.dp)
                                     .clip(RoundedCornerShape(8.dp))
                                     .border(
-                                        width = if (isSelected) 3.dp else 0.dp,
+                                        width = if (isSelected) 2.dp else 0.dp,
                                         color = if (isSelected) Color.White else Color.Transparent,
                                         shape = RoundedCornerShape(8.dp)
                                     )
-                                    .clickable {
-                                        // Find index in results list to scroll pager
-                                        val index = results.indexOfFirst { it.photo.id == member.photo.id }
-                                        if (index != -1) {
-                                            coroutineScope.launch {
-                                                pagerState.animateScrollToPage(index)
-                                            }
-                                        }
-                                    }
+                                    .clickable { focusedClusterPhoto = member }
                             ) {
                                 AsyncImage(
                                     model = member.photo.contentUri,
@@ -221,21 +308,27 @@ fun CurationViewerScreen(
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier.fillMaxSize()
                                 )
+                                if (member.isBestTake) {
+                                    Box(
+                                        modifier = Modifier.align(Alignment.TopEnd).padding(2.dp).size(8.dp)
+                                            .background(Color.White, CircleShape)
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
 
-            // Page Indicator
-            Text(
-                text = "${pagerState.currentPage + 1} / ${results.size}",
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 60.dp),
-                color = Color.White,
-                fontSize = 16.sp
-            )
+            // Top Progress
+            if (!isLifted) {
+                Text(
+                    text = "${mainPagerState.currentPage + 1} / ${results.size}",
+                    modifier = Modifier.align(Alignment.TopCenter).padding(top = 60.dp),
+                    color = Color.White.copy(alpha = 0.7f),
+                    fontSize = 14.sp
+                )
+            }
         }
     }
 }

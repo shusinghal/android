@@ -13,4 +13,6 @@ interface MediaRepository {
     suspend fun saveAiResults(entities: List<MediaEntity>)
     
     suspend fun updateBestTakeStatus(id: Long, isBest: Boolean)
+    
+    suspend fun resetAiMetadata(ids: List<Long>)
 }

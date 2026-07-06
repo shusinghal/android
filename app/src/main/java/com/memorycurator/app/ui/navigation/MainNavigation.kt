@@ -168,19 +168,12 @@ fun MainNavigationContent(
                 when (selectedRoute)
                 {
                     "timeline" -> {
-                        if (curationGroup != null) {
-                            if (mediaRepository != null) {
-                                AICurationScreen(
-                                    photos = curationGroup.photos,
-                                    onBack = { onCurationGroupSelected(null) },
-                                    repository = mediaRepository
-                                )
-                            }
-                        } else if (selectedGroup != null) {
+                        if (selectedGroup != null) {
                             TimelineDetailScreen(
                                 group = selectedGroup,
                                 onBack = { onGroupSelected(null) },
-                                onBestTakesClick = { onCurationGroupSelected(it) }
+                                onBestTakesClick = { onCurationGroupSelected(it) },
+                                repository = mediaRepository
                             )
                         } else {
                             TimelineScreen(

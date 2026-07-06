@@ -38,4 +38,8 @@ class MediaRepositoryImpl(
     override suspend fun updateBestTakeStatus(id: Long, isBest: Boolean) {
         mediaDao.updateBestTakeStatus(id, isBest)
     }
+
+    override suspend fun resetAiMetadata(ids: List<Long>) {
+        mediaDao.resetAiMetadata(ids)
+    }
 }

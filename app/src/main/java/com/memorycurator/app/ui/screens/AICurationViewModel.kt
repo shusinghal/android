@@ -110,6 +110,17 @@ class AICurationViewModel(
             }
         }
     }
+
+    fun resetCuration(photos: List<MediaPhoto>) {
+        viewModelScope.launch {
+            _isAnalyzing.value = true
+            withContext(Dispatchers.IO) {
+                repository.resetAiMetadata(photos.map { it.id })
+            }
+            _analysisResults.value = emptyList()
+            _isAnalyzing.value = false
+        }
+    }
 }
 
 class AICurationViewModelFactory(

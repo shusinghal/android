@@ -166,14 +166,14 @@ fun CurationResultsGrid(
     onPhotoClick: (Int, Boolean) -> Unit
 ) {
     LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        contentPadding = PaddingValues(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        columns = GridCells.Fixed(3), // 3 columns like iPhone gallery
+        contentPadding = PaddingValues(1.dp),
+        horizontalArrangement = Arrangement.spacedBy(1.dp),
+        verticalArrangement = Arrangement.spacedBy(1.dp),
         modifier = Modifier.fillMaxSize()
     ) {
         if (keepers.isNotEmpty()) {
-            item(span = { GridItemSpan(2) }) {
+            item(span = { GridItemSpan(3) }) {
                 SectionHeader("Keepers", Icons.Default.AutoAwesome)
             }
             itemsIndexed(keepers) { index, result ->
@@ -187,7 +187,7 @@ fun CurationResultsGrid(
         }
 
         if (forReview.isNotEmpty()) {
-            item(span = { GridItemSpan(2) }) {
+            item(span = { GridItemSpan(3) }) {
                 SectionHeader("For Review", Icons.Default.BatchPrediction)
             }
             
@@ -215,34 +215,23 @@ fun CurationPhotoCard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
+            .aspectRatio(1f) // Square like iPhone
             .clickable { onClick() }
     ) {
-        if (compact) {
-            AsyncImage(
-                model = result.photo.contentUri,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(20.dp))
-            )
-        } else {
-            PhotoCard(
-                photo = PhotoItem(
-                    id = result.photo.id,
-                    imageUrl = result.photo.contentUri.toString(),
-                    score = result.score,
-                    badge = if (isKeeper) "Best Take" else ""
-                )
-            )
-        }
+        AsyncImage(
+            model = result.photo.contentUri,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
 
-        // Toggle Button (Add/Remove from Best Takes)
+        // Toggle Button (Add/Remove from Best Takes) - Smaller and more subtle
         Box(
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .padding(8.dp)
-                .size(32.dp)
-                .background(Color.Black.copy(alpha = 0.5f), CircleShape)
+                .padding(4.dp)
+                .size(24.dp)
+                .background(Color.Black.copy(alpha = 0.4f), CircleShape)
                 .clickable { onToggleBestTake(result.photo.id) },
             contentAlignment = Alignment.Center
         ) {
@@ -250,18 +239,18 @@ fun CurationPhotoCard(
                 imageVector = if (isKeeper) Icons.Default.Favorite else Icons.Default.Add,
                 contentDescription = if (isKeeper) "Remove" else "Add",
                 tint = if (isKeeper) Color.Red else Color.White,
-                modifier = Modifier.size(18.dp)
+                modifier = Modifier.size(14.dp)
             )
         }
 
-        // Overlay for Rejection Reason
+        // Overlay for Rejection Reason - Smaller
         if (!isKeeper && result.rejectionReason != RejectionReason.NONE) {
             Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(8.dp)
-                    .background(Color.Black.copy(alpha = 0.6f), CircleShape)
-                    .padding(6.dp)
+                    .padding(4.dp)
+                    .background(Color.Black.copy(alpha = 0.4f), CircleShape)
+                    .padding(4.dp)
             ) {
                 Icon(
                     imageVector = when (result.rejectionReason) {
@@ -272,7 +261,7 @@ fun CurationPhotoCard(
                     },
                     contentDescription = result.rejectionReason.name,
                     tint = Color.White,
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(12.dp)
                 )
             }
         }
@@ -356,7 +345,7 @@ fun AnalysisProgressView(progress: CurationProgress) {
 @Composable
 fun SectionHeader(title: String, icon: ImageVector) {
     Row(
-        modifier = Modifier.padding(vertical = 12.dp),
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(icon, null, tint = Color.White, modifier = Modifier.size(20.dp))
