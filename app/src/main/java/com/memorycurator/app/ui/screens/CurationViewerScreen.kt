@@ -19,14 +19,13 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -57,12 +56,10 @@ fun CurationViewerScreen(
         pageCount = { results.size }
     )
 
-    // Stage 1: Lift state
-    val liftOffsetY = remember { Animatable(0f) }
+    // Two-stage swipe state
+    val verticalOffset = remember { Animatable(0f) }
     var isLifted by remember { mutableStateOf(false) }
-    
-    // Tracking current drag for visual feedback
-    var currentDragY by remember { mutableFloatStateOf(0f) }
+    var isDragging by remember { mutableStateOf(false) }
 
     val currentMainItem = if (results.isNotEmpty() && mainPagerState.currentPage < results.size) results[mainPagerState.currentPage] else null
     var focusedClusterPhoto by remember { mutableStateOf<CuratedResult?>(null) }
@@ -80,20 +77,29 @@ fun CurationViewerScreen(
 
     // Reset state when page changes
     LaunchedEffect(mainPagerState.currentPage) {
-        liftOffsetY.snapTo(0f)
+        verticalOffset.snapTo(0f)
         isLifted = false
-        currentDragY = 0f
+        isDragging = false
         focusedClusterPhoto = null
     }
 
-    val overlayAlphaState = animateFloatAsState(
-        targetValue = if (currentDragY < 0 && isLifted) {
-            (-currentDragY / 400f).coerceIn(0f, 0.9f)
+    // Anchor definitions
+    val liftThreshold = -150f
+    val liftAnchor = -350f
+    val cancelThreshold = -100f // Threshold to drop back down
+    val dismissThreshold = 250f
+
+    // Background action color alpha based on drag
+    val colorAlpha by animateFloatAsState(
+        targetValue = if (verticalOffset.value < 0) {
+            (kotlin.math.abs(verticalOffset.value) / 600f).coerceIn(0f, 0.6f)
         } else 0f,
-        label = "overlayAlpha"
+        label = "colorAlpha"
     )
-    val overlayAlpha = overlayAlphaState.value
-    val overlayColor = if (isBestTake) Color.Red else Color.Green
+    
+    // Lock action color during the confirmation animation to prevent flickering
+    var lockedActionColor by remember { mutableStateOf<Color?>(null) }
+    val actionColor = lockedActionColor ?: if (isBestTake) Color.Red else Color.Green
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -104,35 +110,49 @@ fun CurationViewerScreen(
                 .fillMaxSize()
                 .background(Color.Black)
         ) {
-            // Text shown UNDER the photo when lifted
-            if (isLifted || liftOffsetY.value < -50f) {
+            // LAYER 1: Dynamic Gradient Background (bottom-up)
+            if (verticalOffset.value < 0) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(bottom = 150.dp),
-                    contentAlignment = Alignment.Center
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(Color.Transparent, actionColor.copy(alpha = colorAlpha)),
+                                startY = 300f
+                            )
+                        )
+                )
+            }
+
+            // LAYER 2: Text shown UNDER the photo
+            if (verticalOffset.value < -50f) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = 80.dp),
+                    contentAlignment = Alignment.BottomCenter
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = if (isBestTake) "SWIPE AGAIN TO REMOVE" else "SWIPE AGAIN TO INCLUDE",
-                            color = overlayColor.copy(alpha = 0.8f),
+                            text = if (isBestTake) "SWIPE UP AGAIN TO REMOVE" else "SWIPE UP AGAIN TO INCLUDE",
+                            color = actionColor.copy(alpha = 0.9f),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Black
                         )
                         Text(
-                            text = "Confirmed on full swipe",
-                            color = Color.White.copy(alpha = 0.5f),
-                            fontSize = 12.sp
+                            text = if (isLifted) "Confirmed on full swipe" else "Keep swiping to lift",
+                            color = Color.White.copy(alpha = 0.6f),
+                            fontSize = 14.sp
                         )
                     }
                 }
             }
 
-            // Main Pager - This now owns the horizontal swipes
+            // LAYER 3: Main Pager
             HorizontalPager(
                 state = mainPagerState,
                 modifier = Modifier.fillMaxSize(),
-                userScrollEnabled = focusedClusterPhoto == null && !isLifted,
+                userScrollEnabled = focusedClusterPhoto == null && !isLifted && !isDragging,
                 pageSpacing = 16.dp
             ) { page ->
                 val isCurrentPage = page == mainPagerState.currentPage
@@ -142,44 +162,54 @@ fun CurationViewerScreen(
                         .fillMaxSize()
                         .graphicsLayer {
                             if (isCurrentPage && focusedClusterPhoto == null) {
-                                translationY = liftOffsetY.value + currentDragY.coerceAtMost(0f)
+                                translationY = verticalOffset.value
                             }
                         }
                         .draggable(
                             orientation = Orientation.Vertical,
                             enabled = isCurrentPage && focusedClusterPhoto == null,
-                            onDragStarted = { },
+                            onDragStarted = { isDragging = true },
                             state = rememberDraggableState { delta ->
-                                currentDragY += delta
+                                coroutineScope.launch {
+                                    val target = verticalOffset.value + delta
+                                    // Lock downward movement unless dismissing or resetting from lift
+                                    if (target < 0 || (target >= 0 && !isLifted)) {
+                                        verticalOffset.snapTo(target)
+                                    }
+                                }
                             },
                             onDragStopped = { velocity ->
+                                isDragging = false
                                 coroutineScope.launch {
-                                    if (currentDragY < -150f) {
+                                    val currentVal = verticalOffset.value
+                                    if (currentVal < liftThreshold) {
                                         if (!isLifted) {
+                                            // Stage 1: Lift
                                             isLifted = true
-                                            liftOffsetY.animateTo(-250f, spring())
-                                        } else {
+                                            verticalOffset.animateTo(liftAnchor, spring())
+                                        } else if (currentVal < (liftAnchor - 150f) || velocity < -500f) {
+                                            // Stage 2: Confirm
+                                            lockedActionColor = if (isBestTake) Color.Red else Color.Green
+                                            isLifted = false
+                                            verticalOffset.animateTo(0f, spring())
                                             activeItem?.let { onToggleAction(it.photo.id) }
-                                            isLifted = false
-                                            liftOffsetY.animateTo(0f)
+                                            lockedActionColor = null
                                             if (results.size <= 1) onDismiss()
-                                        }
-                                    } else if (currentDragY > 200f) {
-                                        if (isLifted) {
-                                            isLifted = false
-                                            liftOffsetY.animateTo(0f)
                                         } else {
-                                            onDismiss()
+                                            // Stay lifted
+                                            verticalOffset.animateTo(liftAnchor, spring())
                                         }
+                                    } else if (isLifted && (currentVal > cancelThreshold || velocity > 500f)) {
+                                        // Swipe down to cancel lift
+                                        isLifted = false
+                                        verticalOffset.animateTo(0f, spring())
+                                    } else if (!isLifted && currentVal > dismissThreshold) {
+                                        // Swipe down from rest to dismiss
+                                        onDismiss()
                                     } else {
-                                        // Snap back if didn't cross threshold
-                                        if (!isLifted) {
-                                            liftOffsetY.animateTo(0f)
-                                        } else {
-                                            liftOffsetY.animateTo(-250f)
-                                        }
+                                        // Reset to anchor
+                                        verticalOffset.animateTo(if (isLifted) liftAnchor else 0f, spring())
                                     }
-                                    currentDragY = 0f
                                 }
                             }
                         )
@@ -200,7 +230,7 @@ fun CurationViewerScreen(
                 }
             }
 
-            // Cluster Focus Overlay
+            // Cluster Focus Overlay (Mirroring logic)
             AnimatedVisibility(
                 visible = focusedClusterPhoto != null,
                 enter = fadeIn(),
@@ -211,33 +241,42 @@ fun CurationViewerScreen(
                         modifier = Modifier
                             .fillMaxSize()
                             .graphicsLayer {
-                                translationY = liftOffsetY.value + currentDragY.coerceAtMost(0f)
+                                translationY = verticalOffset.value
                             }
                             .draggable(
                                 orientation = Orientation.Vertical,
                                 state = rememberDraggableState { delta ->
-                                    currentDragY += delta
-                                },
-                                onDragStopped = {
                                     coroutineScope.launch {
-                                        if (currentDragY < -150f) {
+                                        isDragging = true
+                                        val target = verticalOffset.value + delta
+                                        if (target < 0 || (target >= 0 && !isLifted)) {
+                                            verticalOffset.snapTo(target)
+                                        }
+                                    }
+                                },
+                                onDragStopped = { velocity ->
+                                    isDragging = false
+                                    coroutineScope.launch {
+                                        val currentVal = verticalOffset.value
+                                        if (currentVal < liftThreshold) {
                                             if (!isLifted) {
                                                 isLifted = true
-                                                liftOffsetY.animateTo(-250f, spring())
+                                                verticalOffset.animateTo(liftAnchor, spring())
                                             } else {
+                                                lockedActionColor = if (isBestTake) Color.Red else Color.Green
+                                                isLifted = false
+                                                verticalOffset.animateTo(0f, spring())
                                                 onToggleAction(photo.photo.id)
-                                                isLifted = false
-                                                liftOffsetY.animateTo(0f)
+                                                lockedActionColor = null
                                             }
-                                        } else if (currentDragY > 200f) {
-                                            if (isLifted) {
-                                                isLifted = false
-                                                liftOffsetY.animateTo(0f)
-                                            } else {
-                                                focusedClusterPhoto = null
-                                            }
+                                        } else if (isLifted && (currentVal > cancelThreshold || velocity > 500f)) {
+                                            isLifted = false
+                                            verticalOffset.animateTo(0f, spring())
+                                        } else if (!isLifted && currentVal > dismissThreshold) {
+                                            focusedClusterPhoto = null
+                                        } else {
+                                            verticalOffset.animateTo(if (isLifted) liftAnchor else 0f, spring())
                                         }
-                                        currentDragY = 0f
                                     }
                                 }
                             )
@@ -259,22 +298,7 @@ fun CurationViewerScreen(
                 }
             }
 
-            // Action Confirmation Overlay
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(overlayColor.copy(alpha = overlayAlpha)),
-                contentAlignment = Alignment.Center
-            ) {
-                if (overlayAlpha > 0.3f) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.CheckCircle, null, tint = Color.White, modifier = Modifier.size(80.dp))
-                        Text("ACTION CONFIRMED", color = Color.White, fontWeight = FontWeight.Bold)
-                    }
-                }
-            }
-
-            // Bottom Carousel
+            // LAYER 4: Bottom Carousel
             if (clusterMembers.isNotEmpty() && !isLifted) {
                 Box(
                     modifier = Modifier
@@ -300,7 +324,13 @@ fun CurationViewerScreen(
                                         color = if (isSelected) Color.White else Color.Transparent,
                                         shape = RoundedCornerShape(8.dp)
                                     )
-                                    .clickable { focusedClusterPhoto = member }
+                                    .clickable { 
+                                        focusedClusterPhoto = member 
+                                        coroutineScope.launch {
+                                            verticalOffset.snapTo(0f)
+                                            isLifted = false
+                                        }
+                                    }
                             ) {
                                 AsyncImage(
                                     model = member.photo.contentUri,
