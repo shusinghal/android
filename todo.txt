@@ -1,0 +1,20 @@
+MemoryCurator AI Roadmap & Improvements (V2.0+)
+
+[ ] 1. Aesthetic Scoring (The "Beauty" Model)
+    - Implement a lightweight TFLite Aesthetic Ranking model.
+    - Score photos based on professional rules: Rule of Thirds, color harmony, and dynamic range.
+    - Move beyond simple subject detection to true "beauty" assessment.
+
+[ ] 2. Advanced Blurriness & Sharpness Detection
+    - Implement a Laplacian Variance check on raw pixels.
+    - Detect "micro-blur" (soft focus) that standard Face Detection might miss.
+    - Ensure only the technically sharpest frames in a burst are marked as Keepers.
+
+[ ] 3. Personalized Semantic Context (Face Grouping)
+    - Implement local face embeddings to group frequently appearing people.
+    - Prioritize photos of "VIPs" (family/friends) in the Best Takes algorithm.
+    - Enable the AI to learn user preferences over time.
+
+[ ] 4. Hardware Optimization
+    - Investigate NNAPI (Neural Network API) delegates for even faster inference on high-end chips.
+    - Implement low-power background processing using WorkManager for large library scans.

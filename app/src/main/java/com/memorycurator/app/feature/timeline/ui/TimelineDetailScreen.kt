@@ -55,6 +55,8 @@ fun TimelineDetailScreen(
 ) {
     var selectedIndex by remember { mutableIntStateOf(-1) }
     var isBestTakesActive by remember { mutableStateOf(false) }
+    // Track which filtered list is being viewed in the viewer
+    var viewerSourceList by remember { mutableStateOf<List<CuratedResult>>(emptyList()) }
 
     val viewModel: AICurationViewModel? = if (repository != null) {
         viewModel(
@@ -158,7 +160,10 @@ fun TimelineDetailScreen(
                             itemsIndexed(keepers) { index, result ->
                                 PhotoGridItem(
                                     photo = result.photo,
-                                    onClick = { selectedIndex = analysisResults.indexOf(result) }
+                                    onClick = { 
+                                        viewerSourceList = keepers
+                                        selectedIndex = index 
+                                    }
                                 )
                             }
                         }
@@ -170,7 +175,10 @@ fun TimelineDetailScreen(
                             itemsIndexed(forReview) { index, result ->
                                 PhotoGridItem(
                                     photo = result.photo,
-                                    onClick = { selectedIndex = analysisResults.indexOf(result) }
+                                    onClick = { 
+                                        viewerSourceList = forReview
+                                        selectedIndex = index 
+                                    }
                                 )
                             }
                         }
@@ -178,7 +186,9 @@ fun TimelineDetailScreen(
                         itemsIndexed(group.photos) { index, photo ->
                             PhotoGridItem(
                                 photo = photo,
-                                onClick = { selectedIndex = index }
+                                onClick = { 
+                                    selectedIndex = index 
+                                }
                             )
                         }
                     }
@@ -187,9 +197,9 @@ fun TimelineDetailScreen(
         }
 
         if (selectedIndex >= 0) {
-            if (isBestTakesActive && analysisResults.isNotEmpty()) {
+            if (isBestTakesActive && analysisResults.isNotEmpty() && viewerSourceList.isNotEmpty()) {
                 CurationViewerScreen(
-                    results = analysisResults,
+                    results = viewerSourceList, // Pass only the relevant list (Keepers OR Review)
                     allResults = analysisResults,
                     initialIndex = selectedIndex,
                     onToggleAction = { id -> viewModel?.toggleBestTake(id) },
