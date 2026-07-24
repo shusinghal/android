@@ -1,7 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("com.google.devtools.ksp") version "1.9.24-1.0.20"
+    id("org.jetbrains.kotlin.plugin.compose")
+    id("com.google.devtools.ksp") version "2.1.0-1.0.29"
 }
 
 android {
@@ -21,9 +22,7 @@ android {
         compose = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.14"
-    }
+    // Compose Compiler is now handled by the 'org.jetbrains.kotlin.plugin.compose' plugin
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -32,11 +31,19 @@ android {
 
     kotlinOptions {
         jvmTarget = "17"
+        freeCompilerArgs += listOf("-Xskip-metadata-version-check")
+    }
+
+    packaging {
+        jniLibs {
+            // Ensures compatibility with 16 KB page size devices by extracting native libraries
+            useLegacyPackaging = true
+        }
     }
 }
 
 dependencies {
-
+    implementation(project(":video-processor"))
     implementation(platform("androidx.compose:compose-bom:2024.09.00"))
 
     implementation("androidx.compose.ui:ui")
@@ -50,13 +57,15 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
         // ...
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.activity:activity-compose:1.9.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
     implementation("androidx.paging:paging-runtime:3.3.2")
     implementation("androidx.paging:paging-compose:3.3.2")
     implementation("com.github.Dimezis:BlurView:version-2.0.6")
     implementation("com.google.firebase:protolite-well-known-types:18.0.1")
     implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("io.coil-kt:coil-video:2.6.0")
+    implementation("androidx.media3:media3-exoplayer:1.4.1")
+    implementation("androidx.media3:media3-ui:1.4.1")
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
     implementation("androidx.compose.material:material-icons-extended")

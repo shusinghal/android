@@ -11,6 +11,8 @@ fun MediaEntity.toMediaPhoto(): MediaPhoto {
 
         contentUri = Uri.parse(uri),
 
-        dateTaken = dateTaken
+        dateTaken = dateTaken,
+
+        isVideo = mimeType?.startsWith("video/") == true
     )
 }

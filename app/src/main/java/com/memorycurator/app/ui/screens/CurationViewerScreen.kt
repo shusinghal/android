@@ -48,6 +48,7 @@ import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.memorycurator.app.core.ai.CuratedResult
+import com.memorycurator.app.ui.components.VideoPlayer
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
@@ -248,16 +249,23 @@ fun CurationViewerScreen(
                         ),
                     contentAlignment = Alignment.Center
                 ) {
-                    ZoomableImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(results[page].photo.contentUri)
-                            .crossfade(true)
-                            .build(),
-                        contentDescription = null,
-                        onZoomStateChanged = { zoomed ->
-                            isZoomed = zoomed
-                        }
-                    )
+                    if (results[page].photo.isVideo) {
+                        VideoPlayer(
+                            videoUri = results[page].photo.contentUri,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        ZoomableImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(results[page].photo.contentUri)
+                                .crossfade(true)
+                                .build(),
+                            contentDescription = null,
+                            onZoomStateChanged = { zoomed ->
+                                isZoomed = zoomed
+                            }
+                        )
+                    }
                 }
             }
 
@@ -325,6 +333,12 @@ fun CurationViewerScreen(
                             ),
                         contentAlignment = Alignment.Center
                     ) {
+                    if (photo.photo.isVideo) {
+                        VideoPlayer(
+                            videoUri = photo.photo.contentUri,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
                         ZoomableImage(
                             model = ImageRequest.Builder(LocalContext.current)
                                 .data(photo.photo.contentUri)
@@ -335,6 +349,7 @@ fun CurationViewerScreen(
                                 isZoomed = zoomed
                             }
                         )
+                    }
                     }
                 }
             }

@@ -8,5 +8,7 @@ data class MediaPhoto(
 
     val contentUri: Uri,
 
-    val dateTaken: Long
+    val dateTaken: Long,
+
+    val isVideo: Boolean = false
 )

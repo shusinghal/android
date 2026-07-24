@@ -30,16 +30,18 @@ class GalleryViewModel(
             .getPagedPhotos()
             .cachedIn(viewModelScope)
 
+    val allPhotos: Flow<List<MediaPhoto>> =
+        repository.getAllPhotos()
+
     init {
+        indexMedia()
+    }
 
+    fun indexMedia() {
         viewModelScope.launch {
-
+            _uiState.value = GalleryUiState(isLoading = true)
             mediaIndexer.indexMedia()
-
-            _uiState.value =
-                GalleryUiState(
-                    isLoading = false
-                )
+            _uiState.value = GalleryUiState(isLoading = false)
         }
     }
 }

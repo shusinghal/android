@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.BatchPrediction
+import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
@@ -107,6 +108,12 @@ fun TimelineDetailScreen(
                     },
                     actions = {
                         if (isBestTakesActive && analysisResults.isNotEmpty()) {
+                            val reviewCount = analysisResults.count { !it.isBestTake }
+                            if (reviewCount > 0) {
+                                TextButton(onClick = { viewModel?.archiveAllUnderReview() }) {
+                                    Text("Archive ($reviewCount)", color = Color.White)
+                                }
+                            }
                             // Reset word instead of icon
                             TextButton(onClick = { 
                                 isBestTakesActive = false
@@ -232,6 +239,17 @@ fun PhotoGridItem(photo: MediaPhoto, onClick: () -> Unit) {
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
+
+        if (photo.isVideo) {
+            Icon(
+                imageVector = Icons.Default.PlayCircle,
+                contentDescription = "Video",
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(24.dp),
+                tint = Color.White.copy(alpha = 0.7f)
+            )
+        }
     }
 }
 

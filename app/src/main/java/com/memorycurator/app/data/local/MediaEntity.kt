@@ -30,5 +30,6 @@ data class MediaEntity(
     val isBestTake: Boolean = false,
     val rejectionReason: String? = null,
     val clusterId: String? = null,
-    val isManuallyModified: Boolean = false
+    val isManuallyModified: Boolean = false,
+    val isArchived: Boolean = false
 )

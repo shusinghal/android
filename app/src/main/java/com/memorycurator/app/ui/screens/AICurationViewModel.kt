@@ -121,6 +121,29 @@ class AICurationViewModel(
             _isAnalyzing.value = false
         }
     }
+
+    fun archiveAllUnderReview() {
+        viewModelScope.launch {
+            val toArchive = _analysisResults.value.filter { !it.isBestTake }.map { it.photo.id }
+            if (toArchive.isNotEmpty()) {
+                withContext(Dispatchers.IO) {
+                    repository.archiveMedia(toArchive)
+                }
+                // Remove archived items from current analysis results
+                _analysisResults.value = _analysisResults.value.filter { it.isBestTake }
+            }
+        }
+    }
+
+    fun archivePhoto(photoId: Long) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                repository.archiveMedia(listOf(photoId))
+            }
+            // Remove from current results
+            _analysisResults.value = _analysisResults.value.filter { it.photo.id != photoId }
+        }
+    }
 }
 
 class AICurationViewModelFactory(

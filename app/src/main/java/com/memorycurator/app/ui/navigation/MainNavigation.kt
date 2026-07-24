@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.memorycurator.app.data.local.DatabaseProvider
 import com.memorycurator.app.data.media.MediaRepository
@@ -59,20 +60,15 @@ fun MainNavigation(
     val albumsViewModel: AlbumsViewModel =
         viewModel(
             factory = AlbumsViewModelFactory(
-                albumsRepository
+                albumsRepository,
+                mediaRepository
             )
         )
 
     val pagingPhotos =
         viewModel.photos.collectAsLazyPagingItems()
 
-    val allPhotos = remember(
-        pagingPhotos.itemCount
-    ) {
-        List(pagingPhotos.itemCount) { index ->
-            pagingPhotos[index]
-        }.filterNotNull()
-    }
+    val allPhotos by viewModel.allPhotos.collectAsState(initial = emptyList())
 
     val timelineGroups = remember(
         allPhotos

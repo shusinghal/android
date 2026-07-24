@@ -8,6 +8,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -16,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,6 +39,19 @@ fun TimelineScreen(
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
 //        BlurBackground()
+
+        if (groups.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No photos found.\nCheck permissions or add photos to your device.",
+                    color = Color.White.copy(alpha = 0.5f),
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -141,16 +158,21 @@ fun TimelineScreen(
                         .padding(16.dp),
                     verticalArrangement = Arrangement.Bottom
                 ) {
-//                Text(
-//                    text = group.title.uppercase(),
-//                    color = Color.White,
-//                    fontSize = 14.sp,
-//                    fontWeight = FontWeight.Bold
-//                )
                     Text(
-                        text = "${group.photos.size} ${if (group.photos.size == 1) "photo" else "photos"}",
+                        text = "${group.photos.size} ${if (group.photos.size == 1) "item" else "items"}",
                         color = Color.White.copy(alpha = 0.9f),
                         fontSize = 10.sp
+                    )
+                }
+
+                if (representativePhoto?.isVideo == true) {
+                    Icon(
+                        imageVector = Icons.Default.PlayCircle,
+                        contentDescription = "Video",
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .size(48.dp),
+                        tint = Color.White.copy(alpha = 0.8f)
                     )
                 }
 

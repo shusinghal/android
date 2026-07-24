@@ -34,9 +34,9 @@ public final class AppDatabase_Impl extends AppDatabase {
     final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(2) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `media` (`id` INTEGER NOT NULL, `uri` TEXT NOT NULL, `bucketId` TEXT, `folderName` TEXT, `dateTaken` INTEGER NOT NULL, `mimeType` TEXT, `width` INTEGER NOT NULL, `height` INTEGER NOT NULL, `size` INTEGER NOT NULL, `aiScore` REAL NOT NULL, `isBestTake` INTEGER NOT NULL, `rejectionReason` TEXT, `clusterId` TEXT, `isManuallyModified` INTEGER NOT NULL, PRIMARY KEY(`id`))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `media` (`id` INTEGER NOT NULL, `uri` TEXT NOT NULL, `bucketId` TEXT, `folderName` TEXT, `dateTaken` INTEGER NOT NULL, `mimeType` TEXT, `width` INTEGER NOT NULL, `height` INTEGER NOT NULL, `size` INTEGER NOT NULL, `aiScore` REAL NOT NULL, `isBestTake` INTEGER NOT NULL, `rejectionReason` TEXT, `clusterId` TEXT, `isManuallyModified` INTEGER NOT NULL, `isArchived` INTEGER NOT NULL, PRIMARY KEY(`id`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f175fbfe384b5703520bfe5c550d120c')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd9a3979b1692067f55764730a90eadf1')");
       }
 
       @Override
@@ -85,7 +85,7 @@ public final class AppDatabase_Impl extends AppDatabase {
       @NonNull
       public RoomOpenHelper.ValidationResult onValidateSchema(
           @NonNull final SupportSQLiteDatabase db) {
-        final HashMap<String, TableInfo.Column> _columnsMedia = new HashMap<String, TableInfo.Column>(14);
+        final HashMap<String, TableInfo.Column> _columnsMedia = new HashMap<String, TableInfo.Column>(15);
         _columnsMedia.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMedia.put("uri", new TableInfo.Column("uri", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMedia.put("bucketId", new TableInfo.Column("bucketId", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -100,6 +100,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         _columnsMedia.put("rejectionReason", new TableInfo.Column("rejectionReason", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMedia.put("clusterId", new TableInfo.Column("clusterId", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMedia.put("isManuallyModified", new TableInfo.Column("isManuallyModified", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsMedia.put("isArchived", new TableInfo.Column("isArchived", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysMedia = new HashSet<TableInfo.ForeignKey>(0);
         final HashSet<TableInfo.Index> _indicesMedia = new HashSet<TableInfo.Index>(0);
         final TableInfo _infoMedia = new TableInfo("media", _columnsMedia, _foreignKeysMedia, _indicesMedia);
@@ -111,7 +112,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "f175fbfe384b5703520bfe5c550d120c", "7d8968e1dbc2fbac57c4a5a40dea9f5e");
+    }, "d9a3979b1692067f55764730a90eadf1", "ddf4303de592703162881fe8dc9de337");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;

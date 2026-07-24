@@ -7,6 +7,7 @@ import androidx.paging.PagingData
 import com.memorycurator.app.data.local.DatabaseProvider
 import com.memorycurator.app.data.local.MediaEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class MediaRepositoryImpl(
     private val context: Context
@@ -27,6 +28,18 @@ class MediaRepositoryImpl(
         ).flow
     }
 
+    override fun getAllPhotos(): Flow<List<MediaPhoto>> {
+        return mediaDao.getAllMedia().map { entities ->
+            entities.map { it.toMediaPhoto() }
+        }
+    }
+
+    override fun getArchivedPhotos(): Flow<List<MediaPhoto>> {
+        return mediaDao.getArchivedMedia().map { entities ->
+            entities.map { it.toMediaPhoto() }
+        }
+    }
+
     override suspend fun getMediaEntities(ids: List<Long>): List<MediaEntity> {
         return mediaDao.getMediaByIds(ids)
     }
@@ -41,5 +54,13 @@ class MediaRepositoryImpl(
 
     override suspend fun resetAiMetadata(ids: List<Long>) {
         mediaDao.resetAiMetadata(ids)
+    }
+
+    override suspend fun archiveMedia(ids: List<Long>) {
+        mediaDao.archiveMedia(ids)
+    }
+
+    override suspend fun restoreMedia(ids: List<Long>) {
+        mediaDao.restoreMedia(ids)
     }
 }

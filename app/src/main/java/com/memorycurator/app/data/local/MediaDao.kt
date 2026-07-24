@@ -12,8 +12,11 @@ interface MediaDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertNewMedia(media: List<MediaEntity>)
 
-    @Query("SELECT * FROM media ORDER BY dateTaken DESC")
+    @Query("SELECT * FROM media WHERE isArchived = 0 ORDER BY dateTaken DESC")
     fun getAllMedia(): Flow<List<MediaEntity>>
+
+    @Query("SELECT * FROM media WHERE isArchived = 1 ORDER BY dateTaken DESC")
+    fun getArchivedMedia(): Flow<List<MediaEntity>>
 
     @Query("""
         SELECT 
@@ -21,6 +24,7 @@ interface MediaDao {
             uri AS thumbnailUri,
             COUNT(*) AS photoCount
         FROM media
+        WHERE isArchived = 0
         GROUP BY folderName
         ORDER BY photoCount DESC
     """)
@@ -37,4 +41,10 @@ interface MediaDao {
 
     @Query("UPDATE media SET aiScore = -1, isBestTake = 0, rejectionReason = NULL, clusterId = NULL, isManuallyModified = 0 WHERE id IN (:ids)")
     suspend fun resetAiMetadata(ids: List<Long>)
+
+    @Query("UPDATE media SET isArchived = 1 WHERE id IN (:ids)")
+    suspend fun archiveMedia(ids: List<Long>)
+
+    @Query("UPDATE media SET isArchived = 0 WHERE id IN (:ids)")
+    suspend fun restoreMedia(ids: List<Long>)
 }

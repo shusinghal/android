@@ -23,22 +23,29 @@ class MediaPagingSource(
             val photos = mutableListOf<MediaPhoto>()
 
             val projection = arrayOf(
-                MediaStore.Images.Media._ID,
-                MediaStore.Images.Media.DATE_TAKEN
+                MediaStore.Files.FileColumns._ID,
+                MediaStore.Files.FileColumns.DATE_TAKEN,
+                MediaStore.Files.FileColumns.MEDIA_TYPE
+            )
+
+            val selection = "${MediaStore.Files.FileColumns.MEDIA_TYPE} = ? OR ${MediaStore.Files.FileColumns.MEDIA_TYPE} = ?"
+            val selectionArgs = arrayOf(
+                MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE.toString(),
+                MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO.toString()
             )
 
             val sortOrder =
-                "${MediaStore.Images.Media.DATE_TAKEN} DESC"
+                "${MediaStore.Files.FileColumns.DATE_TAKEN} DESC"
 
             context.contentResolver.query(
 
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                MediaStore.Files.getContentUri("external"),
 
                 projection,
 
-                null,
+                selection,
 
-                null,
+                selectionArgs,
 
                 sortOrder
 
@@ -46,11 +53,15 @@ class MediaPagingSource(
 
                 val idColumn =
                     cursor.getColumnIndexOrThrow(
-                        MediaStore.Images.Media._ID
+                        MediaStore.Files.FileColumns._ID
                     )
                 val dateColumn =
                     cursor.getColumnIndexOrThrow(
-                        MediaStore.Images.Media.DATE_TAKEN
+                        MediaStore.Files.FileColumns.DATE_TAKEN
+                    )
+                val typeColumn =
+                    cursor.getColumnIndexOrThrow(
+                        MediaStore.Files.FileColumns.MEDIA_TYPE
                     )
 
                 val startIndex =
@@ -64,9 +75,15 @@ class MediaPagingSource(
                             cursor.getLong(idColumn)
                         val dateTaken =
                             cursor.getLong(dateColumn)
+                        val mediaType =
+                            cursor.getInt(typeColumn)
+                        
+                        val isVideo = mediaType == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO
+                        
                         val contentUri =
                             ContentUris.withAppendedId(
-                                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                                if (isVideo) MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                                else MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                                 id
                             )
 
@@ -74,7 +91,8 @@ class MediaPagingSource(
                             MediaPhoto(
                                 id = id,
                                 contentUri = contentUri,
-                                dateTaken
+                                dateTaken = dateTaken,
+                                isVideo = isVideo
                             )
                         )
 
