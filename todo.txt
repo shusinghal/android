@@ -1,8 +1,8 @@
 MemoryCurator AI Roadmap & Improvements (V2.0+)
 
-[ ] 1. Aesthetic Scoring (The "Beauty" Model)
-    - Implement a lightweight TFLite Aesthetic Ranking model.
-    - Score photos based on professional rules: Rule of Thirds, color harmony, and dynamic range.
+[x] 1. Aesthetic Scoring (The "Beauty" Model)
+    - Implement heuristic-based Aesthetic Scorer (Composition, Harmony, Contrast).
+    - Handle "Intentional" closed eyes (Prayer, Sleep, Meditation).
     - Move beyond simple subject detection to true "beauty" assessment.
 
 [ ] 2. Advanced Blurriness & Sharpness Detection
@@ -27,3 +27,13 @@ MemoryCurator AI Roadmap & Improvements (V2.0+)
     - [x] 5.5 Clip audio to keep the good part.
     - [x] 5.6 Implement AI video frame review (2-3 FPS sampling).
     - [x] 5.7 Categorize video footage into 'Keepers' and 'For review'.
+
+[ ] 6. UX: Interactive Polish (Micro-interactions)
+    - Implement animateItem() in grids so photos physically fly between sections when toggled.
+    - Use AnimatedContent for section headers and transitions.
+
+[ ] 7. UX: Multi-Selection Improvements
+    - Implement drag-to-select functionality for faster bulk management.
+
+[ ] 8. UX: Video Integration
+    - Implement auto-playing muted previews for video Keepers in the grid.

@@ -6,7 +6,8 @@ obj/
 # Gradle
 .gradle/
 build/
-*/build/
+**/build/
+app/build/**
 
 # Local configuration file (contains local paths to SDKs)
 local.properties

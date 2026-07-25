@@ -1,5 +1,6 @@
 package com.memorycurator.app.feature.timeline.ui
 
+import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.tooling.preview.Preview
 import android.net.Uri
@@ -13,6 +14,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -79,6 +81,8 @@ fun TimelineDetailScreen(
     val isSelectionMode by viewModel?.isSelectionMode?.collectAsState() ?: remember { mutableStateOf(false) }
     val selectedIds by viewModel?.selectedIds?.collectAsState() ?: remember { mutableStateOf(emptySet<Long>()) }
 
+    val gridState = rememberLazyGridState()
+
     LaunchedEffect(group.photos) {
         viewModel?.setSessionPhotos(group.photos)
     }
@@ -87,6 +91,13 @@ fun TimelineDetailScreen(
     LaunchedEffect(analysisResults) {
         if (analysisResults.isNotEmpty()) {
             isBestTakesActive = true
+        }
+    }
+
+    // Scroll to top when analysis finishes and we switch to Curation view
+    LaunchedEffect(isAnalyzing) {
+        if (!isAnalyzing && isBestTakesActive && analysisResults.isNotEmpty()) {
+            gridState.scrollToItem(0)
         }
     }
 
@@ -180,86 +191,98 @@ fun TimelineDetailScreen(
             },
             containerColor = Color.Transparent
         ) { padding ->
-            if (isAnalyzing && progress != null) {
-                Box(modifier = Modifier.padding(padding).fillMaxSize()) {
-                    AnalysisProgressView(progress!!)
-                }
-            } else {
-                val keepers = remember(analysisResults) { analysisResults.filter { it.isBestTake } }
-                val forReview = remember(analysisResults) { analysisResults.filter { !it.isBestTake } }
+            AnimatedContent(
+                targetState = isAnalyzing,
+                transitionSpec = {
+                    fadeIn() togetherWith fadeOut()
+                },
+                label = "analysis_transition"
+            ) { analyzing ->
+                if (analyzing && progress != null) {
+                    Box(modifier = Modifier.padding(padding).fillMaxSize()) {
+                        AnalysisProgressView(progress!!)
+                    }
+                } else {
+                    val keepers = remember(analysisResults) { analysisResults.filter { it.isBestTake } }
+                    val forReview = remember(analysisResults) { analysisResults.filter { !it.isBestTake } }
 
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
-                    modifier = Modifier.fillMaxSize().padding(padding),
-                    contentPadding = PaddingValues(1.dp),
-                    verticalArrangement = Arrangement.spacedBy(1.dp),
-                    horizontalArrangement = Arrangement.spacedBy(1.dp)
-                ) {
-                    if (isBestTakesActive && analysisResults.isNotEmpty()) {
-                        if (keepers.isNotEmpty()) {
-                            item(span = { GridItemSpan(3) }) {
-                                SectionHeaderSmall("Keepers", Icons.Default.AutoAwesome)
-                            }
-                            itemsIndexed(keepers) { index, result ->
-                                PhotoGridItem(
-                                    photo = result.photo,
-                                    isSelected = selectedIds.contains(result.photo.id),
-                                    isSelectionMode = isSelectionMode,
-                                    onClick = { 
-                                        if (isSelectionMode) {
-                                            viewModel?.togglePhotoSelection(result.photo.id)
-                                        } else {
-                                            viewerSourceList = keepers
-                                            selectedIndex = index 
-                                        }
-                                    },
-                                    onLongClick = {
-                                        viewModel?.togglePhotoSelection(result.photo.id)
-                                    }
-                                )
-                            }
-                        }
-                        
-                        if (forReview.isNotEmpty()) {
-                            item(span = { GridItemSpan(3) }) {
-                                SectionHeaderSmall("For Review", Icons.Default.BatchPrediction)
-                            }
-                            itemsIndexed(forReview) { index, result ->
-                                PhotoGridItem(
-                                    photo = result.photo,
-                                    isSelected = selectedIds.contains(result.photo.id),
-                                    isSelectionMode = isSelectionMode,
-                                    onClick = { 
-                                        if (isSelectionMode) {
-                                            viewModel?.togglePhotoSelection(result.photo.id)
-                                        } else {
-                                            viewerSourceList = forReview
-                                            selectedIndex = index 
-                                        }
-                                    },
-                                    onLongClick = {
-                                        viewModel?.togglePhotoSelection(result.photo.id)
-                                    }
-                                )
-                            }
-                        }
-                    } else {
-                        itemsIndexed(group.photos) { index, photo ->
-                            PhotoGridItem(
-                                photo = photo,
-                                isSelected = selectedIds.contains(photo.id),
-                                isSelectionMode = isSelectionMode,
-                                onClick = { 
-                                    if (isSelectionMode) {
-                                        viewModel?.togglePhotoSelection(photo.id)
-                                    } else {
-                                        selectedIndex = index 
-                                    }
-                                },
-                                onLongClick = {
-                                    viewModel?.togglePhotoSelection(photo.id)
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(3),
+                        state = gridState,
+                        modifier = Modifier.fillMaxSize().padding(padding),
+                        contentPadding = PaddingValues(1.dp),
+                        verticalArrangement = Arrangement.spacedBy(1.dp),
+                        horizontalArrangement = Arrangement.spacedBy(1.dp)
+                    ) {
+                        if (isBestTakesActive && analysisResults.isNotEmpty()) {
+                            if (keepers.isNotEmpty()) {
+                                item(span = { GridItemSpan(3) }, key = "keepers_header") {
+                                    SectionHeaderSmall("Keepers", Icons.Default.AutoAwesome)
                                 }
-                            )
+                                itemsIndexed(keepers, key = { _, result -> result.photo.id }) { index, result ->
+                                    PhotoGridItem(
+                                        photo = result.photo,
+                                        isSelected = selectedIds.contains(result.photo.id),
+                                        isSelectionMode = isSelectionMode,
+                                        modifier = Modifier.animateItem(),
+                                        onClick = { 
+                                            if (isSelectionMode) {
+                                                viewModel?.togglePhotoSelection(result.photo.id)
+                                            } else {
+                                                viewerSourceList = keepers
+                                                selectedIndex = index 
+                                            }
+                                        },
+                                        onLongClick = {
+                                            viewModel?.togglePhotoSelection(result.photo.id)
+                                        }
+                                    )
+                                }
+                            }
+                            
+                            if (forReview.isNotEmpty()) {
+                                item(span = { GridItemSpan(3) }, key = "review_header") {
+                                    SectionHeaderSmall("For Review", Icons.Default.BatchPrediction)
+                                }
+                                itemsIndexed(forReview, key = { _, result -> result.photo.id }) { index, result ->
+                                    PhotoGridItem(
+                                        photo = result.photo,
+                                        isSelected = selectedIds.contains(result.photo.id),
+                                        isSelectionMode = isSelectionMode,
+                                        modifier = Modifier.animateItem(),
+                                        onClick = { 
+                                            if (isSelectionMode) {
+                                                viewModel?.togglePhotoSelection(result.photo.id)
+                                            } else {
+                                                viewerSourceList = forReview
+                                                selectedIndex = index 
+                                            }
+                                        },
+                                        onLongClick = {
+                                            viewModel?.togglePhotoSelection(result.photo.id)
+                                        }
+                                    )
+                                }
+                            }
+                        } else {
+                            itemsIndexed(group.photos, key = { _, photo -> photo.id }) { index, photo ->
+                                PhotoGridItem(
+                                    photo = photo,
+                                    isSelected = selectedIds.contains(photo.id),
+                                    isSelectionMode = isSelectionMode,
+                                    modifier = Modifier.animateItem(),
+                                    onClick = { 
+                                        if (isSelectionMode) {
+                                            viewModel?.togglePhotoSelection(photo.id)
+                                        } else {
+                                            selectedIndex = index 
+                                        }
+                                    },
+                                    onLongClick = {
+                                        viewModel?.togglePhotoSelection(photo.id)
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -292,11 +315,12 @@ fun PhotoGridItem(
     photo: MediaPhoto,
     isSelected: Boolean = false,
     isSelectionMode: Boolean = false,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
     onLongClick: () -> Unit = {}
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .aspectRatio(1f)
             .combinedClickable(
                 onClick = onClick,
