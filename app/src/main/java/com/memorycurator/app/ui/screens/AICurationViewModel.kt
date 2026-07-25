@@ -12,7 +12,9 @@ import com.memorycurator.app.data.media.MediaPhoto
 import com.memorycurator.app.data.media.MediaRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -36,7 +38,64 @@ class AICurationViewModel(
     private val _progress = MutableStateFlow<CurationProgress?>(null)
     val progress: StateFlow<CurationProgress?> = _progress
 
+    private val _isSelectionMode = MutableStateFlow(false)
+    val isSelectionMode: StateFlow<Boolean> = _isSelectionMode
+
+    private val _selectedIds = MutableStateFlow<Set<Long>>(emptySet())
+    val selectedIds: StateFlow<Set<Long>> = _selectedIds
+
+    private var allPhotosFromSession: List<MediaPhoto> = emptyList()
+
+    fun setSessionPhotos(photos: List<MediaPhoto>) {
+        allPhotosFromSession = photos
+    }
+
+    val archivedPhotos: StateFlow<List<MediaPhoto>> = repository.getArchivedPhotos()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun toggleSelectionMode(enabled: Boolean) {
+        _isSelectionMode.value = enabled
+        if (!enabled) {
+            _selectedIds.value = emptySet()
+        }
+    }
+
+    fun togglePhotoSelection(photoId: Long) {
+        val current = _selectedIds.value
+        if (current.contains(photoId)) {
+            _selectedIds.value = current - photoId
+            if (_selectedIds.value.isEmpty()) {
+                _isSelectionMode.value = false
+            }
+        } else {
+            if (!_isSelectionMode.value) {
+                _isSelectionMode.value = true
+            }
+            _selectedIds.value = current + photoId
+        }
+    }
+
+    fun selectAll() {
+        // Select from analysis results if active, otherwise from all photos in session
+        val idsToSelect = if (_analysisResults.value.isNotEmpty()) {
+            _analysisResults.value.map { it.photo.id }
+        } else {
+            allPhotosFromSession.map { it.id }
+        }
+        _selectedIds.value = idsToSelect.toSet()
+        _isSelectionMode.value = true
+    }
+
+    fun archiveSelected() {
+        val idsToArchive = _selectedIds.value.toList()
+        if (idsToArchive.isNotEmpty()) {
+            archivePhotos(idsToArchive)
+            toggleSelectionMode(false)
+        }
+    }
+
     fun filterBestTakes(context: Context, photos: List<MediaPhoto>) {
+        allPhotosFromSession = photos
         viewModelScope.launch {
             _isAnalyzing.value = true
             
@@ -48,16 +107,7 @@ class AICurationViewModel(
             val needsAi = savedEntities.any { it.aiScore == -1f }
             
             if (!needsAi) {
-                // All photos have been analyzed, just load them
-                _analysisResults.value = savedEntities.map { entity ->
-                    CuratedResult(
-                        photo = photos.find { it.id == entity.id } ?: photos.first(),
-                        score = entity.aiScore,
-                        isBestTake = entity.isBestTake,
-                        rejectionReason = RejectionReason.valueOf(entity.rejectionReason ?: "NONE"),
-                        clusterId = entity.clusterId
-                    )
-                }
+                refreshResults()
                 _isAnalyzing.value = false
                 return@launch
             }
@@ -87,9 +137,26 @@ class AICurationViewModel(
                 repository.saveAiResults(updatedEntities)
             }
             
-            _analysisResults.value = fullAnalysis
+            refreshResults()
             _isAnalyzing.value = false
             _progress.value = null
+        }
+    }
+
+    private suspend fun refreshResults() {
+        if (allPhotosFromSession.isEmpty()) return
+        val savedEntities = withContext(Dispatchers.IO) {
+            repository.getMediaEntities(allPhotosFromSession.map { it.id })
+        }
+        
+        _analysisResults.value = savedEntities.filter { !it.isArchived }.map { entity ->
+            CuratedResult(
+                photo = allPhotosFromSession.find { it.id == entity.id } ?: allPhotosFromSession.first(),
+                score = entity.aiScore,
+                isBestTake = entity.isBestTake,
+                rejectionReason = RejectionReason.valueOf(entity.rejectionReason ?: "NONE"),
+                clusterId = entity.clusterId
+            )
         }
     }
 
@@ -103,7 +170,6 @@ class AICurationViewModel(
                 currentList[index] = item.copy(isBestTake = newState)
                 _analysisResults.value = currentList
                 
-                // Update DB
                 withContext(Dispatchers.IO) {
                     repository.updateBestTakeStatus(photoId, newState)
                 }
@@ -117,7 +183,7 @@ class AICurationViewModel(
             withContext(Dispatchers.IO) {
                 repository.resetAiMetadata(photos.map { it.id })
             }
-            _analysisResults.value = emptyList()
+            _analysisResults.value = emptySet<CuratedResult>().toList() // Trigger empty
             _isAnalyzing.value = false
         }
     }
@@ -126,22 +192,34 @@ class AICurationViewModel(
         viewModelScope.launch {
             val toArchive = _analysisResults.value.filter { !it.isBestTake }.map { it.photo.id }
             if (toArchive.isNotEmpty()) {
-                withContext(Dispatchers.IO) {
-                    repository.archiveMedia(toArchive)
-                }
-                // Remove archived items from current analysis results
-                _analysisResults.value = _analysisResults.value.filter { it.isBestTake }
+                archivePhotos(toArchive)
             }
         }
     }
 
     fun archivePhoto(photoId: Long) {
+        archivePhotos(listOf(photoId))
+    }
+
+    fun archivePhotos(photoIds: List<Long>) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                repository.archiveMedia(listOf(photoId))
+            if (photoIds.isNotEmpty()) {
+                withContext(Dispatchers.IO) {
+                    repository.archiveMedia(photoIds)
+                }
+                refreshResults()
             }
-            // Remove from current results
-            _analysisResults.value = _analysisResults.value.filter { it.photo.id != photoId }
+        }
+    }
+
+    fun restorePhotos(photoIds: List<Long>) {
+        viewModelScope.launch {
+            if (photoIds.isNotEmpty()) {
+                withContext(Dispatchers.IO) {
+                    repository.restoreMedia(photoIds)
+                }
+                refreshResults()
+            }
         }
     }
 }

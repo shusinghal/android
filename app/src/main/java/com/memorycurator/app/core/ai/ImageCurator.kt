@@ -58,7 +58,7 @@ class ImageCuratorImpl : ImageCurator {
                 val faces = faceDetector.process(image).await()
                 val labels = labeler.process(image).await()
 
-                val (score, reason) = calculateQualityScoreWithReason(faces, labels)
+                val (score, reason) = calculateQualityScoreWithReason(faces, labels, image.width, image.height)
                 
                 rawResults.add(
                     CuratedResult(
@@ -125,31 +125,68 @@ class ImageCuratorImpl : ImageCurator {
 
     private fun calculateQualityScoreWithReason(
         faces: List<Face>, 
-        labels: List<ImageLabel>
+        labels: List<ImageLabel>,
+        width: Int,
+        height: Int
     ): Pair<Float, RejectionReason> {
-        var score = 0.3f
-        var reason = RejectionReason.NONE
-
-        if (faces.isNotEmpty()) {
-            val bestFace = faces.maxByOrNull { it.smilingProbability ?: 0f }
-            bestFace?.let {
-                val eyesClosed = (it.leftEyeOpenProbability ?: 1f) < 0.4f || (it.rightEyeOpenProbability ?: 1f) < 0.4f
-                if (eyesClosed) {
-                    score -= 0.2f
-                    reason = RejectionReason.EYES_CLOSED
-                }
-                
-                score += (it.smilingProbability ?: 0f) * 0.4f
-                score += (it.leftEyeOpenProbability ?: 0f) * 0.1f
+        if (faces.isEmpty()) {
+            // Landscape/Architecture scoring
+            var score = 0.4f
+            val sceneryLabels = setOf("Nature", "Landscape", "Architecture", "Sunset", "Beach", "Mountain")
+            val matches = labels.filter { it.confidence > 0.8f }.count { label ->
+                sceneryLabels.any { q -> label.text.contains(q, ignoreCase = true) }
             }
+            score += (matches * 0.15f).coerceAtMost(0.4f)
+            return score.coerceIn(0f, 1f) to RejectionReason.NONE
         }
 
-        val qualityLabels = setOf("Nature", "Portrait", "Architecture", "Party")
-        val matchingLabels = labels.filter { label ->
-            qualityLabels.any { q -> label.text.contains(q, ignoreCase = true) } && label.confidence > 0.8f
-        }
-        score += (matchingLabels.size * 0.1f).coerceAtMost(0.3f)
+        // --- ENHANCED EXPRESSION & SYMMETRY ANALYSIS ---
+        var totalExpressionScore = 0f
+        var totalPoseScore = 0f
+        var anyEyesClosed = false
+        
+        for (face in faces) {
+            // 1. Expression Engagement (Smile + Open Eyes)
+            val smile = face.smilingProbability ?: 0f
+            val eyeOpen = ((face.leftEyeOpenProbability ?: 1f) + (face.rightEyeOpenProbability ?: 1f)) / 2f
+            
+            if ((face.leftEyeOpenProbability ?: 1f) < 0.4f || (face.rightEyeOpenProbability ?: 1f) < 0.4f) {
+                anyEyesClosed = true
+            }
+            
+            // Weighting expressions heavily: Good smile + Engaged eyes
+            val expressionQuality = (smile * 0.75f) + (eyeOpen * 0.25f)
+            totalExpressionScore += expressionQuality
 
-        return score.coerceAtMost(1.0f) to reason
+            // 2. Frontal Posing (Looking at camera via Euler angles)
+            val yAngle = abs(face.headEulerAngleY) 
+            val zAngle = abs(face.headEulerAngleZ)
+            val poseQuality = (1f - (yAngle / 45f).coerceIn(0f, 1f)) * (1f - (zAngle / 30f).coerceIn(0f, 1f))
+            totalPoseScore += poseQuality
+        }
+
+        val avgExpression = totalExpressionScore / faces.size
+        val avgPose = totalPoseScore / faces.size
+
+        // 3. Group Symmetry (Centering)
+        val collectiveLeft = faces.minOf { it.boundingBox.left }
+        val collectiveRight = faces.maxOf { it.boundingBox.right }
+        val groupCenter = (collectiveLeft + collectiveRight) / 2f
+        val symmetryScore = 1f - (abs(groupCenter - (width / 2f)) / width).coerceIn(0f, 1f)
+
+        // 4. Group Completeness Bonus
+        val completenessBonus = (faces.size * 0.05f).coerceAtMost(0.15f)
+
+        // Final Weighting:
+        // Expressions: 60%, Posing: 15%, Symmetry: 10%, Context: 10%, Bonus: up to 15%
+        var finalScore = (avgExpression * 0.6f) + (avgPose * 0.15f) + (symmetryScore * 0.1f) + completenessBonus + 0.05f
+
+        var reason = RejectionReason.NONE
+        if (anyEyesClosed) {
+            finalScore -= 0.35f
+            reason = RejectionReason.EYES_CLOSED
+        }
+
+        return finalScore.coerceIn(0f, 1f) to reason
     }
 }

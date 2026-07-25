@@ -5,7 +5,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -17,7 +19,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.BatchPrediction
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
@@ -70,6 +75,13 @@ fun TimelineDetailScreen(
     val analysisResults by viewModel?.analysisResults?.collectAsState() ?: remember { mutableStateOf(emptyList<CuratedResult>()) }
     val isAnalyzing by viewModel?.isAnalyzing?.collectAsState() ?: remember { mutableStateOf(false) }
     val progress by viewModel?.progress?.collectAsState() ?: remember { mutableStateOf(null) }
+    
+    val isSelectionMode by viewModel?.isSelectionMode?.collectAsState() ?: remember { mutableStateOf(false) }
+    val selectedIds by viewModel?.selectedIds?.collectAsState() ?: remember { mutableStateOf(emptySet<Long>()) }
+
+    LaunchedEffect(group.photos) {
+        viewModel?.setSessionPhotos(group.photos)
+    }
 
     // Auto-activate Best Takes UI if analysis already exists
     LaunchedEffect(analysisResults) {
@@ -78,8 +90,12 @@ fun TimelineDetailScreen(
         }
     }
 
-    BackHandler(enabled = selectedIndex >= 0) {
-        selectedIndex = -1
+    BackHandler(enabled = selectedIndex >= 0 || isSelectionMode) {
+        if (selectedIndex >= 0) {
+            selectedIndex = -1
+        } else {
+            viewModel?.toggleSelectionMode(false)
+        }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -102,22 +118,42 @@ fun TimelineDetailScreen(
                         }
                     },
                     navigationIcon = {
-                        IconButton(onClick = onBack) {
-                            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        if (isSelectionMode) {
+                            IconButton(onClick = { viewModel?.toggleSelectionMode(false) }) {
+                                Icon(imageVector = Icons.Default.Close, contentDescription = "Cancel", tint = Color.White)
+                            }
+                        } else {
+                            IconButton(onClick = onBack) {
+                                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                            }
                         }
                     },
                     actions = {
-                        if (isBestTakesActive && analysisResults.isNotEmpty()) {
+                        if (isSelectionMode) {
+                            TextButton(onClick = { viewModel?.selectAll() }) {
+                                Text("Select All", color = Color.White)
+                            }
+                            IconButton(
+                                onClick = { viewModel?.archiveSelected() },
+                                enabled = selectedIds.isNotEmpty()
+                            ) {
+                                Icon(
+                                    Icons.Default.Archive,
+                                    "Archive",
+                                    tint = if (selectedIds.isNotEmpty()) Color.White else Color.White.copy(alpha = 0.4f)
+                                )
+                            }
+                        } else if (isBestTakesActive && analysisResults.isNotEmpty()) {
                             val reviewCount = analysisResults.count { !it.isBestTake }
                             if (reviewCount > 0) {
                                 TextButton(onClick = { viewModel?.archiveAllUnderReview() }) {
-                                    Text("Archive ($reviewCount)", color = Color.White)
+                                    Text("Archive All ($reviewCount)", color = Color.White)
                                 }
                             }
                             // Reset word instead of icon
-                            TextButton(onClick = { 
+                            TextButton(onClick = {
                                 isBestTakesActive = false
-                                viewModel?.resetCuration(group.photos) 
+                                viewModel?.resetCuration(group.photos)
                             }) {
                                 Text("Reset", color = Color.White)
                             }
@@ -126,9 +162,9 @@ fun TimelineDetailScreen(
                                 Text("Retake", color = Color.White)
                             }
                         }
-                        
-                        if (!isBestTakesActive || analysisResults.isEmpty()) {
-                            TextButton(onClick = { 
+
+                        if (!isSelectionMode && (!isBestTakesActive || analysisResults.isEmpty())) {
+                            TextButton(onClick = {
                                 isBestTakesActive = true
                                 viewModel?.filterBestTakes(context, group.photos)
                             }) {
@@ -167,9 +203,18 @@ fun TimelineDetailScreen(
                             itemsIndexed(keepers) { index, result ->
                                 PhotoGridItem(
                                     photo = result.photo,
+                                    isSelected = selectedIds.contains(result.photo.id),
+                                    isSelectionMode = isSelectionMode,
                                     onClick = { 
-                                        viewerSourceList = keepers
-                                        selectedIndex = index 
+                                        if (isSelectionMode) {
+                                            viewModel?.togglePhotoSelection(result.photo.id)
+                                        } else {
+                                            viewerSourceList = keepers
+                                            selectedIndex = index 
+                                        }
+                                    },
+                                    onLongClick = {
+                                        viewModel?.togglePhotoSelection(result.photo.id)
                                     }
                                 )
                             }
@@ -182,9 +227,18 @@ fun TimelineDetailScreen(
                             itemsIndexed(forReview) { index, result ->
                                 PhotoGridItem(
                                     photo = result.photo,
+                                    isSelected = selectedIds.contains(result.photo.id),
+                                    isSelectionMode = isSelectionMode,
                                     onClick = { 
-                                        viewerSourceList = forReview
-                                        selectedIndex = index 
+                                        if (isSelectionMode) {
+                                            viewModel?.togglePhotoSelection(result.photo.id)
+                                        } else {
+                                            viewerSourceList = forReview
+                                            selectedIndex = index 
+                                        }
+                                    },
+                                    onLongClick = {
+                                        viewModel?.togglePhotoSelection(result.photo.id)
                                     }
                                 )
                             }
@@ -193,8 +247,17 @@ fun TimelineDetailScreen(
                         itemsIndexed(group.photos) { index, photo ->
                             PhotoGridItem(
                                 photo = photo,
+                                isSelected = selectedIds.contains(photo.id),
+                                isSelectionMode = isSelectionMode,
                                 onClick = { 
-                                    selectedIndex = index 
+                                    if (isSelectionMode) {
+                                        viewModel?.togglePhotoSelection(photo.id)
+                                    } else {
+                                        selectedIndex = index 
+                                    }
+                                },
+                                onLongClick = {
+                                    viewModel?.togglePhotoSelection(photo.id)
                                 }
                             )
                         }
@@ -223,12 +286,22 @@ fun TimelineDetailScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PhotoGridItem(photo: MediaPhoto, onClick: () -> Unit) {
+fun PhotoGridItem(
+    photo: MediaPhoto,
+    isSelected: Boolean = false,
+    isSelectionMode: Boolean = false,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit = {}
+) {
     Box(
         modifier = Modifier
             .aspectRatio(1f)
-            .clickable { onClick() }
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
@@ -240,7 +313,26 @@ fun PhotoGridItem(photo: MediaPhoto, onClick: () -> Unit) {
             contentScale = ContentScale.Crop
         )
 
-        if (photo.isVideo) {
+        if (isSelectionMode) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(if (isSelected) Color.White.copy(alpha = 0.2f) else Color.Transparent)
+            )
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(8.dp)
+                    .size(24.dp)
+                    .background(if (isSelected) Color.White else Color.Black.copy(alpha = 0.3f), CircleShape)
+                    .border(2.dp, Color.White, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                if (isSelected) {
+                    Icon(Icons.Default.Check, null, tint = Color.Black, modifier = Modifier.size(16.dp))
+                }
+            }
+        } else if (photo.isVideo) {
             Icon(
                 imageVector = Icons.Default.PlayCircle,
                 contentDescription = "Video",
