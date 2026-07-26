@@ -25,6 +25,9 @@ data class MediaEntity(
 
     val size: Long,
 
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+
     // AI Metadata
     val aiScore: Float = -1f,
     val isBestTake: Boolean = false,

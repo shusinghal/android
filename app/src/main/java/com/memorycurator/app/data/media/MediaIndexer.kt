@@ -1,11 +1,14 @@
 package com.memorycurator.app.data.media
 
 import android.content.Context
+import android.net.Uri
 import android.provider.MediaStore
+import androidx.exifinterface.media.ExifInterface
 import com.memorycurator.app.data.local.MediaDao
 import com.memorycurator.app.data.local.MediaEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.InputStream
 
 class MediaIndexer(
     private val context: Context,
@@ -98,6 +101,11 @@ class MediaIndexer(
                     MediaStore.Files.FileColumns.MEDIA_TYPE
                 )
 
+                // Note: latitude/longitude are often not available in MediaStore.Files
+                // We'll try to get them, but handle their absence gracefully
+                val latColumn = cursor.getColumnIndex("latitude")
+                val lonColumn = cursor.getColumnIndex("longitude")
+
                 while (cursor.moveToNext()) {
 
                     val id = cursor.getLong(idColumn)
@@ -107,7 +115,27 @@ class MediaIndexer(
                     val baseUri = if (isVideo) MediaStore.Video.Media.EXTERNAL_CONTENT_URI
                                  else MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 
-                    val contentUri = "$baseUri/$id"
+                    val contentUriString = "$baseUri/$id"
+                    val contentUri = Uri.parse(contentUriString)
+
+                    var latitude = if (latColumn != -1 && !cursor.isNull(latColumn)) cursor.getDouble(latColumn) else null
+                    var longitude = if (lonColumn != -1 && !cursor.isNull(lonColumn)) cursor.getDouble(lonColumn) else null
+
+                    // If MediaStore has no location, try Exif
+                    if (latitude == null || longitude == null) {
+                        try {
+                            context.contentResolver.openInputStream(contentUri)?.use { inputStream ->
+                                val exif = ExifInterface(inputStream)
+                                val latLong = exif.latLong
+                                if (latLong != null) {
+                                    latitude = latLong[0]
+                                    longitude = latLong[1]
+                                }
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
 
                     mediaList.add(
 
@@ -115,7 +143,7 @@ class MediaIndexer(
 
                             id = id,
 
-                            uri = contentUri,
+                            uri = contentUriString,
 
                             bucketId = cursor.getString(bucketIdColumn),
 
@@ -129,7 +157,10 @@ class MediaIndexer(
 
                             height = cursor.getInt(heightColumn),
 
-                            size = cursor.getLong(sizeColumn)
+                            size = cursor.getLong(sizeColumn),
+
+                            latitude = latitude,
+                            longitude = longitude
                         )
                     )
                 }

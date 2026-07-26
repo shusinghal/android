@@ -24,17 +24,25 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
 import coil.compose.AsyncImage
 import com.memorycurator.app.data.media.MediaPhoto
+import com.memorycurator.app.feature.albums.model.Album
+import com.memorycurator.app.feature.albums.ui.components.GlassAlbumCard
 import com.memorycurator.app.ui.components.GlassSurface
+import kotlinx.coroutines.launch
 
 @Composable
 fun AlbumsScreen(
-    viewModel: AlbumsViewModel
+    viewModel: AlbumsViewModel,
+    onAlbumClick: (Album) -> Unit,
+    onPhotosForCuration: (List<MediaPhoto>) -> Unit
 ) {
     val albums by viewModel.albums.collectAsState()
     val archivedPhotos by viewModel.archivedPhotos.collectAsState(initial = emptyList())
     var isArchiveViewActive by remember { mutableStateOf(false) }
+    
+    val scope = rememberCoroutineScope()
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (isArchiveViewActive) {
@@ -95,35 +103,32 @@ fun AlbumsScreen(
                 }
 
                 items(albums) { album ->
-                    GlassSurface(modifier = Modifier.fillMaxWidth()) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            AsyncImage(
-                                model = album.thumbnailUri,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(80.dp)
-                                    .clip(RoundedCornerShape(12.dp)),
-                                contentScale = ContentScale.Crop
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Column {
-                                Text(
-                                    text = album.folderName,
-                                    color = Color.White,
-                                    fontSize = 15.sp,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = "${album.photoCount} items",
-                                    color = Color.LightGray
-                                )
+                    GlassAlbumCard(
+                        album = album,
+                        onClick = { onAlbumClick(album) },
+                        onBestTakesClick = {
+                            scope.launch {
+                                val photos = viewModel.getPhotosInAlbum(album)
+                                onPhotosForCuration(photos)
                             }
                         }
-                    }
+                    )
                 }
             }
         }
+    }
+}
+
+@Composable
+fun TabItem(text: String, isSelected: Boolean, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(if (isSelected) Color.White.copy(alpha = 0.2f) else Color.Transparent)
+            .clickable { onClick() }
+            .padding(horizontal = 12.dp, vertical = 6.dp)
+    ) {
+        Text(text = text, color = if (isSelected) Color.White else Color.Gray, fontSize = 12.sp)
     }
 }
 

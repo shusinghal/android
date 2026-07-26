@@ -39,9 +39,13 @@ class GalleryViewModel(
 
     fun indexMedia() {
         viewModelScope.launch {
-            _uiState.value = GalleryUiState(isLoading = true)
-            mediaIndexer.indexMedia()
-            _uiState.value = GalleryUiState(isLoading = false)
+            try {
+                _uiState.value = GalleryUiState(isLoading = true)
+                mediaIndexer.indexMedia()
+                _uiState.value = GalleryUiState(isLoading = false)
+            } catch (e: Exception) {
+                _uiState.value = GalleryUiState(isLoading = false, error = e.message)
+            }
         }
     }
 }

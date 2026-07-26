@@ -27,7 +27,9 @@ import com.memorycurator.app.feature.albums.ui.AlbumsScreen
 import com.memorycurator.app.feature.albums.ui.AlbumsViewModel
 import com.memorycurator.app.feature.albums.ui.AlbumsViewModelFactory
 import com.memorycurator.app.feature.gallery.ui.GalleryScreen
+import com.memorycurator.app.feature.maps.ui.MapsScreen
 import com.memorycurator.app.feature.timeline.data.TimelineGrouper
+import com.memorycurator.app.feature.albums.model.Album
 import com.memorycurator.app.feature.timeline.model.TimelineGroup
 import com.memorycurator.app.feature.timeline.ui.TimelineDetailScreen
 import com.memorycurator.app.feature.timeline.ui.TimelineScreen
@@ -36,6 +38,7 @@ import com.memorycurator.app.ui.screens.OnboardingScreen
 import com.memorycurator.app.ui.gallery.GalleryViewModel
 import com.memorycurator.app.ui.theme.GlassTheme
 import com.memorycurator.app.ui.components.BlurBackground
+import kotlinx.coroutines.launch
 
 @Composable
 fun MainNavigation(
@@ -82,8 +85,13 @@ fun MainNavigation(
         mutableStateOf(BottomNavItem.Timeline.route)
     }
 
-    var selectedGroup by remember { mutableStateOf<TimelineGroup?>(null) }
-    var curationGroup by remember { mutableStateOf<TimelineGroup?>(null) }
+    var selectedTimelineGroup by remember { mutableStateOf<TimelineGroup?>(null) }
+    var selectedAlbumGroup by remember { mutableStateOf<TimelineGroup?>(null) }
+    var selectedMapGroup by remember { mutableStateOf<TimelineGroup?>(null) }
+    
+    var curationPhotos by remember { mutableStateOf<List<com.memorycurator.app.data.media.MediaPhoto>?>(null) }
+    
+    val scope = rememberCoroutineScope()
 
     var showOnboarding by remember {
         mutableStateOf(
@@ -113,11 +121,16 @@ fun MainNavigation(
         timelineGroups = timelineGroups,
         galleryViewModel = viewModel,
         albumsViewModel = albumsViewModel,
-        selectedGroup = selectedGroup,
-        onGroupSelected = { selectedGroup = it },
-        curationGroup = curationGroup,
-        onCurationGroupSelected = { curationGroup = it },
-        mediaRepository = mediaRepository
+        selectedTimelineGroup = selectedTimelineGroup,
+        onTimelineGroupSelected = { selectedTimelineGroup = it },
+        selectedAlbumGroup = selectedAlbumGroup,
+        onAlbumGroupSelected = { selectedAlbumGroup = it },
+        selectedMapGroup = selectedMapGroup,
+        onMapGroupSelected = { selectedMapGroup = it },
+        curationPhotos = curationPhotos,
+        onCurationPhotosSelected = { curationPhotos = it },
+        mediaRepository = mediaRepository,
+        scope = scope
     )
 }
 
@@ -128,18 +141,27 @@ fun MainNavigationContent(
     timelineGroups: List<TimelineGroup>,
     galleryViewModel: GalleryViewModel?,
     albumsViewModel: AlbumsViewModel?,
-    selectedGroup: TimelineGroup?,
-    onGroupSelected: (TimelineGroup?) -> Unit,
-    curationGroup: TimelineGroup?,
-    onCurationGroupSelected: (TimelineGroup?) -> Unit,
-    mediaRepository: MediaRepository?
+    selectedTimelineGroup: TimelineGroup?,
+    onTimelineGroupSelected: (TimelineGroup?) -> Unit,
+    selectedAlbumGroup: TimelineGroup?,
+    onAlbumGroupSelected: (TimelineGroup?) -> Unit,
+    selectedMapGroup: TimelineGroup?,
+    onMapGroupSelected: (TimelineGroup?) -> Unit,
+    curationPhotos: List<com.memorycurator.app.data.media.MediaPhoto>?,
+    onCurationPhotosSelected: (List<com.memorycurator.app.data.media.MediaPhoto>?) -> Unit,
+    mediaRepository: MediaRepository?,
+    scope: kotlinx.coroutines.CoroutineScope
 ) {
     // Handle System Back Button
-    BackHandler(enabled = curationGroup != null || selectedGroup != null) {
-        if (curationGroup != null) {
-            onCurationGroupSelected(null)
-        } else if (selectedGroup != null) {
-            onGroupSelected(null)
+    BackHandler(enabled = curationPhotos != null || selectedTimelineGroup != null || selectedAlbumGroup != null || selectedMapGroup != null) {
+        if (curationPhotos != null) {
+            onCurationPhotosSelected(null)
+        } else if (selectedTimelineGroup != null && selectedRoute == "timeline") {
+            onTimelineGroupSelected(null)
+        } else if (selectedAlbumGroup != null && selectedRoute == "albums") {
+            onAlbumGroupSelected(null)
+        } else if (selectedMapGroup != null && selectedRoute == "maps") {
+            onMapGroupSelected(null)
         }
     }
 
@@ -164,36 +186,68 @@ fun MainNavigationContent(
                 when (selectedRoute)
                 {
                     "timeline" -> {
-                        if (selectedGroup != null) {
+                        if (selectedTimelineGroup != null) {
                             TimelineDetailScreen(
-                                group = selectedGroup,
-                                onBack = { onGroupSelected(null) },
-                                onBestTakesClick = { onCurationGroupSelected(it) },
+                                group = selectedTimelineGroup,
+                                onBack = { onTimelineGroupSelected(null) },
+                                onBestTakesClick = { onCurationPhotosSelected(it.photos) },
                                 repository = mediaRepository
                             )
                         } else {
                             TimelineScreen(
                                 groups = timelineGroups,
-                                onGroupClick = { onGroupSelected(it) },
-                                onBestTakesClick = { onCurationGroupSelected(it) }
+                                onGroupClick = { onTimelineGroupSelected(it) },
+                                onBestTakesClick = { onCurationPhotosSelected(it.photos) }
                             )
                         }
                     }
 
                     "albums" -> {
                         if (albumsViewModel != null) {
-                            AlbumsScreen(
-                                viewModel = albumsViewModel
-                            )
+                            if (selectedAlbumGroup != null) {
+                                TimelineDetailScreen(
+                                    group = selectedAlbumGroup,
+                                    onBack = { onAlbumGroupSelected(null) },
+                                    onBestTakesClick = { onCurationPhotosSelected(it.photos) },
+                                    repository = mediaRepository
+                                )
+                            } else {
+                                AlbumsScreen(
+                                    viewModel = albumsViewModel,
+                                    onAlbumClick = { album ->
+                                        scope.launch {
+                                            val photos = albumsViewModel.getPhotosInAlbum(album)
+                                            onAlbumGroupSelected(TimelineGroup(album.folderName, photos))
+                                        }
+                                    },
+                                    onPhotosForCuration = { onCurationPhotosSelected(it) }
+                                )
+                            }
                         }
                     }
 
                     "maps" -> {
-                        Text(
-                            text = "Maps Screen",
-                            color = Color.White,
-                            modifier = Modifier.padding(16.dp)
-                        )
+                        if (albumsViewModel != null) {
+                            if (selectedMapGroup != null) {
+                                TimelineDetailScreen(
+                                    group = selectedMapGroup,
+                                    onBack = { onMapGroupSelected(null) },
+                                    onBestTakesClick = { onCurationPhotosSelected(it.photos) },
+                                    repository = mediaRepository
+                                )
+                            } else {
+                                MapsScreen(
+                                    viewModel = albumsViewModel,
+                                    onAlbumClick = { album ->
+                                        scope.launch {
+                                            val photos = albumsViewModel.getPhotosAtLocation(album)
+                                            onMapGroupSelected(TimelineGroup(album.folderName, photos))
+                                        }
+                                    },
+                                    onPhotosForCuration = { onCurationPhotosSelected(it) }
+                                )
+                            }
+                        }
                     }
 
                     "profile" -> {
@@ -205,6 +259,14 @@ fun MainNavigationContent(
                     }
                 }
             }
+        }
+
+        if (curationPhotos != null && mediaRepository != null) {
+            AICurationScreen(
+                photos = curationPhotos,
+                onBack = { onCurationPhotosSelected(null) },
+                repository = mediaRepository
+            )
         }
     }
 }
@@ -219,11 +281,16 @@ fun MainNavigationPreview() {
             timelineGroups = emptyList(),
             galleryViewModel = null,
             albumsViewModel = null,
-            selectedGroup = null, // Added
-            onGroupSelected = {},
-            curationGroup = null,
-            onCurationGroupSelected = {},
-            mediaRepository = null
+            selectedTimelineGroup = null,
+            onTimelineGroupSelected = {},
+            selectedAlbumGroup = null,
+            onAlbumGroupSelected = {},
+            selectedMapGroup = null,
+            onMapGroupSelected = {},
+            curationPhotos = null,
+            onCurationPhotosSelected = {},
+            mediaRepository = null,
+            scope = rememberCoroutineScope()
         )
     }
 }

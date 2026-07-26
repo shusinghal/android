@@ -3,15 +3,11 @@ package com.memorycurator.app.feature.albums.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -28,105 +24,79 @@ import com.memorycurator.app.feature.albums.model.Album
 @Composable
 fun GlassAlbumCard(
     album: Album,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onBestTakesClick: () -> Unit
 ) {
-
     Box(
-
         modifier = Modifier
-
             .fillMaxWidth()
-
-            .clip(
-                RoundedCornerShape(30.dp)
-            )
-
+            .clip(RoundedCornerShape(24.dp))
             .background(
-
                 brush = Brush.verticalGradient(
-
                     colors = listOf(
-
                         Color.White.copy(alpha = 0.12f),
-
                         Color.White.copy(alpha = 0.03f)
                     )
                 )
             )
-
             .border(
-
                 width = 1.dp,
-
                 color = Color.White.copy(alpha = 0.08f),
-
-                shape = RoundedCornerShape(30.dp)
+                shape = RoundedCornerShape(24.dp)
             )
-
-            .clickable {
-                onClick()
-            }
+            .clickable { onClick() }
     ) {
-
-        Column {
-
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             AsyncImage(
-
-                model = ImageRequest.Builder(
-                    LocalContext.current
-                )
+                model = ImageRequest.Builder(LocalContext.current)
                     .data(album.thumbnailUri)
                     .crossfade(true)
                     .build(),
-
                 contentDescription = null,
-
                 modifier = Modifier
-
-                    .fillMaxWidth()
-
-                    .aspectRatio(1f)
-
-                    .clip(
-                        RoundedCornerShape(24.dp)
-                    ),
-
-                contentScale =
-                    ContentScale.Crop
+                    .size(100.dp)
+                    .clip(RoundedCornerShape(16.dp)),
+                contentScale = ContentScale.Crop
             )
 
             Column(
-
                 modifier = Modifier
-                    .padding(14.dp),
-
-                verticalArrangement =
-                    Arrangement.spacedBy(4.dp)
+                    .weight(1f)
+                    .padding(start = 16.dp, end = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-
                 Text(
-
                     text = album.folderName,
-
                     color = Color.White,
-
-                    fontSize = 17.sp,
-
-                    fontWeight = FontWeight.SemiBold
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
                 )
 
                 Text(
-
-                    text =
-                        "${album.photoCount} photos",
-
-                    color =
-                        Color.White.copy(
-                            alpha = 0.6f
-                        ),
-
-                    fontSize = 13.sp
+                    text = "${album.photoCount} items",
+                    color = Color.White.copy(alpha = 0.6f),
+                    fontSize = 14.sp
                 )
+
+                // Best Takes Button
+                Box(
+                    modifier = Modifier
+                        .padding(top = 4.dp)
+                        .background(Color.White.copy(alpha = 0.15f), RoundedCornerShape(8.dp))
+                        .clickable { onBestTakesClick() }
+                        .padding(horizontal = 10.dp, vertical = 6.dp)
+                ) {
+                    Text(
+                        text = "BEST TAKES",
+                        color = Color.White,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     }

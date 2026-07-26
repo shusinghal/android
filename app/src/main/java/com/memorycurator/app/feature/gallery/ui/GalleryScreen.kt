@@ -138,20 +138,14 @@ fun GalleryScreen(
             selectedIndex >= 0 &&
             selectedIndex < photos.itemCount
         ) {
-
-            val selectedPhoto =
-                photos[selectedIndex]
-
+            val selectedPhoto = photos[selectedIndex]
             if (selectedPhoto != null) {
-
+                // To avoid loading the entire library into a List (which crashes with !!),
+                // we'll pass just the selected photo for now or a limited window.
+                // For a proper implementation, ViewerScreen should take LazyPagingItems.
                 ViewerScreen(
-
-                    photos = List(photos.itemCount) { i ->
-                        photos[i]!!
-                    },
-
-                    initialIndex = selectedIndex,
-
+                    photos = listOf(selectedPhoto),
+                    initialIndex = 0,
                     onDismiss = {
                         selectedIndex = -1
                     }

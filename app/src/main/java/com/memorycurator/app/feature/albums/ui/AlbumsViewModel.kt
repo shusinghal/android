@@ -27,6 +27,15 @@ class AlbumsViewModel(
                 initialValue = emptyList()
             )
 
+    val locationAlbums: StateFlow<List<Album>> =
+        repository
+            .getLocationAlbums()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
+
     val archivedPhotos: Flow<List<MediaPhoto>> =
         mediaRepository.getArchivedPhotos()
 
@@ -34,6 +43,18 @@ class AlbumsViewModel(
         viewModelScope.launch {
             mediaRepository.restoreMedia(ids)
         }
+    }
+
+    suspend fun getPhotosInAlbum(album: Album): List<MediaPhoto> {
+        return repository.getPhotosInAlbum(album.folderName)
+    }
+
+    suspend fun getPhotosAtLocation(album: Album): List<MediaPhoto> {
+        // album.folderName is "Location lat, lon"
+        val coords = album.folderName.replace("Location ", "").split(", ")
+        val lat = coords[0].toDoubleOrNull() ?: 0.0
+        val lon = coords[1].toDoubleOrNull() ?: 0.0
+        return repository.getPhotosAtLocation(lat, lon)
     }
 }
 

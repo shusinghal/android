@@ -77,6 +77,7 @@ fun TimelineDetailScreen(
     val analysisResults by viewModel?.analysisResults?.collectAsState() ?: remember { mutableStateOf(emptyList<CuratedResult>()) }
     val isAnalyzing by viewModel?.isAnalyzing?.collectAsState() ?: remember { mutableStateOf(false) }
     val progress by viewModel?.progress?.collectAsState() ?: remember { mutableStateOf(null) }
+    val archivedPhotos by viewModel?.archivedPhotos?.collectAsState() ?: remember { mutableStateOf(emptyList<MediaPhoto>()) }
     
     val isSelectionMode by viewModel?.isSelectionMode?.collectAsState() ?: remember { mutableStateOf(false) }
     val selectedIds by viewModel?.selectedIds?.collectAsState() ?: remember { mutableStateOf(emptySet<Long>()) }
@@ -158,7 +159,7 @@ fun TimelineDetailScreen(
                             val reviewCount = analysisResults.count { !it.isBestTake }
                             if (reviewCount > 0) {
                                 TextButton(onClick = { viewModel?.archiveAllUnderReview() }) {
-                                    Text("Archive All ($reviewCount)", color = Color.White)
+                                    Text("Clean Up ($reviewCount)", color = Color.White)
                                 }
                             }
                             // Reset word instead of icon
@@ -167,10 +168,6 @@ fun TimelineDetailScreen(
                                 viewModel?.resetCuration(group.photos)
                             }) {
                                 Text("Reset", color = Color.White)
-                            }
-                            // Retake word instead of icon
-                            TextButton(onClick = { viewModel?.filterBestTakes(context, group.photos) }) {
-                                Text("Retake", color = Color.White)
                             }
                         }
 
@@ -214,6 +211,15 @@ fun TimelineDetailScreen(
                         verticalArrangement = Arrangement.spacedBy(1.dp),
                         horizontalArrangement = Arrangement.spacedBy(1.dp)
                     ) {
+                        if (isBestTakesActive && archivedPhotos.isNotEmpty()) {
+                            item(span = { GridItemSpan(3) }, key = "archive_header") {
+                                ArchiveHeader(
+                                    count = archivedPhotos.size,
+                                    onUndo = { viewModel?.restorePhotos(archivedPhotos.map { it.id }) }
+                                )
+                            }
+                        }
+
                         if (isBestTakesActive && analysisResults.isNotEmpty()) {
                             if (keepers.isNotEmpty()) {
                                 item(span = { GridItemSpan(3) }, key = "keepers_header") {
@@ -378,5 +384,31 @@ fun SectionHeaderSmall(title: String, icon: ImageVector) {
         Icon(icon, null, tint = Color.White, modifier = Modifier.size(16.dp))
         Spacer(Modifier.width(8.dp))
         Text(title, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+fun ArchiveHeader(count: Int, onUndo: () -> Unit) {
+    Surface(
+        color = Color.White.copy(alpha = 0.1f),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(Icons.Default.Archive, "Archive", tint = Color.LightGray, modifier = Modifier.size(20.dp))
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text("Archive", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 14.sp)
+                Text("$count images hidden from timeline", fontSize = 11.sp, color = Color.Gray)
+            }
+            TextButton(onClick = onUndo, contentPadding = PaddingValues(horizontal = 8.dp)) {
+                Text("UNDO ALL", fontWeight = FontWeight.Bold, color = Color.Yellow, fontSize = 12.sp)
+            }
+        }
     }
 }

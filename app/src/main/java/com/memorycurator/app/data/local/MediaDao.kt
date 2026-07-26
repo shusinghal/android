@@ -30,6 +30,18 @@ interface MediaDao {
     """)
     fun getAlbums(): Flow<List<AlbumProjection>>
 
+    @Query("SELECT * FROM media WHERE isArchived = 0 AND folderName = :folderName ORDER BY dateTaken DESC")
+    fun getPhotosInAlbum(folderName: String): Flow<List<MediaEntity>>
+
+    @Query("SELECT * FROM media WHERE isArchived = 0 AND folderName = :folderName ORDER BY dateTaken DESC")
+    suspend fun getPhotosInAlbumSync(folderName: String): List<MediaEntity>
+
+    @Query("SELECT * FROM media WHERE isArchived = 0 AND latitude IS NOT NULL AND longitude IS NOT NULL")
+    fun getMediaWithLocation(): Flow<List<MediaEntity>>
+
+    @Query("SELECT * FROM media WHERE isArchived = 0 AND latitude IS NOT NULL AND longitude IS NOT NULL")
+    suspend fun getMediaWithLocationSync(): List<MediaEntity>
+
     @Query("SELECT * FROM media WHERE id = :id")
     suspend fun getMediaById(id: Long): MediaEntity?
 

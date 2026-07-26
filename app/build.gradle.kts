@@ -49,6 +49,8 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.foundation:foundation")
+    implementation("com.google.android.material:material:1.12.0")
+    implementation("androidx.appcompat:appcompat:1.7.0")
 
     implementation("androidx.activity:activity-compose:1.9.2")
     implementation("androidx.glance:glance-preview:1.1.1")
@@ -71,6 +73,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     ksp("androidx.room:room-compiler:2.6.1")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.exifinterface:exifinterface:1.4.2")
 
     // ML Kit for on-device AI
     implementation("com.google.mlkit:image-labeling:17.0.9")

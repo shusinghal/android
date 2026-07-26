@@ -1,10 +1,5 @@
 MemoryCurator AI Roadmap & Improvements (V2.0+)
 
-[x] 1. Aesthetic Scoring (The "Beauty" Model)
-    - Implement heuristic-based Aesthetic Scorer (Composition, Harmony, Contrast).
-    - Handle "Intentional" closed eyes (Prayer, Sleep, Meditation).
-    - Move beyond simple subject detection to true "beauty" assessment.
-
 [ ] 2. Advanced Blurriness & Sharpness Detection
     - Implement a Laplacian Variance check on raw pixels.
     - Detect "micro-blur" (soft focus) that standard Face Detection might miss.
@@ -18,15 +13,6 @@ MemoryCurator AI Roadmap & Improvements (V2.0+)
 [ ] 4. Hardware Optimization
     - Investigate NNAPI (Neural Network API) delegates for even faster inference on high-end chips.
     - Implement low-power background processing using WorkManager for large library scans.
-
-[x] 5. Advanced Video Curation Module (AI Video Processing)
-    - [x] 5.1 Extract audio from video files.
-    - [x] 5.2 Implement audio noise reduction (Infrastructure).
-    - [x] 5.3 Implement speech-to-text (transcription) for audio.
-    - [x] 5.4 Use AI to identify conversations, good part.
-    - [x] 5.5 Clip audio to keep the good part.
-    - [x] 5.6 Implement AI video frame review (2-3 FPS sampling).
-    - [x] 5.7 Categorize video footage into 'Keepers' and 'For review'.
 
 [ ] 6. UX: Interactive Polish (Micro-interactions)
     - Implement animateItem() in grids so photos physically fly between sections when toggled.
