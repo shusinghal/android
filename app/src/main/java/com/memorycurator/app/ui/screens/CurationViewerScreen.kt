@@ -185,8 +185,9 @@ fun CurationViewerScreen(
                 modifier = Modifier.fillMaxSize(),
                 // Paging is locked if the image is zoomed, lifted, or active in gestural workflow
                 userScrollEnabled = focusedClusterPhoto == null && !isLifted && !isDragging && !isZoomed,
-                pageSpacing = 16.dp,
-                contentPadding = PaddingValues(horizontal = 48.dp) // Expose adjacent cards for carousel depth peeking
+                pageSpacing = 0.dp, // Remove spacing as we use translation for overlap
+                beyondViewportPageCount = 1, // Ensure left/right pages are rendered
+                contentPadding = PaddingValues(horizontal = 48.dp) // Reduced padding to show more of side images
             ) { page ->
                 val isCurrentPage = page == mainPagerState.currentPage
 
@@ -210,14 +211,14 @@ fun CurationViewerScreen(
                             // 3. Dynamic Alpha transition
                             alpha = 1f - (pageOffsetAbs * 0.45f).coerceIn(0f, 0.75f)
 
-                            // 4. Tighten margins slightly to draw cards closer together
-                            translationX = pageOffset * -with(density) { 32.dp.toPx() }
+                            // 4. Overlap effect: Pull cards inward
+                            translationX = pageOffset * -with(density) { 40.dp.toPx() }
 
                             // 5. Apply curved vertical path for surrounding items
-                            translationY = (pageOffsetAbs * 20f) + if (isCurrentPage && focusedClusterPhoto == null) verticalOffset.value else 0f
+                            translationY = (pageOffsetAbs * 40f) + if (isCurrentPage && focusedClusterPhoto == null) verticalOffset.value else 0f
 
                             // High-end perspective depth FOV
-                            cameraDistance = 16 * density.density
+                            cameraDistance = 12 * density.density
                         }
                         .zIndex(if (isCurrentPage) 1f else 0f) // Keep current item layered on top
                         .draggable(
@@ -248,6 +249,11 @@ fun CurationViewerScreen(
                                             verticalOffset.animateTo(0f, spring())
                                             activeItem?.let { onToggleAction(it.photo.id) }
                                             lockedActionColor = null
+                                            
+                                            // Auto-advance to next page if possible
+                                            if (mainPagerState.currentPage < results.size - 1) {
+                                                mainPagerState.animateScrollToPage(mainPagerState.currentPage + 1)
+                                            }
                                         } else {
                                             verticalOffset.animateTo(liftAnchor, spring())
                                         }
