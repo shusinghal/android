@@ -5,6 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -91,6 +93,11 @@ fun MainNavigation(
     
     var curationPhotos by remember { mutableStateOf<List<com.memorycurator.app.data.media.MediaPhoto>?>(null) }
     
+    val timelineListState = rememberLazyListState()
+    val galleryGridState = rememberLazyGridState()
+    val albumsListState = rememberLazyListState()
+    val mapsListState = rememberLazyListState()
+
     val scope = rememberCoroutineScope()
 
     var showOnboarding by remember {
@@ -130,6 +137,10 @@ fun MainNavigation(
         curationPhotos = curationPhotos,
         onCurationPhotosSelected = { curationPhotos = it },
         mediaRepository = mediaRepository,
+        timelineListState = timelineListState,
+        galleryGridState = galleryGridState,
+        albumsListState = albumsListState,
+        mapsListState = mapsListState,
         scope = scope
     )
 }
@@ -150,6 +161,10 @@ fun MainNavigationContent(
     curationPhotos: List<com.memorycurator.app.data.media.MediaPhoto>?,
     onCurationPhotosSelected: (List<com.memorycurator.app.data.media.MediaPhoto>?) -> Unit,
     mediaRepository: MediaRepository?,
+    timelineListState: androidx.compose.foundation.lazy.LazyListState = rememberLazyListState(),
+    galleryGridState: androidx.compose.foundation.lazy.grid.LazyGridState = rememberLazyGridState(),
+    albumsListState: androidx.compose.foundation.lazy.LazyListState = rememberLazyListState(),
+    mapsListState: androidx.compose.foundation.lazy.LazyListState = rememberLazyListState(),
     scope: kotlinx.coroutines.CoroutineScope
 ) {
     // Handle System Back Button
@@ -185,6 +200,15 @@ fun MainNavigationContent(
             ) {
                 when (selectedRoute)
                 {
+                    "gallery" -> {
+                        if (galleryViewModel != null) {
+                            GalleryScreen(
+                                viewModel = galleryViewModel,
+                                state = galleryGridState
+                            )
+                        }
+                    }
+
                     "timeline" -> {
                         if (selectedTimelineGroup != null) {
                             TimelineDetailScreen(
@@ -197,7 +221,8 @@ fun MainNavigationContent(
                             TimelineScreen(
                                 groups = timelineGroups,
                                 onGroupClick = { onTimelineGroupSelected(it) },
-                                onBestTakesClick = { onCurationPhotosSelected(it.photos) }
+                                onBestTakesClick = { onCurationPhotosSelected(it.photos) },
+                                state = timelineListState
                             )
                         }
                     }
@@ -220,7 +245,8 @@ fun MainNavigationContent(
                                             onAlbumGroupSelected(TimelineGroup(album.folderName, photos))
                                         }
                                     },
-                                    onPhotosForCuration = { onCurationPhotosSelected(it) }
+                                    onPhotosForCuration = { onCurationPhotosSelected(it) },
+                                    state = albumsListState
                                 )
                             }
                         }
@@ -244,7 +270,8 @@ fun MainNavigationContent(
                                             onMapGroupSelected(TimelineGroup(album.folderName, photos))
                                         }
                                     },
-                                    onPhotosForCuration = { onCurationPhotosSelected(it) }
+                                    onPhotosForCuration = { onCurationPhotosSelected(it) },
+                                    state = mapsListState
                                 )
                             }
                         }

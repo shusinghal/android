@@ -48,6 +48,9 @@ class AICurationViewModel(
 
     fun setSessionPhotos(photos: List<MediaPhoto>) {
         allPhotosFromSession = photos
+        viewModelScope.launch {
+            refreshResults()
+        }
     }
 
     val archivedPhotos: StateFlow<List<MediaPhoto>> = repository.getArchivedPhotos()

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.map
 import com.memorycurator.app.data.local.DatabaseProvider
 import com.memorycurator.app.data.local.MediaEntity
 import kotlinx.coroutines.flow.Flow
@@ -15,7 +16,7 @@ class MediaRepositoryImpl(
 
     private val mediaDao = DatabaseProvider.getDatabase(context).mediaDao()
 
-    override fun getPagedPhotos(): Flow<PagingData<MediaPhoto>> {
+    override fun getPagedPhotos(bestTakesOnly: Boolean): Flow<PagingData<MediaPhoto>> {
         return Pager(
             config = PagingConfig(
                 pageSize = 60,
@@ -23,9 +24,11 @@ class MediaRepositoryImpl(
                 prefetchDistance = 30
             ),
             pagingSourceFactory = {
-                MediaPagingSource(context)
+                if (bestTakesOnly) mediaDao.getPagedBestTakes() else mediaDao.getPagedMedia()
             }
-        ).flow
+        ).flow.map { pagingData ->
+            pagingData.map { it.toMediaPhoto() }
+        }
     }
 
     override fun getAllPhotos(): Flow<List<MediaPhoto>> {

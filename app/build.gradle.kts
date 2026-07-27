@@ -70,6 +70,7 @@ dependencies {
     implementation("androidx.media3:media3-ui:1.4.1")
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
+    implementation("androidx.room:room-paging:2.6.1")
     implementation("androidx.compose.material:material-icons-extended")
     ksp("androidx.room:room-compiler:2.6.1")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")

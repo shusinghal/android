@@ -8,6 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
+import com.memorycurator.app.ui.theme.MemoryCuratorTheme
 
 @Composable
 fun HeaderSection() {
@@ -26,5 +28,13 @@ fun HeaderSection() {
             text = "Best moments automatically selected",
             style = MaterialTheme.typography.bodyLarge
         )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HeaderSectionPreview() {
+    MemoryCuratorTheme {
+        HeaderSection()
     }
 }

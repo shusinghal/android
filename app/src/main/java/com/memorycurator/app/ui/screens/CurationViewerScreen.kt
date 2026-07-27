@@ -52,6 +52,12 @@ import com.memorycurator.app.ui.components.VideoPlayer
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
+import androidx.compose.ui.tooling.preview.Preview
+import android.net.Uri
+import com.memorycurator.app.data.media.MediaPhoto
+import com.memorycurator.app.core.ai.RejectionReason
+import com.memorycurator.app.ui.theme.MemoryCuratorTheme
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CurationViewerScreen(
@@ -71,10 +77,10 @@ fun CurationViewerScreen(
     )
 
     // Device-independent gesture thresholds
-    val liftThreshold = with(density) { -100.dp.toPx() }
-    val liftAnchor = with(density) { -200.dp.toPx() }
-    val confirmThreshold = with(density) { -300.dp.toPx() }
-    val cancelThreshold = with(density) { -60.dp.toPx() }
+    val liftThreshold = with(density) { -50.dp.toPx() }
+    val liftAnchor = with(density) { -100.dp.toPx() }
+    val confirmThreshold = with(density) { -150.dp.toPx() }
+    val cancelThreshold = with(density) { -30.dp.toPx() }
     val dismissThreshold = with(density) { 150.dp.toPx() }
 
     // Swipe and Zoom States
@@ -141,14 +147,16 @@ fun CurationViewerScreen(
             }
 
             // LAYER 2: Text shown UNDER the active photo
-            if (verticalOffset.value < -50f) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(bottom = 96.dp),
-                    contentAlignment = Alignment.BottomCenter
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 110.dp),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    val isActive = verticalOffset.value < -20f || isLifted
+                    
+                    if (isActive) {
                         Text(
                             text = if (isBestTake) "SWIPE UP AGAIN TO REMOVE" else "SWIPE UP AGAIN TO INCLUDE",
                             color = actionColor.copy(alpha = 0.9f),
@@ -159,6 +167,13 @@ fun CurationViewerScreen(
                             text = if (isLifted) "Release at full swipe to confirm" else "Keep swiping up to stage",
                             color = Color.White.copy(alpha = 0.6f),
                             fontSize = 14.sp
+                        )
+                    } else {
+                        Text(
+                            text = if (isBestTake) "Swipe up to remove" else "Swipe up to include",
+                            color = Color.White.copy(alpha = 0.3f),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }

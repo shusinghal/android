@@ -8,18 +8,16 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,14 +36,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.memorycurator.app.core.ai.CuratedResult
 import com.memorycurator.app.core.ai.RejectionReason
 import com.memorycurator.app.data.media.MediaPhoto
 import com.memorycurator.app.data.media.MediaRepository
-import com.memorycurator.app.ui.components.PhotoCard
-import com.memorycurator.app.ui.models.PhotoItem
+import com.memorycurator.app.ui.theme.MemoryCuratorTheme
 
 @Composable
 fun AICurationScreen(
@@ -58,18 +56,17 @@ fun AICurationScreen(
     )
     val context = LocalContext.current
     
+    val isSelectionMode by viewModel.isSelectionMode.collectAsState()
+    val selectedIds by viewModel.selectedIds.collectAsState()
+    
     var selectedPhotoIndex by remember { mutableIntStateOf(-1) }
     var viewerSourceIsKeepers by remember { mutableStateOf(true) }
-
-    var isSelectionMode by remember { mutableStateOf(false) }
-    var selectedIds by remember { mutableStateOf(setOf<Long>()) }
 
     BackHandler(enabled = selectedPhotoIndex >= 0 || isSelectionMode) {
         if (selectedPhotoIndex >= 0) {
             selectedPhotoIndex = -1
         } else {
-            isSelectionMode = false
-            selectedIds = emptySet()
+            viewModel.toggleSelectionMode(false)
         }
     }
 
@@ -82,13 +79,10 @@ fun AICurationScreen(
     val analysisResults by viewModel.analysisResults.collectAsState()
     val isAnalyzing by viewModel.isAnalyzing.collectAsState()
     val progress by viewModel.progress.collectAsState()
-    val archivedPhotos by viewModel.archivedPhotos.collectAsState()
 
     val keepers = remember(analysisResults) { analysisResults.filter { it.isBestTake } }
     val forReview = remember(analysisResults) { analysisResults.filter { !it.isBestTake } }
     
-    var showDeleteConfirm by remember { mutableStateOf(false) }
-
     val trashLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) { result ->
@@ -97,31 +91,10 @@ fun AICurationScreen(
         }
     }
 
-    fun requestTrash(photos: List<Uri>) {
-        if (photos.isEmpty()) return
-        val pendingIntent = MediaStore.createTrashRequest(context.contentResolver, photos, true)
+    fun requestTrash(uris: List<Uri>) {
+        if (uris.isEmpty()) return
+        val pendingIntent = MediaStore.createTrashRequest(context.contentResolver, uris, true)
         trashLauncher.launch(IntentSenderRequest.Builder(pendingIntent.intentSender).build())
-    }
-
-    if (showDeleteConfirm) {
-        AlertDialog(
-            onDismissRequest = { showDeleteConfirm = false },
-            title = { Text("Move to Trash?") },
-            text = { Text("You are about to move ${forReview.size} photos to the system trash. They can be recovered within 30 days.") },
-            confirmButton = {
-                TextButton(onClick = {
-                    showDeleteConfirm = false
-                    requestTrash(forReview.map { it.photo.contentUri })
-                }) {
-                    Text("Delete", color = Color.Red)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDeleteConfirm = false }) {
-                    Text("Cancel")
-                }
-            }
-        )
     }
 
     Column(
@@ -132,22 +105,16 @@ fun AICurationScreen(
         CurationHeader(
             onBack = onBack,
             isAnalyzing = isAnalyzing,
-            resultCount = analysisResults.size,
-            onDeleteRejected = { showDeleteConfirm = true },
             isSelectionMode = isSelectionMode,
             selectedCount = selectedIds.size,
-            onArchiveSelected = {
-                viewModel.archivePhotos(selectedIds.toList())
-                isSelectionMode = false
-                selectedIds = emptySet()
+            onDeleteSelected = {
+                val uris = analysisResults
+                    .filter { it.photo.id in selectedIds }
+                    .map { it.photo.contentUri }
+                requestTrash(uris)
             },
-            onSelectAll = {
-                selectedIds = analysisResults.map { it.photo.id }.toSet()
-            },
-            onCancelSelection = {
-                isSelectionMode = false
-                selectedIds = emptySet()
-            }
+            onSelectAll = { viewModel.selectAll() },
+            onCancelSelection = { viewModel.toggleSelectionMode(false) }
         )
 
         if (isAnalyzing && progress != null) {
@@ -156,32 +123,24 @@ fun AICurationScreen(
             CurationResultsGrid(
                 keepers = keepers,
                 forReview = forReview,
-                archivedCount = archivedPhotos.size,
-                onRestoreArchived = {
-                    viewModel.restorePhotos(archivedPhotos.map { it.id })
-                },
                 onToggleBestTake = { viewModel.toggleBestTake(it) },
                 onPhotoClick = { index, isKeeper ->
                     if (isSelectionMode) {
                         val result = if (isKeeper) keepers[index] else forReview[index]
-                        selectedIds = if (selectedIds.contains(result.photo.id)) {
-                            selectedIds - result.photo.id
-                        } else {
-                            selectedIds + result.photo.id
-                        }
+                        viewModel.togglePhotoSelection(result.photo.id)
                     } else {
                         selectedPhotoIndex = index
                         viewerSourceIsKeepers = isKeeper
                     }
                 },
                 onPhotoLongClick = { result ->
-                    if (!isSelectionMode) {
-                        isSelectionMode = true
-                        selectedIds = setOf(result.photo.id)
-                    }
+                    viewModel.togglePhotoSelection(result.photo.id)
                 },
                 isSelectionMode = isSelectionMode,
-                selectedIds = selectedIds
+                selectedIds = selectedIds,
+                onDeleteSuggestions = {
+                    requestTrash(forReview.map { it.photo.contentUri })
+                }
             )
         }
 
@@ -192,13 +151,9 @@ fun AICurationScreen(
                     results = viewerList,
                     allResults = analysisResults,
                     initialIndex = selectedPhotoIndex,
-                    onToggleAction = { id -> 
-                        viewModel.toggleBestTake(id)
-                    },
+                    onToggleAction = { id -> viewModel.toggleBestTake(id) },
                     onDismiss = { selectedPhotoIndex = -1 }
                 )
-            } else {
-                selectedPhotoIndex = -1
             }
         }
     }
@@ -208,13 +163,12 @@ fun AICurationScreen(
 fun CurationResultsGrid(
     keepers: List<CuratedResult>,
     forReview: List<CuratedResult>,
-    archivedCount: Int,
-    onRestoreArchived: () -> Unit,
     onToggleBestTake: (Long) -> Unit,
     onPhotoClick: (Int, Boolean) -> Unit,
     onPhotoLongClick: (CuratedResult) -> Unit,
     isSelectionMode: Boolean,
-    selectedIds: Set<Long>
+    selectedIds: Set<Long>,
+    onDeleteSuggestions: () -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
@@ -223,12 +177,6 @@ fun CurationResultsGrid(
         verticalArrangement = Arrangement.spacedBy(1.dp),
         modifier = Modifier.fillMaxSize()
     ) {
-        if (archivedCount > 0) {
-            item(span = { GridItemSpan(3) }) {
-                ArchiveHeader(count = archivedCount, onUndo = onRestoreArchived)
-            }
-        }
-
         if (keepers.isNotEmpty()) {
             item(span = { GridItemSpan(3) }) {
                 SectionHeader("Keepers", Icons.Default.AutoAwesome)
@@ -248,9 +196,20 @@ fun CurationResultsGrid(
 
         if (forReview.isNotEmpty()) {
             item(span = { GridItemSpan(3) }) {
-                SectionHeader("For Review", Icons.Default.BatchPrediction)
+                SectionHeader(
+                    title = "Review Suggestions",
+                    icon = Icons.Default.BatchPrediction,
+                    action = {
+                        if (!isSelectionMode) {
+                            TextButton(onClick = onDeleteSuggestions) {
+                                Icon(Icons.Default.DeleteSweep, null, tint = Color.Red, modifier = Modifier.size(18.dp))
+                                Spacer(Modifier.width(4.dp))
+                                Text("Clean Up", color = Color.Red, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                )
             }
-            
             itemsIndexed(forReview) { index, result ->
                 CurationPhotoCard(
                     result = result, 
@@ -275,17 +234,19 @@ fun CurationPhotoCard(
     onClick: () -> Unit,
     onLongClick: () -> Unit,
     isSelected: Boolean,
-    isSelectionMode: Boolean,
-    compact: Boolean = false
+    isSelectionMode: Boolean
 ) {
+    val padding by animateDpAsState(if (isSelected) 10.dp else 0.dp)
+    val cornerRadius by animateDpAsState(if (isSelected) 16.dp else 0.dp)
+    
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(1f)
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongClick
-            )
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+            .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
+            .padding(padding)
+            .clip(RoundedCornerShape(cornerRadius))
     ) {
         AsyncImage(
             model = result.photo.contentUri,
@@ -297,88 +258,63 @@ fun CurationPhotoCard(
         if (isSelectionMode) {
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(if (isSelected) Color.White.copy(alpha = 0.2f) else Color.Transparent)
-            )
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
+                    .align(Alignment.TopStart)
                     .padding(8.dp)
                     .size(24.dp)
-                    .background(if (isSelected) Color.White else Color.Black.copy(alpha = 0.3f), CircleShape)
+                    .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Black.copy(alpha = 0.3f), CircleShape)
                     .border(2.dp, Color.White, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 if (isSelected) {
-                    Icon(Icons.Default.Check, null, tint = Color.Black, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.Check, null, tint = Color.White, modifier = Modifier.size(16.dp))
                 }
             }
         } else {
-            // Toggle Button (Add/Remove from Best Takes)
             Box(
                 modifier = Modifier
-                    .align(Alignment.TopStart)
+                    .align(Alignment.TopEnd)
                     .padding(4.dp)
-                    .size(24.dp)
-                    .background(Color.Black.copy(alpha = 0.4f), CircleShape)
+                    .size(28.dp)
+                    .background(Color.Black.copy(alpha = 0.5f), CircleShape)
                     .clickable { onToggleBestTake(result.photo.id) },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = if (isKeeper) Icons.Default.Favorite else Icons.Default.Add,
-                    contentDescription = if (isKeeper) "Remove" else "Add",
-                    tint = if (isKeeper) Color.Red else Color.White,
-                    modifier = Modifier.size(14.dp)
+                    imageVector = if (isKeeper) Icons.Default.Close else Icons.Default.Check,
+                    contentDescription = if (isKeeper) "Dismiss" else "Keep",
+                    tint = Color.White,
+                    modifier = Modifier.size(16.dp)
                 )
             }
 
-            // Overlay for Rejection Reason
             if (!isKeeper && result.rejectionReason != RejectionReason.NONE) {
                 Box(
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
+                        .align(Alignment.BottomStart)
                         .padding(4.dp)
-                        .background(Color.Black.copy(alpha = 0.4f), CircleShape)
-                        .padding(4.dp)
+                        .background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(4.dp))
+                        .padding(horizontal = 4.dp, vertical = 2.dp)
                 ) {
-                    Icon(
-                        imageVector = when (result.rejectionReason) {
-                            RejectionReason.EYES_CLOSED -> Icons.Default.VisibilityOff
-                            RejectionReason.DUPLICATE -> Icons.Default.CopyAll
-                            RejectionReason.BLURRY -> Icons.Default.BlurOn
-                            else -> Icons.Default.ErrorOutline
-                        },
-                        contentDescription = result.rejectionReason.name,
-                        tint = Color.White,
-                        modifier = Modifier.size(12.dp)
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = when (result.rejectionReason) {
+                                RejectionReason.EYES_CLOSED -> Icons.Default.VisibilityOff
+                                RejectionReason.DUPLICATE -> Icons.Default.CopyAll
+                                RejectionReason.BLURRY -> Icons.Default.BlurOn
+                                else -> Icons.Default.ErrorOutline
+                            },
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(10.dp)
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            text = result.rejectionReason.name.lowercase().replaceFirstChar { it.uppercase() },
+                            color = Color.White,
+                            fontSize = 8.sp
+                        )
+                    }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun ArchiveHeader(count: Int, onUndo: () -> Unit) {
-    Surface(
-        color = Color.DarkGray.copy(alpha = 0.4f),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(Icons.Default.Archive, "Archive", tint = Color.LightGray)
-            Spacer(Modifier.width(12.dp))
-            Column(Modifier.weight(1f)) {
-                Text("Archive", fontWeight = FontWeight.Bold, color = Color.White)
-                Text("$count images", fontSize = 12.sp, color = Color.Gray)
-            }
-            TextButton(onClick = onUndo) {
-                Text("UNDO", fontWeight = FontWeight.Bold, color = Color.Yellow)
             }
         }
     }
@@ -388,11 +324,9 @@ fun ArchiveHeader(count: Int, onUndo: () -> Unit) {
 fun CurationHeader(
     onBack: () -> Unit,
     isAnalyzing: Boolean,
-    resultCount: Int,
-    onDeleteRejected: () -> Unit,
     isSelectionMode: Boolean,
     selectedCount: Int,
-    onArchiveSelected: () -> Unit,
+    onDeleteSelected: () -> Unit,
     onSelectAll: () -> Unit,
     onCancelSelection: () -> Unit
 ) {
@@ -416,10 +350,10 @@ fun CurationHeader(
             TextButton(onClick = onSelectAll) {
                 Text("Select All", color = Color.White)
             }
-            IconButton(onClick = onArchiveSelected, enabled = selectedCount > 0) {
+            IconButton(onClick = onDeleteSelected, enabled = selectedCount > 0) {
                 Icon(
-                    Icons.Default.Archive, 
-                    "Archive", 
+                    Icons.Default.Delete, 
+                    "Delete", 
                     tint = if (selectedCount > 0) Color.White else Color.White.copy(alpha = 0.4f)
                 )
             }
@@ -431,22 +365,10 @@ fun CurationHeader(
             Column(modifier = Modifier.weight(1f)) {
                 Text("Smart Review", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Text(
-                    text = if (isAnalyzing) "Processing..." else "$resultCount photos analyzed",
+                    text = if (isAnalyzing) "Processing..." else "AI Analysis Complete",
                     color = Color.White.copy(alpha = 0.6f),
                     fontSize = 12.sp
                 )
-            }
-
-            if (!isAnalyzing && resultCount > 0) {
-                Button(
-                    onClick = onDeleteRejected,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red.copy(alpha = 0.2f)),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Icon(Icons.Default.DeleteSweep, null, modifier = Modifier.size(16.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text("Clean Up", fontSize = 12.sp)
-                }
             }
         }
     }
@@ -486,13 +408,54 @@ fun AnalysisProgressView(progress: CurationProgress) {
 }
 
 @Composable
-fun SectionHeader(title: String, icon: ImageVector) {
+fun SectionHeader(
+    title: String, 
+    icon: ImageVector,
+    action: @Composable () -> Unit = {}
+) {
     Row(
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(icon, null, tint = Color.White, modifier = Modifier.size(20.dp))
         Spacer(Modifier.width(8.dp))
-        Text(title, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(title, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+        action()
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF000000)
+@Composable
+fun AICurationScreenPreview() {
+    val dummyPhotos = listOf(
+        MediaPhoto(1, Uri.EMPTY, System.currentTimeMillis()),
+        MediaPhoto(2, Uri.EMPTY, System.currentTimeMillis()),
+        MediaPhoto(3, Uri.EMPTY, System.currentTimeMillis())
+    )
+
+    MemoryCuratorTheme {
+        AICurationScreen(
+            photos = dummyPhotos,
+            onBack = {},
+            repository = object : MediaRepository {
+                override fun getPagedPhotos() = error("Not implemented")
+                override fun getAllPhotos() = error("Not implemented")
+                override fun getArchivedPhotos() = kotlinx.coroutines.flow.flowOf(emptyList<MediaPhoto>())
+                override suspend fun getMediaEntities(ids: List<Long>) = emptyList<com.memorycurator.app.data.local.MediaEntity>()
+                override suspend fun saveAiResults(entities: List<com.memorycurator.app.data.local.MediaEntity>) {}
+                override suspend fun updateBestTakeStatus(id: Long, isBest: Boolean) {}
+                override suspend fun resetAiMetadata(ids: List<Long>) {}
+                override suspend fun archiveMedia(ids: List<Long>) {}
+                override suspend fun restoreMedia(ids: List<Long>) {}
+            }
+        )
+    }
+}
+
+@Preview
+@Composable
+fun AnalysisProgressPreview() {
+    MemoryCuratorTheme {
+        AnalysisProgressView(CurationProgress(5, 10, 0.5f))
     }
 }

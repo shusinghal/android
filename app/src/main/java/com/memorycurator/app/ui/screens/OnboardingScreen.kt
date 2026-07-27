@@ -16,14 +16,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.memorycurator.app.ui.components.BlurBackground
+import com.memorycurator.app.ui.theme.MemoryCuratorTheme
 
 @Composable
 fun OnboardingScreen(onContinue: () -> Unit) {
@@ -150,5 +151,13 @@ fun ExpectationItem(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun OnboardingScreenPreview() {
+    MemoryCuratorTheme {
+        OnboardingScreen(onContinue = {})
     }
 }

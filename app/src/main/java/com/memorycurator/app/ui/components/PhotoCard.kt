@@ -17,8 +17,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.AsyncImage
 import com.memorycurator.app.ui.models.PhotoItem
+import com.memorycurator.app.ui.theme.MemoryCuratorTheme
 
 @Composable
 fun PhotoCard(photo: PhotoItem) {
@@ -62,6 +64,23 @@ fun PhotoCard(photo: PhotoItem) {
                     style = MaterialTheme.typography.bodySmall
                 )
             }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PhotoCardPreview() {
+    MemoryCuratorTheme {
+        Box(Modifier.padding(16.dp)) {
+            PhotoCard(
+                photo = PhotoItem(
+                    id = 1,
+                    imageUrl = "",
+                    badge = "BEST TAKE",
+                    score = 0.95f
+                )
+            )
         }
     }
 }

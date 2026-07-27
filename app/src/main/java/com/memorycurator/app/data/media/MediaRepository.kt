@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface MediaRepository {
 
-    fun getPagedPhotos(): Flow<PagingData<MediaPhoto>>
+    fun getPagedPhotos(bestTakesOnly: Boolean = false): Flow<PagingData<MediaPhoto>>
     
     fun getAllPhotos(): Flow<List<MediaPhoto>>
     

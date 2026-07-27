@@ -5,7 +5,9 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -35,7 +37,8 @@ import java.util.*
 fun TimelineScreen(
     groups: List<TimelineGroup>,
     onGroupClick: (TimelineGroup) -> Unit,
-    onBestTakesClick: (TimelineGroup) -> Unit
+    onBestTakesClick: (TimelineGroup) -> Unit,
+    state: LazyListState = rememberLazyListState()
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
 //        BlurBackground()
@@ -55,6 +58,7 @@ fun TimelineScreen(
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
+            state = state,
             contentPadding = PaddingValues(top = 80.dp, bottom = 120.dp)
         ) {
             items(groups) { group ->

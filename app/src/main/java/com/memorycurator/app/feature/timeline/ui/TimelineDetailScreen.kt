@@ -29,6 +29,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,6 +53,7 @@ import com.memorycurator.app.ui.screens.AICurationViewModel
 import com.memorycurator.app.ui.screens.AICurationViewModelFactory
 import com.memorycurator.app.ui.screens.CurationViewerScreen
 import com.memorycurator.app.ui.screens.AnalysisProgressView
+import com.memorycurator.app.ui.theme.MemoryCuratorTheme
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -62,7 +64,7 @@ fun TimelineDetailScreen(
     repository: MediaRepository? = null
 ) {
     var selectedIndex by remember { mutableIntStateOf(-1) }
-    var isBestTakesActive by remember { mutableStateOf(false) }
+    var isBestTakesActive by rememberSaveable { mutableStateOf(false) }
     // Track which filtered list is being viewed in the viewer
     var viewerSourceList by remember { mutableStateOf<List<CuratedResult>>(emptyList()) }
 
@@ -211,14 +213,6 @@ fun TimelineDetailScreen(
                         verticalArrangement = Arrangement.spacedBy(1.dp),
                         horizontalArrangement = Arrangement.spacedBy(1.dp)
                     ) {
-                        if (isBestTakesActive && archivedPhotos.isNotEmpty()) {
-                            item(span = { GridItemSpan(3) }, key = "archive_header") {
-                                ArchiveHeader(
-                                    count = archivedPhotos.size,
-                                    onUndo = { viewModel?.restorePhotos(archivedPhotos.map { it.id }) }
-                                )
-                            }
-                        }
 
                         if (isBestTakesActive && analysisResults.isNotEmpty()) {
                             if (keepers.isNotEmpty()) {
@@ -387,28 +381,39 @@ fun SectionHeaderSmall(title: String, icon: ImageVector) {
     }
 }
 
+
+@Preview(showBackground = true, backgroundColor = 0xFF000000)
 @Composable
-fun ArchiveHeader(count: Int, onUndo: () -> Unit) {
-    Surface(
-        color = Color.White.copy(alpha = 0.1f),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(Icons.Default.Archive, "Archive", tint = Color.LightGray, modifier = Modifier.size(20.dp))
-            Spacer(Modifier.width(12.dp))
-            Column(Modifier.weight(1f)) {
-                Text("Archive", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 14.sp)
-                Text("$count images hidden from timeline", fontSize = 11.sp, color = Color.Gray)
-            }
-            TextButton(onClick = onUndo, contentPadding = PaddingValues(horizontal = 8.dp)) {
-                Text("UNDO ALL", fontWeight = FontWeight.Bold, color = Color.Yellow, fontSize = 12.sp)
-            }
-        }
+fun TimelineDetailScreenPreview() {
+    val mockPhotos = listOf(
+        MediaPhoto(1, Uri.EMPTY, System.currentTimeMillis()),
+        MediaPhoto(2, Uri.EMPTY, System.currentTimeMillis()),
+        MediaPhoto(3, Uri.EMPTY, System.currentTimeMillis())
+    )
+    val mockGroup = TimelineGroup(
+        title = "Recent Memories",
+        photos = mockPhotos
+    )
+
+    MemoryCuratorTheme {
+        TimelineDetailScreen(
+            group = mockGroup,
+            onBack = {},
+            onBestTakesClick = {},
+            repository = null
+        )
+    }
+}
+
+@Preview
+@Composable
+fun PhotoGridItemPreview() {
+    MemoryCuratorTheme {
+        PhotoGridItem(
+            photo = MediaPhoto(1, Uri.EMPTY, System.currentTimeMillis()),
+            onClick = {},
+            isSelected = false,
+            isSelectionMode = false
+        )
     }
 }

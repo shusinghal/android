@@ -1,5 +1,6 @@
 package com.memorycurator.app.feature.albums.ui.components
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,9 +18,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.memorycurator.app.feature.albums.model.Album
+import com.memorycurator.app.ui.theme.MemoryCuratorTheme
 
 @Composable
 fun GlassAlbumCard(
@@ -98,6 +101,20 @@ fun GlassAlbumCard(
                     )
                 }
             }
+        }
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF000000)
+@Composable
+fun GlassAlbumCardPreview() {
+    MemoryCuratorTheme {
+        Box(Modifier.padding(16.dp)) {
+            GlassAlbumCard(
+                album = Album("Vacation", "", 42),
+                onClick = {},
+                onBestTakesClick = {}
+            )
         }
     }
 }

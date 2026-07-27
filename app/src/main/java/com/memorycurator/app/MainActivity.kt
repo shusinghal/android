@@ -49,7 +49,8 @@ class MainActivity : ComponentActivity() {
             mediaIndexer = MediaIndexer(
                 applicationContext,
                 DatabaseProvider.getDatabase(applicationContext).mediaDao()
-            )
+            ),
+            context = applicationContext
         )
         galleryViewModel = ViewModelProvider(this, factory)[GalleryViewModel::class.java]
         

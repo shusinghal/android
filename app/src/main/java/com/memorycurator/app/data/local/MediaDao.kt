@@ -1,6 +1,7 @@
 package com.memorycurator.app.data.local
 
 import androidx.room.*
+import androidx.paging.PagingSource
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -14,6 +15,12 @@ interface MediaDao {
 
     @Query("SELECT * FROM media WHERE isArchived = 0 ORDER BY dateTaken DESC")
     fun getAllMedia(): Flow<List<MediaEntity>>
+
+    @Query("SELECT * FROM media WHERE isArchived = 0 ORDER BY dateTaken DESC")
+    fun getPagedMedia(): PagingSource<Int, MediaEntity>
+
+    @Query("SELECT * FROM media WHERE isArchived = 0 AND isBestTake = 1 ORDER BY dateTaken DESC")
+    fun getPagedBestTakes(): PagingSource<Int, MediaEntity>
 
     @Query("SELECT * FROM media WHERE isArchived = 1 ORDER BY dateTaken DESC")
     fun getArchivedMedia(): Flow<List<MediaEntity>>

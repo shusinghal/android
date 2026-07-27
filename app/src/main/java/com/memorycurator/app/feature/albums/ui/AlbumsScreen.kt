@@ -1,12 +1,15 @@
 package com.memorycurator.app.feature.albums.ui
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -24,19 +27,21 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.AsyncImage
 import com.memorycurator.app.data.media.MediaPhoto
 import com.memorycurator.app.feature.albums.model.Album
 import com.memorycurator.app.feature.albums.ui.components.GlassAlbumCard
 import com.memorycurator.app.ui.components.GlassSurface
+import com.memorycurator.app.ui.theme.MemoryCuratorTheme
 import kotlinx.coroutines.launch
 
 @Composable
 fun AlbumsScreen(
     viewModel: AlbumsViewModel,
     onAlbumClick: (Album) -> Unit,
-    onPhotosForCuration: (List<MediaPhoto>) -> Unit
+    onPhotosForCuration: (List<MediaPhoto>) -> Unit,
+    state: LazyListState = rememberLazyListState()
 ) {
     val albums by viewModel.albums.collectAsState()
     val archivedPhotos by viewModel.archivedPhotos.collectAsState(initial = emptyList())
@@ -54,6 +59,7 @@ fun AlbumsScreen(
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
+                state = state,
                 contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 80.dp, bottom = 120.dp),
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
@@ -191,6 +197,24 @@ fun ArchiveView(
                     }
                 }
             }
+        }
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF000000)
+@Composable
+fun ArchiveViewPreview() {
+    val mockPhotos = listOf(
+        MediaPhoto(1, Uri.EMPTY, System.currentTimeMillis()),
+        MediaPhoto(2, Uri.EMPTY, System.currentTimeMillis())
+    )
+    MemoryCuratorTheme {
+        Box(Modifier.background(Color.Black)) {
+            ArchiveView(
+                photos = mockPhotos,
+                onBack = {},
+                onRestore = {}
+            )
         }
     }
 }
