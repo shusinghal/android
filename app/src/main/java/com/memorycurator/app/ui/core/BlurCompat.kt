@@ -15,9 +15,9 @@ fun Modifier.glassBlur(): Modifier {
 
             renderEffect = RenderEffect
                 .createBlurEffect(
-                    80f,
-                    80f,
-                    Shader.TileMode.CLAMP
+                    1f,
+                    1f,
+                    Shader.TileMode.MIRROR
                 )
                 .asComposeRenderEffect()
         }
