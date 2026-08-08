@@ -1,6 +1,7 @@
 package com.memorycurator.app.ui.screens
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.activity.compose.BackHandler
@@ -36,6 +37,7 @@ import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.SelectAll
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -124,6 +126,12 @@ fun AICurationScreen(
                     .filter { it.photo.id in selectedIds }
                     .map { it.photo.contentUri }
                 requestTrash(uris)
+            },
+            onShareSelected = {
+                val uris = analysisResults
+                    .filter { it.photo.id in selectedIds }
+                    .map { it.photo.contentUri }
+                sharePhotos(context, uris)
             },
             onSelectAll = { viewModel.selectAll() },
             onCancelSelection = { viewModel.toggleSelectionMode(false) }
@@ -249,13 +257,6 @@ fun CurationResultsGrid(
                                     )
                                 }
                             }
-                            if (!isSelectionMode) {
-                                TextButton(onClick = onDeleteSuggestions) {
-                                    Icon(Icons.Default.DeleteSweep, null, tint = Color.Red, modifier = Modifier.size(18.dp))
-                                    Spacer(Modifier.width(4.dp))
-                                    Text("Clean Up", color = Color.Red, fontWeight = FontWeight.Bold)
-                                }
-                            }
                         }
                     }
                 )
@@ -377,6 +378,7 @@ fun CurationHeader(
     isSelectionMode: Boolean,
     selectedCount: Int,
     onDeleteSelected: () -> Unit,
+    onShareSelected: () -> Unit,
     onSelectAll: () -> Unit,
     onCancelSelection: () -> Unit
 ) {
@@ -397,6 +399,13 @@ fun CurationHeader(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f)
             )
+            IconButton(onClick = onShareSelected, enabled = selectedCount > 0) {
+                Icon(
+                    Icons.Default.Share, 
+                    "Share", 
+                    tint = if (selectedCount > 0) Color.White else Color.White.copy(alpha = 0.4f)
+                )
+            }
             IconButton(onClick = onSelectAll) {
                 Icon(Icons.Default.SelectAll, "Select All", tint = Color.White)
             }
@@ -514,8 +523,14 @@ fun AICurationScreenPreview() {
                 override suspend fun getMediaByIds(ids: List<Long>) = error("Not implemented")
                 override suspend fun updateBestTakeStatus(id: Long, isBest: Boolean) {}
                 override suspend fun resetAiMetadata(ids: List<Long>) {}
+                override suspend fun updateArchiveStatus(id: Long, folderName: String?, bucketId: String?, isArchived: Boolean) {}
+                override suspend fun updateFolder(id: Long, folderName: String?, bucketId: String?) {}
                 override suspend fun archiveMedia(ids: List<Long>) {}
                 override suspend fun restoreMedia(ids: List<Long>) {}
+                override suspend fun updateMediaUri(id: Long, newUri: String) {}
+                override suspend fun delete(entity: com.memorycurator.app.data.local.MediaEntity) {}
+                override suspend fun getAllMediaSync(): List<com.memorycurator.app.data.local.MediaEntity> = emptyList()
+                override suspend fun deleteByIds(ids: List<Long>) {}
             })
         )
     }
@@ -527,4 +542,25 @@ fun AnalysisProgressPreview() {
     MemoryCuratorTheme {
         AnalysisProgressView(CurationProgress(5, 10, 0.5f))
     }
+}
+
+fun sharePhotos(context: Context, uris: List<Uri>) {
+    if (uris.isEmpty()) return
+    
+    val intent = if (uris.size == 1) {
+        Intent(Intent.ACTION_SEND).apply {
+            type = context.contentResolver.getType(uris[0]) ?: "image/*"
+            putExtra(Intent.EXTRA_STREAM, uris[0])
+        }
+    } else {
+        Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+            type = "image/*"
+            putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(uris))
+        }
+    }
+    
+    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    val chooser = Intent.createChooser(intent, "Share with")
+    chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    context.startActivity(chooser)
 }

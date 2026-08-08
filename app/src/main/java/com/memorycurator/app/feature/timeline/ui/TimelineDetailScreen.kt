@@ -3,6 +3,8 @@ package com.memorycurator.app.feature.timeline.ui
 import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.tooling.preview.Preview
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -28,6 +30,7 @@ import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.SelectAll
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
@@ -88,6 +91,14 @@ fun TimelineDetailScreen(
     
     val isSelectionMode by viewModel?.isSelectionMode?.collectAsState() ?: remember { mutableStateOf(false) }
     val selectedIds by viewModel?.selectedIds?.collectAsState() ?: remember { mutableStateOf(emptySet<Long>()) }
+
+    val keepers = remember(analysisResults) { analysisResults.filter { it.score != -1f && it.isBestTake } }
+    val forReview = remember(analysisResults) { analysisResults.filter { it.score != -1f && !it.isBestTake } }
+    val notAnalyzed = remember(analysisResults) { analysisResults.filter { it.score == -1f } }
+    val nonArchivedPhotos = remember(group.photos, archivedPhotos) {
+        val archivedIds = archivedPhotos.map { it.id }.toSet()
+        group.photos.filter { it.id !in archivedIds }
+    }
 
     val gridState = rememberLazyGridState()
 
@@ -153,6 +164,21 @@ fun TimelineDetailScreen(
                                 Icon(Icons.Default.SelectAll, "Select All", tint = Color.White)
                             }
                             IconButton(
+                                onClick = { 
+                                    val uris = nonArchivedPhotos
+                                        .filter { it.id in selectedIds }
+                                        .map { it.contentUri }
+                                    sharePhotos(context, uris)
+                                },
+                                enabled = selectedIds.isNotEmpty()
+                            ) {
+                                Icon(
+                                    Icons.Default.Share,
+                                    "Share",
+                                    tint = if (selectedIds.isNotEmpty()) Color.White else Color.White.copy(alpha = 0.4f)
+                                )
+                            }
+                            IconButton(
                                 onClick = { viewModel?.archiveSelected() },
                                 enabled = selectedIds.isNotEmpty()
                             ) {
@@ -163,12 +189,6 @@ fun TimelineDetailScreen(
                                 )
                             }
                         } else if (isBestTakesActive && analysisResults.isNotEmpty()) {
-                            val reviewCount = analysisResults.count { !it.isBestTake }
-                            if (reviewCount > 0) {
-                                TextButton(onClick = { viewModel?.archiveAllUnderReview() }) {
-                                    Text("Clean Up ($reviewCount)", color = Color.White)
-                                }
-                            }
                             // Reset word instead of icon
                             TextButton(onClick = {
                                 isBestTakesActive = false
@@ -207,10 +227,6 @@ fun TimelineDetailScreen(
                         AnalysisProgressView(progress!!)
                     }
                 } else {
-                    val keepers = remember(analysisResults) { analysisResults.filter { it.score != -1f && it.isBestTake } }
-                    val forReview = remember(analysisResults) { analysisResults.filter { it.score != -1f && !it.isBestTake } }
-                    val notAnalyzed = remember(analysisResults) { analysisResults.filter { it.score == -1f } }
-
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(3),
                         state = gridState,
@@ -482,4 +498,25 @@ fun PhotoGridItemPreview() {
             isSelectionMode = false
         )
     }
+}
+
+fun sharePhotos(context: Context, uris: List<Uri>) {
+    if (uris.isEmpty()) return
+    
+    val intent = if (uris.size == 1) {
+        Intent(Intent.ACTION_SEND).apply {
+            type = context.contentResolver.getType(uris[0]) ?: "image/*"
+            putExtra(Intent.EXTRA_STREAM, uris[0])
+        }
+    } else {
+        Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+            type = "image/*"
+            putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(uris))
+        }
+    }
+    
+    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    val chooser = Intent.createChooser(intent, "Share with")
+    chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    context.startActivity(chooser)
 }
