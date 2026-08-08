@@ -22,6 +22,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.memorycurator.app.data.local.DatabaseProvider
+import com.memorycurator.app.data.media.MediaIndexer
 import com.memorycurator.app.data.media.MediaRepository
 import com.memorycurator.app.data.media.MediaRepositoryImpl
 import com.memorycurator.app.feature.albums.data.AlbumsRepository
@@ -54,6 +55,10 @@ fun MainNavigation(
 
     val database = remember {
         DatabaseProvider.getDatabase(context)
+    }
+
+    val mediaIndexer = remember {
+        MediaIndexer(context, database.mediaDao())
     }
 
     val albumsRepository = remember {
@@ -137,6 +142,7 @@ fun MainNavigation(
         curationPhotos = curationPhotos,
         onCurationPhotosSelected = { curationPhotos = it },
         mediaRepository = mediaRepository,
+        mediaIndexer = mediaIndexer,
         timelineListState = timelineListState,
         galleryGridState = galleryGridState,
         albumsListState = albumsListState,
@@ -161,6 +167,7 @@ fun MainNavigationContent(
     curationPhotos: List<com.memorycurator.app.data.media.MediaPhoto>?,
     onCurationPhotosSelected: (List<com.memorycurator.app.data.media.MediaPhoto>?) -> Unit,
     mediaRepository: MediaRepository?,
+    mediaIndexer: MediaIndexer?,
     timelineListState: androidx.compose.foundation.lazy.LazyListState = rememberLazyListState(),
     galleryGridState: androidx.compose.foundation.lazy.grid.LazyGridState = rememberLazyGridState(),
     albumsListState: androidx.compose.foundation.lazy.LazyListState = rememberLazyListState(),
@@ -215,7 +222,8 @@ fun MainNavigationContent(
                                 group = selectedTimelineGroup,
                                 onBack = { onTimelineGroupSelected(null) },
                                 onBestTakesClick = { onCurationPhotosSelected(it.photos) },
-                                repository = mediaRepository
+                                repository = mediaRepository,
+                                mediaIndexer = mediaIndexer
                             )
                         } else {
                             TimelineScreen(
@@ -234,7 +242,8 @@ fun MainNavigationContent(
                                     group = selectedAlbumGroup,
                                     onBack = { onAlbumGroupSelected(null) },
                                     onBestTakesClick = { onCurationPhotosSelected(it.photos) },
-                                    repository = mediaRepository
+                                    repository = mediaRepository,
+                                    mediaIndexer = mediaIndexer
                                 )
                             } else {
                                 AlbumsScreen(
@@ -259,7 +268,8 @@ fun MainNavigationContent(
                                     group = selectedMapGroup,
                                     onBack = { onMapGroupSelected(null) },
                                     onBestTakesClick = { onCurationPhotosSelected(it.photos) },
-                                    repository = mediaRepository
+                                    repository = mediaRepository,
+                                    mediaIndexer = mediaIndexer
                                 )
                             } else {
                                 MapsScreen(
@@ -288,11 +298,12 @@ fun MainNavigationContent(
             }
         }
 
-        if (curationPhotos != null && mediaRepository != null) {
+        if (curationPhotos != null && mediaRepository != null && mediaIndexer != null) {
             AICurationScreen(
                 photos = curationPhotos,
                 onBack = { onCurationPhotosSelected(null) },
-                repository = mediaRepository
+                repository = mediaRepository,
+                mediaIndexer = mediaIndexer
             )
         }
     }
@@ -317,6 +328,7 @@ fun MainNavigationPreview() {
             curationPhotos = null,
             onCurationPhotosSelected = {},
             mediaRepository = null,
+            mediaIndexer = null,
             scope = rememberCoroutineScope()
         )
     }

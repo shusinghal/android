@@ -23,7 +23,20 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.BatchPrediction
+import androidx.compose.material.icons.filled.BlurOn
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.CopyAll
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteSweep
+import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material.icons.filled.RadioButtonUnchecked
+import androidx.compose.material.icons.filled.SelectAll
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -41,6 +54,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.memorycurator.app.core.ai.CuratedResult
 import com.memorycurator.app.core.ai.RejectionReason
+import com.memorycurator.app.data.media.MediaIndexer
 import com.memorycurator.app.data.media.MediaPhoto
 import com.memorycurator.app.data.media.MediaRepository
 import com.memorycurator.app.ui.theme.MemoryCuratorTheme
@@ -49,10 +63,11 @@ import com.memorycurator.app.ui.theme.MemoryCuratorTheme
 fun AICurationScreen(
     photos: List<MediaPhoto>,
     onBack: () -> Unit,
-    repository: MediaRepository
+    repository: MediaRepository,
+    mediaIndexer: MediaIndexer
 ) {
     val viewModel: AICurationViewModel = viewModel(
-        factory = AICurationViewModelFactory(repository)
+        factory = AICurationViewModelFactory(repository, mediaIndexer)
     )
     val context = LocalContext.current
     
@@ -70,11 +85,8 @@ fun AICurationScreen(
         }
     }
 
-    LaunchedEffect(photos) {
-        if (photos.isNotEmpty()) {
-            viewModel.filterBestTakes(context, photos)
-        }
-    }
+    // Remove the automatic trigger. Curation should only happen when manually requested.
+    // The filterBestTakes will be called via TimelineDetailScreen's "Best Takes" button.
     
     val analysisResults by viewModel.analysisResults.collectAsState()
     val isAnalyzing by viewModel.isAnalyzing.collectAsState()
@@ -139,7 +151,13 @@ fun AICurationScreen(
                 isSelectionMode = isSelectionMode,
                 selectedIds = selectedIds,
                 onDeleteSuggestions = {
-                    requestTrash(forReview.map { it.photo.contentUri })
+                    val uris = forReview.map { it.photo.contentUri }
+                    val ids = forReview.map { it.photo.id }
+                    requestTrash(uris)
+                    viewModel.archivePhotos(ids)
+                },
+                onToggleSection = { ids ->
+                    viewModel.toggleSectionSelection(ids)
                 }
             )
         }
@@ -168,7 +186,8 @@ fun CurationResultsGrid(
     onPhotoLongClick: (CuratedResult) -> Unit,
     isSelectionMode: Boolean,
     selectedIds: Set<Long>,
-    onDeleteSuggestions: () -> Unit
+    onDeleteSuggestions: () -> Unit,
+    onToggleSection: (List<Long>) -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
@@ -179,7 +198,24 @@ fun CurationResultsGrid(
     ) {
         if (keepers.isNotEmpty()) {
             item(span = { GridItemSpan(3) }) {
-                SectionHeader("Keepers", Icons.Default.AutoAwesome)
+                val sectionIds = remember(keepers) { keepers.map { it.photo.id } }
+                val allSelected = remember(selectedIds, sectionIds) { sectionIds.isNotEmpty() && sectionIds.all { selectedIds.contains(it) } }
+                
+                SectionHeader(
+                    title = "Keepers",
+                    icon = Icons.Default.AutoAwesome,
+                    action = {
+                        if (isSelectionMode) {
+                            IconButton(onClick = { onToggleSection(sectionIds) }) {
+                                Icon(
+                                    imageVector = if (allSelected) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
+                                    contentDescription = "Select All Keepers",
+                                    tint = if (allSelected) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.7f)
+                                )
+                            }
+                        }
+                    }
+                )
             }
             itemsIndexed(keepers) { index, result ->
                 CurationPhotoCard(
@@ -196,15 +232,29 @@ fun CurationResultsGrid(
 
         if (forReview.isNotEmpty()) {
             item(span = { GridItemSpan(3) }) {
+                val sectionIds = remember(forReview) { forReview.map { it.photo.id } }
+                val allSelected = remember(selectedIds, sectionIds) { sectionIds.isNotEmpty() && sectionIds.all { selectedIds.contains(it) } }
+                
                 SectionHeader(
                     title = "Review Suggestions",
                     icon = Icons.Default.BatchPrediction,
                     action = {
-                        if (!isSelectionMode) {
-                            TextButton(onClick = onDeleteSuggestions) {
-                                Icon(Icons.Default.DeleteSweep, null, tint = Color.Red, modifier = Modifier.size(18.dp))
-                                Spacer(Modifier.width(4.dp))
-                                Text("Clean Up", color = Color.Red, fontWeight = FontWeight.Bold)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            if (isSelectionMode) {
+                                IconButton(onClick = { onToggleSection(sectionIds) }) {
+                                    Icon(
+                                        imageVector = if (allSelected) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
+                                        contentDescription = "Select All Suggestions",
+                                        tint = if (allSelected) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.7f)
+                                    )
+                                }
+                            }
+                            if (!isSelectionMode) {
+                                TextButton(onClick = onDeleteSuggestions) {
+                                    Icon(Icons.Default.DeleteSweep, null, tint = Color.Red, modifier = Modifier.size(18.dp))
+                                    Spacer(Modifier.width(4.dp))
+                                    Text("Clean Up", color = Color.Red, fontWeight = FontWeight.Bold)
+                                }
                             }
                         }
                     }
@@ -347,8 +397,8 @@ fun CurationHeader(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f)
             )
-            TextButton(onClick = onSelectAll) {
-                Text("Select All", color = Color.White)
+            IconButton(onClick = onSelectAll) {
+                Icon(Icons.Default.SelectAll, "Select All", tint = Color.White)
             }
             IconButton(onClick = onDeleteSelected, enabled = selectedCount > 0) {
                 Icon(
@@ -438,7 +488,7 @@ fun AICurationScreenPreview() {
             photos = dummyPhotos,
             onBack = {},
             repository = object : MediaRepository {
-                override fun getPagedPhotos() = error("Not implemented")
+                override fun getPagedPhotos(bestTakesOnly: Boolean) = error("Not implemented")
                 override fun getAllPhotos() = error("Not implemented")
                 override fun getArchivedPhotos() = kotlinx.coroutines.flow.flowOf(emptyList<MediaPhoto>())
                 override suspend fun getMediaEntities(ids: List<Long>) = emptyList<com.memorycurator.app.data.local.MediaEntity>()
@@ -447,7 +497,26 @@ fun AICurationScreenPreview() {
                 override suspend fun resetAiMetadata(ids: List<Long>) {}
                 override suspend fun archiveMedia(ids: List<Long>) {}
                 override suspend fun restoreMedia(ids: List<Long>) {}
-            }
+            },
+            mediaIndexer = MediaIndexer(LocalContext.current, object : com.memorycurator.app.data.local.MediaDao {
+                override suspend fun insertAll(media: List<com.memorycurator.app.data.local.MediaEntity>) {}
+                override suspend fun insertNewMedia(media: List<com.memorycurator.app.data.local.MediaEntity>) {}
+                override fun getAllMedia() = error("Not implemented")
+                override fun getPagedMedia() = error("Not implemented")
+                override fun getPagedBestTakes() = error("Not implemented")
+                override fun getArchivedMedia() = error("Not implemented")
+                override fun getAlbums() = error("Not implemented")
+                override fun getPhotosInAlbum(folderName: String) = error("Not implemented")
+                override suspend fun getPhotosInAlbumSync(folderName: String) = error("Not implemented")
+                override fun getMediaWithLocation() = error("Not implemented")
+                override suspend fun getMediaWithLocationSync() = error("Not implemented")
+                override suspend fun getMediaById(id: Long) = error("Not implemented")
+                override suspend fun getMediaByIds(ids: List<Long>) = error("Not implemented")
+                override suspend fun updateBestTakeStatus(id: Long, isBest: Boolean) {}
+                override suspend fun resetAiMetadata(ids: List<Long>) {}
+                override suspend fun archiveMedia(ids: List<Long>) {}
+                override suspend fun restoreMedia(ids: List<Long>) {}
+            })
         )
     }
 }

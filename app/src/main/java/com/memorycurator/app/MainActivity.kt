@@ -76,7 +76,10 @@ class MainActivity : ComponentActivity() {
             }
             list.toTypedArray()
         } else {
-            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+            arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
         }
 
         val missingPermissions = permissions.filter {

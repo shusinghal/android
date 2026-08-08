@@ -8,6 +8,7 @@ import com.memorycurator.app.core.ai.CuratedResult
 import com.memorycurator.app.core.ai.ImageCurator
 import com.memorycurator.app.core.ai.ImageCuratorImpl
 import com.memorycurator.app.core.ai.RejectionReason
+import com.memorycurator.app.data.media.MediaIndexer
 import com.memorycurator.app.data.media.MediaPhoto
 import com.memorycurator.app.data.media.MediaRepository
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +27,7 @@ data class CurationProgress(
 
 class AICurationViewModel(
     private val repository: MediaRepository,
+    private val mediaIndexer: MediaIndexer,
     private val imageCurator: ImageCurator = ImageCuratorImpl()
 ) : ViewModel() {
 
@@ -84,9 +86,37 @@ class AICurationViewModel(
             _analysisResults.value.map { it.photo.id }
         } else {
             allPhotosFromSession.map { it.id }
+        }.toSet()
+
+        if (_selectedIds.value.size == idsToSelect.size) {
+            _selectedIds.value = emptySet()
+            _isSelectionMode.value = false
+        } else {
+            _selectedIds.value = idsToSelect
+            _isSelectionMode.value = true
         }
-        _selectedIds.value = idsToSelect.toSet()
+    }
+
+    fun selectSectionIds(ids: List<Long>) {
+        val current = _selectedIds.value
+        _selectedIds.value = current + ids.toSet()
         _isSelectionMode.value = true
+    }
+
+    fun toggleSectionSelection(ids: List<Long>) {
+        val current = _selectedIds.value
+        val allInSectionSelected = ids.all { current.contains(it) }
+
+        if (allInSectionSelected) {
+            _selectedIds.value = current - ids.toSet()
+        } else {
+            _selectedIds.value = current + ids.toSet()
+            _isSelectionMode.value = true
+        }
+
+        if (_selectedIds.value.isEmpty()) {
+            _isSelectionMode.value = false
+        }
     }
 
     fun archiveSelected() {
@@ -211,6 +241,8 @@ class AICurationViewModel(
                     repository.archiveMedia(photoIds)
                 }
                 refreshResults()
+                // Force a re-index of the gallery to pick up the physical folder change
+                mediaIndexer.indexMedia()
             }
         }
     }
@@ -222,15 +254,18 @@ class AICurationViewModel(
                     repository.restoreMedia(photoIds)
                 }
                 refreshResults()
+                // Force a re-index
+                mediaIndexer.indexMedia()
             }
         }
     }
 }
 
 class AICurationViewModelFactory(
-    private val repository: MediaRepository
+    private val repository: MediaRepository,
+    private val mediaIndexer: MediaIndexer
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return AICurationViewModel(repository) as T
+        return AICurationViewModel(repository, mediaIndexer) as T
     }
 }

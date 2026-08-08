@@ -22,9 +22,12 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.BatchPrediction
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.RadioButtonUnchecked
+import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
@@ -45,6 +48,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.memorycurator.app.core.ai.CuratedResult
 import com.memorycurator.app.core.ai.RejectionReason
+import com.memorycurator.app.data.media.MediaIndexer
 import com.memorycurator.app.data.media.MediaPhoto
 import com.memorycurator.app.data.media.MediaRepository
 import com.memorycurator.app.feature.timeline.model.TimelineGroup
@@ -61,17 +65,18 @@ fun TimelineDetailScreen(
     group: TimelineGroup,
     onBack: () -> Unit,
     onBestTakesClick: (TimelineGroup) -> Unit,
-    repository: MediaRepository? = null
+    repository: MediaRepository? = null,
+    mediaIndexer: MediaIndexer? = null
 ) {
     var selectedIndex by remember { mutableIntStateOf(-1) }
     var isBestTakesActive by rememberSaveable { mutableStateOf(false) }
     // Track which filtered list is being viewed in the viewer
     var viewerSourceList by remember { mutableStateOf<List<CuratedResult>>(emptyList()) }
 
-    val viewModel: AICurationViewModel? = if (repository != null) {
+    val viewModel: AICurationViewModel? = if (repository != null && mediaIndexer != null) {
         viewModel(
             key = "curation_${group.title}",
-            factory = AICurationViewModelFactory(repository)
+            factory = AICurationViewModelFactory(repository, mediaIndexer)
         )
     } else null
 
@@ -90,9 +95,9 @@ fun TimelineDetailScreen(
         viewModel?.setSessionPhotos(group.photos)
     }
 
-    // Auto-activate Best Takes UI if analysis already exists
+    // Auto-activate Best Takes UI if analysis already exists (persists from previous sessions)
     LaunchedEffect(analysisResults) {
-        if (analysisResults.isNotEmpty()) {
+        if (analysisResults.any { it.score != -1f }) {
             isBestTakesActive = true
         }
     }
@@ -144,8 +149,8 @@ fun TimelineDetailScreen(
                     },
                     actions = {
                         if (isSelectionMode) {
-                            TextButton(onClick = { viewModel?.selectAll() }) {
-                                Text("Select All", color = Color.White)
+                            IconButton(onClick = { viewModel?.selectAll() }) {
+                                Icon(Icons.Default.SelectAll, "Select All", tint = Color.White)
                             }
                             IconButton(
                                 onClick = { viewModel?.archiveSelected() },
@@ -202,8 +207,9 @@ fun TimelineDetailScreen(
                         AnalysisProgressView(progress!!)
                     }
                 } else {
-                    val keepers = remember(analysisResults) { analysisResults.filter { it.isBestTake } }
-                    val forReview = remember(analysisResults) { analysisResults.filter { !it.isBestTake } }
+                    val keepers = remember(analysisResults) { analysisResults.filter { it.score != -1f && it.isBestTake } }
+                    val forReview = remember(analysisResults) { analysisResults.filter { it.score != -1f && !it.isBestTake } }
+                    val notAnalyzed = remember(analysisResults) { analysisResults.filter { it.score == -1f } }
 
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(3),
@@ -214,10 +220,26 @@ fun TimelineDetailScreen(
                         horizontalArrangement = Arrangement.spacedBy(1.dp)
                     ) {
 
-                        if (isBestTakesActive && analysisResults.isNotEmpty()) {
+                        if (isBestTakesActive && (keepers.isNotEmpty() || forReview.isNotEmpty())) {
                             if (keepers.isNotEmpty()) {
                                 item(span = { GridItemSpan(3) }, key = "keepers_header") {
-                                    SectionHeaderSmall("Keepers", Icons.Default.AutoAwesome)
+                                    val sectionIds = remember(keepers) { keepers.map { it.photo.id } }
+                                    val allSelected = remember(selectedIds, sectionIds) { sectionIds.isNotEmpty() && sectionIds.all { selectedIds.contains(it) } }
+                                    SectionHeaderSmall(
+                                        title = "Keepers",
+                                        icon = Icons.Default.AutoAwesome,
+                                        action = {
+                                            if (isSelectionMode) {
+                                                IconButton(onClick = { viewModel?.toggleSectionSelection(sectionIds) }) {
+                                                    Icon(
+                                                        imageVector = if (allSelected) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
+                                                        contentDescription = "Select All",
+                                                        tint = if (allSelected) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.7f)
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    )
                                 }
                                 itemsIndexed(keepers, key = { _, result -> result.photo.id }) { index, result ->
                                     PhotoGridItem(
@@ -242,7 +264,23 @@ fun TimelineDetailScreen(
                             
                             if (forReview.isNotEmpty()) {
                                 item(span = { GridItemSpan(3) }, key = "review_header") {
-                                    SectionHeaderSmall("For Review", Icons.Default.BatchPrediction)
+                                    val sectionIds = remember(forReview) { forReview.map { it.photo.id } }
+                                    val allSelected = remember(selectedIds, sectionIds) { sectionIds.isNotEmpty() && sectionIds.all { selectedIds.contains(it) } }
+                                    SectionHeaderSmall(
+                                        title = "For Review",
+                                        icon = Icons.Default.BatchPrediction,
+                                        action = {
+                                            if (isSelectionMode) {
+                                                IconButton(onClick = { viewModel?.toggleSectionSelection(sectionIds) }) {
+                                                    Icon(
+                                                        imageVector = if (allSelected) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
+                                                        contentDescription = "Select All",
+                                                        tint = if (allSelected) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.7f)
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    )
                                 }
                                 itemsIndexed(forReview, key = { _, result -> result.photo.id }) { index, result ->
                                     PhotoGridItem(
@@ -260,6 +298,29 @@ fun TimelineDetailScreen(
                                         },
                                         onLongClick = {
                                             viewModel?.togglePhotoSelection(result.photo.id)
+                                        }
+                                    )
+                                }
+                            }
+                            
+                            // If user clicked "Best Takes" but some photos weren't analyzed or were new, 
+                            // show them in a generic section or handle as part of review
+                            if (notAnalyzed.isNotEmpty()) {
+                                item(span = { GridItemSpan(3) }) {
+                                    SectionHeaderSmall("Other Photos", Icons.Default.Close)
+                                }
+                                itemsIndexed(notAnalyzed) { index, result ->
+                                    PhotoGridItem(
+                                        photo = result.photo,
+                                        isSelected = selectedIds.contains(result.photo.id),
+                                        isSelectionMode = isSelectionMode,
+                                        onClick = {
+                                            if (isSelectionMode) {
+                                                viewModel?.togglePhotoSelection(result.photo.id)
+                                            } else {
+                                                viewerSourceList = notAnalyzed
+                                                selectedIndex = index
+                                            }
                                         }
                                     )
                                 }
@@ -370,14 +431,19 @@ fun PhotoGridItem(
 }
 
 @Composable
-fun SectionHeaderSmall(title: String, icon: ImageVector) {
+fun SectionHeaderSmall(
+    title: String, 
+    icon: ImageVector,
+    action: @Composable () -> Unit = {}
+) {
     Row(
-        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(icon, null, tint = Color.White, modifier = Modifier.size(16.dp))
         Spacer(Modifier.width(8.dp))
-        Text(title, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+        Text(title, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+        action()
     }
 }
 

@@ -39,10 +39,12 @@ class MediaIndexer(
 
                 MediaStore.Files.FileColumns.SIZE,
 
-                MediaStore.Files.FileColumns.MEDIA_TYPE
+                MediaStore.Files.FileColumns.MEDIA_TYPE,
+                
+                MediaStore.Files.FileColumns.DATA
             )
 
-            val selection = "${MediaStore.Files.FileColumns.MEDIA_TYPE} = ? OR ${MediaStore.Files.FileColumns.MEDIA_TYPE} = ?"
+            val selection = "(${MediaStore.Files.FileColumns.MEDIA_TYPE} = ? OR ${MediaStore.Files.FileColumns.MEDIA_TYPE} = ?) AND ${MediaStore.MediaColumns.IS_TRASHED} = 0"
             val selectionArgs = arrayOf(
                 MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE.toString(),
                 MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO.toString()
@@ -120,6 +122,9 @@ class MediaIndexer(
 
                     var latitude = if (latColumn != -1 && !cursor.isNull(latColumn)) cursor.getDouble(latColumn) else null
                     var longitude = if (lonColumn != -1 && !cursor.isNull(lonColumn)) cursor.getDouble(lonColumn) else null
+                    
+                    val bucketId = cursor.getString(bucketIdColumn)
+                    val folderName = cursor.getString(folderColumn)
 
                     // If MediaStore has no location, try Exif
                     if (latitude == null || longitude == null) {
@@ -137,36 +142,39 @@ class MediaIndexer(
                         }
                     }
 
-                    mediaList.add(
-
-                        MediaEntity(
-
-                            id = id,
-
-                            uri = contentUriString,
-
-                            bucketId = cursor.getString(bucketIdColumn),
-
-                            folderName = cursor.getString(folderColumn),
-
-                            dateTaken = cursor.getLong(dateColumn),
-
-                            mimeType = cursor.getString(mimeColumn),
-
-                            width = cursor.getInt(widthColumn),
-
-                            height = cursor.getInt(heightColumn),
-
-                            size = cursor.getLong(sizeColumn),
-
-                            latitude = latitude,
-                            longitude = longitude
-                        )
+                    val isArchived = folderName?.contains("Archive", ignoreCase = true) == true
+                    
+                    val entity = MediaEntity(
+                        id = id,
+                        uri = contentUriString,
+                        bucketId = bucketId,
+                        folderName = folderName,
+                        dateTaken = cursor.getLong(dateColumn),
+                        mimeType = cursor.getString(mimeColumn),
+                        width = cursor.getInt(widthColumn),
+                        height = cursor.getInt(heightColumn),
+                        size = cursor.getLong(sizeColumn),
+                        latitude = latitude,
+                        longitude = longitude,
+                        isArchived = isArchived
                     )
+                    
+                    mediaList.add(entity)
+                    
+                    // Also check if we need to update the folder name and archive status for existing entries
+                    mediaDao.updateArchiveStatus(id, folderName, bucketId, isArchived)
                 }
             }
 
             mediaDao.insertNewMedia(mediaList)
+
+            // Cleanup: remove items from DB that are no longer present on device
+            val scannedIds = mediaList.map { it.id }.toSet()
+            val allDbEntities = mediaDao.getAllMediaSync()
+            val idsToDelete = allDbEntities.filter { it.id !in scannedIds }.map { it.id }
+            if (idsToDelete.isNotEmpty()) {
+                mediaDao.deleteByIds(idsToDelete)
+            }
         }
     }
 }

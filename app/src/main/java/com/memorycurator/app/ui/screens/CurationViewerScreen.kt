@@ -185,9 +185,9 @@ fun CurationViewerScreen(
                 modifier = Modifier.fillMaxSize(),
                 // Paging is locked if the image is zoomed, lifted, or active in gestural workflow
                 userScrollEnabled = focusedClusterPhoto == null && !isLifted && !isDragging && !isZoomed,
-                pageSpacing = 0.dp, // Remove spacing as we use translation for overlap
+                pageSpacing = (-8).dp, // Remove spacing as we use translation for overlap
                 beyondViewportPageCount = 1, // Ensure left/right pages are rendered
-                contentPadding = PaddingValues(horizontal = 48.dp) // Reduced padding to show more of side images
+                contentPadding = PaddingValues(horizontal = 16.dp) // Reduced padding to show more of side images
             ) { page ->
                 val isCurrentPage = page == mainPagerState.currentPage
 
@@ -199,28 +199,25 @@ fun CurationViewerScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .graphicsLayer {
-                            // 1. Cover Flow rotation (tilted Y-axis perspective)
+                            // Calculate 3D offsets
                             val rotationTarget = pageOffset * -28f
                             rotationY = rotationTarget.coerceIn(-45f, 45f)
 
-                            // 2. Linear scale compression on inactive elements
                             val scale = 1f - (pageOffsetAbs * 0.15f).coerceIn(0f, 0.35f)
                             scaleX = scale
                             scaleY = scale
 
-                            // 3. Dynamic Alpha transition
                             alpha = 1f - (pageOffsetAbs * 0.45f).coerceIn(0f, 0.75f)
-
-                            // 4. Overlap effect: Pull cards inward
-                            translationX = pageOffset * -with(density) { 40.dp.toPx() }
-
-                            // 5. Apply curved vertical path for surrounding items
+                            translationX = pageOffset * -with(density) { 6.dp.toPx() }
                             translationY = (pageOffsetAbs * 40f) + if (isCurrentPage && focusedClusterPhoto == null) verticalOffset.value else 0f
-
-                            // High-end perspective depth FOV
                             cameraDistance = 12 * density.density
+
+                            // ADDED: Clip to outline and render a physical elevation shadow inside the 3D space
+                            shadowElevation = if (isCurrentPage) 16f else 4f
+                            shape = RoundedCornerShape(16.dp)
+                            clip = true
                         }
-                        .zIndex(if (isCurrentPage) 1f else 0f) // Keep current item layered on top
+                        .zIndex(if (isCurrentPage) 1f else 0f)
                         .draggable(
                             orientation = Orientation.Vertical,
                             enabled = isCurrentPage && focusedClusterPhoto == null && !isZoomed,
