@@ -169,12 +169,14 @@ fun GalleryScreen(
                             AsyncImage(
                                 model = ImageRequest.Builder(LocalContext.current)
                                     .data(photo.contentUri)
+                                    .setParameter("modified", photo.dateModified)
                                     .crossfade(true)
                                     .size(300)
                                     .build(),
                                 contentDescription = null,
                                 modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop
+                                contentScale = ContentScale.Crop,
+                                error = androidx.compose.ui.graphics.painter.ColorPainter(Color.DarkGray)
                             )
                             if (photo.isVideo) {
                                 Icon(

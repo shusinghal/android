@@ -1,9 +1,11 @@
 package com.memorycurator.app.data.media
 
+import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.media.MediaScannerConnection
 import android.net.Uri
+import android.os.Environment
 import android.provider.MediaStore
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -11,16 +13,22 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import com.memorycurator.app.data.local.DatabaseProvider
 import com.memorycurator.app.data.local.MediaEntity
-import android.os.Environment
 import java.io.File
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 class MediaRepositoryImpl(
     private val context: Context
 ) : MediaRepository {
 
     private val mediaDao = DatabaseProvider.getDatabase(context).mediaDao()
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     override fun getPagedPhotos(bestTakesOnly: Boolean): Flow<PagingData<MediaPhoto>> {
         return Pager(
@@ -55,10 +63,44 @@ class MediaRepositoryImpl(
 
     override suspend fun saveAiResults(entities: List<MediaEntity>) {
         mediaDao.insertAll(entities)
+        scope.launch {
+            entities.forEach { entity ->
+                if (entity.mimeType?.startsWith("video") != true) {
+                    val path = getFilePathFromUri(Uri.parse(entity.uri)) ?: return@forEach
+                    ExifMetadataManager.writeExifMetadata(
+                        path,
+                        CurationExifData(
+                            aiScore = entity.aiScore,
+                            isBestTake = entity.isBestTake,
+                            rejectionReason = entity.rejectionReason,
+                            clusterId = entity.clusterId,
+                            originalFolder = entity.originalFolderName ?: entity.folderName
+                        )
+                    )
+                }
+            }
+        }
     }
 
     override suspend fun updateBestTakeStatus(id: Long, isBest: Boolean) {
         mediaDao.updateBestTakeStatus(id, isBest)
+        scope.launch {
+            mediaDao.getMediaById(id)?.let { entity ->
+                if (entity.mimeType?.startsWith("video") != true) {
+                    val path = getFilePathFromUri(Uri.parse(entity.uri)) ?: return@launch
+                    ExifMetadataManager.writeExifMetadata(
+                        path,
+                        CurationExifData(
+                            aiScore = entity.aiScore,
+                            isBestTake = entity.isBestTake,
+                            rejectionReason = entity.rejectionReason,
+                            clusterId = entity.clusterId,
+                            originalFolder = entity.originalFolderName ?: entity.folderName
+                        )
+                    )
+                }
+            }
+        }
     }
 
     override suspend fun resetAiMetadata(ids: List<Long>) {
@@ -68,22 +110,27 @@ class MediaRepositoryImpl(
     override suspend fun archiveMedia(ids: List<Long>) {
         val entities = mediaDao.getMediaByIds(ids)
         entities.forEach { entity ->
-            val newUri = copyFileToFolder(entity.uri, "Pictures/Archive")
+            val sourcePath = getFilePathFromUri(Uri.parse(entity.uri)) ?: return@forEach
+            
+            // 1. Update EXIF safely using File path before moving
+            if (entity.mimeType?.startsWith("video") != true) {
+                ExifMetadataManager.writeExifMetadata(
+                    sourcePath,
+                    CurationExifData(
+                        aiScore = entity.aiScore,
+                        isBestTake = entity.isBestTake,
+                        rejectionReason = entity.rejectionReason,
+                        clusterId = entity.clusterId,
+                        originalFolder = entity.folderName
+                    )
+                )
+            }
+
+            // 2. Physical move
+            val newUri = moveFilePhysically(entity.uri, "Pictures/Archive")
             if (newUri != null) {
-                try {
-                    // Delete the old one
-                    context.contentResolver.delete(Uri.parse(entity.uri), null, null)
-                    
-                    // Update local DB: delete old ID and insert/update new ID with metadata
-                    val newId = android.content.ContentUris.parseId(newUri)
-                    mediaDao.transferMetadata(entity.id, newId, newUri.toString(), "Archive", true)
-                } catch (e: SecurityException) {
-                    // If deletion fails (common on Android 11+ for files not owned by app),
-                    // we still update the DB to the new one to complete the "move" in the UI.
-                    // The old one will eventually be hidden by the indexer if trashed in UI.
-                    val newId = android.content.ContentUris.parseId(newUri)
-                    mediaDao.transferMetadata(entity.id, newId, newUri.toString(), "Archive", true)
-                }
+                val newId = ContentUris.parseId(newUri)
+                mediaDao.transferMetadata(entity.id, newId, newUri.toString(), "Archive", true, entity.folderName)
             }
         }
     }
@@ -91,100 +138,56 @@ class MediaRepositoryImpl(
     override suspend fun restoreMedia(ids: List<Long>) {
         val entities = mediaDao.getMediaByIds(ids)
         entities.forEach { entity ->
-            val newUri = copyFileToFolder(entity.uri, "Pictures/MemoryCurator")
+            val path = getFilePathFromUri(Uri.parse(entity.uri)) ?: return@forEach
+            
+            // 1. Read target folder from EXIF (Stateless)
+            val exif = ExifMetadataManager.readExifMetadata(path)
+            val targetFolder = exif?.originalFolder ?: entity.originalFolderName ?: "MemoryCurator"
+            val targetPath = "Pictures/$targetFolder"
+            
+            // 2. Physical move
+            val newUri = moveFilePhysically(entity.uri, targetPath)
             if (newUri != null) {
-                try {
-                    // Restore: the app owns the archived file, so deletion should work
-                    context.contentResolver.delete(Uri.parse(entity.uri), null, null)
-                    
-                    val newId = android.content.ContentUris.parseId(newUri)
-                    mediaDao.transferMetadata(entity.id, newId, newUri.toString(), "MemoryCurator", false)
-                } catch (e: SecurityException) {
-                    val newId = android.content.ContentUris.parseId(newUri)
-                    mediaDao.transferMetadata(entity.id, newId, newUri.toString(), "MemoryCurator", false)
-                }
+                val newId = ContentUris.parseId(newUri)
+                mediaDao.transferMetadata(entity.id, newId, newUri.toString(), targetFolder, false, null)
             }
         }
     }
 
-    private fun copyFileToFolder(uriString: String, targetRelativePath: String): Uri? {
+    private suspend fun moveFilePhysically(uriString: String, targetRelativePath: String): Uri? {
         val sourceUri = Uri.parse(uriString)
-        val resolver = context.contentResolver
+        val sourcePath = getFilePathFromUri(sourceUri) ?: return null
+        val sourceFile = File(sourcePath)
         
-        // 1. Get original metadata
-        val projection = arrayOf(
-            MediaStore.MediaColumns.DISPLAY_NAME,
-            MediaStore.MediaColumns.MIME_TYPE
-        )
+        if (!sourceFile.exists()) return null
         
-        var displayName: String? = null
-        var mimeType: String? = null
+        val externalDir = Environment.getExternalStorageDirectory()
+        val targetDir = File(externalDir, targetRelativePath)
+        if (!targetDir.exists()) targetDir.mkdirs()
         
-        resolver.query(sourceUri, projection, null, null, null)?.use { cursor ->
-            if (cursor.moveToFirst()) {
-                displayName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME))
-                mimeType = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE))
-            }
-        }
+        val targetFile = File(targetDir, sourceFile.name)
         
-        if (displayName == null) return null
-        
-        // 2. Create new entry in MediaStore
-        val isVideo = mimeType?.startsWith("video") == true
-        val baseUri = if (isVideo) MediaStore.Video.Media.EXTERNAL_CONTENT_URI 
-                      else MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                      
-        val values = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, displayName)
-            put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
-            put(MediaStore.MediaColumns.RELATIVE_PATH, "$targetRelativePath/")
-            put(MediaStore.MediaColumns.IS_PENDING, 1)
-        }
-        
-        val targetUri = resolver.insert(baseUri, values) ?: return null
-        
-        try {
-            // 3. Copy bytes
-            resolver.openInputStream(sourceUri)?.use { input ->
-                resolver.openOutputStream(targetUri)?.use { output ->
-                    input.copyTo(output)
-                }
-            }
-            
-            // 4. Publish the file
-            values.clear()
-            values.put(MediaStore.MediaColumns.IS_PENDING, 0)
-            resolver.update(targetUri, values, null, null)
-            
-            // Trigger scan
-            MediaScannerConnection.scanFile(context, arrayOf(targetUri.toString()), null, null)
-            
-            return targetUri
+        // Attempt atomic rename first
+        val movedSuccessfully = sourceFile.renameTo(targetFile) || try {
+            sourceFile.copyTo(targetFile, overwrite = true)
+            sourceFile.delete()
+            true
         } catch (e: Exception) {
-            e.printStackTrace()
-            resolver.delete(targetUri, null, null)
-            return null
+            false
         }
-    }
 
-    private fun ensureFolderExists(relativePath: String) {
-        try {
-            val externalDir = Environment.getExternalStorageDirectory()
-            val targetDir = File(externalDir, relativePath)
-            if (!targetDir.exists()) {
-                val created = targetDir.mkdirs()
-                if (created) {
-                    // Force the system to recognize the new physical folder immediately
-                    MediaScannerConnection.scanFile(
-                        context,
-                        arrayOf(targetDir.absolutePath),
-                        null,
-                        null
-                    )
+        return if (movedSuccessfully) {
+            // Remove old entry from MediaStore
+            try { context.contentResolver.delete(sourceUri, null, null) } catch (e: Exception) {}
+            
+            // Scan new file to add to MediaStore and wait for result
+            suspendCancellableCoroutine<Uri?> { continuation ->
+                MediaScannerConnection.scanFile(context, arrayOf(targetFile.absolutePath), null) { _, uri ->
+                    continuation.resume(uri)
                 }
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
+        } else {
+            null
         }
     }
 

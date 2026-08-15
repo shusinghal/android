@@ -12,6 +12,7 @@ import com.memorycurator.app.data.media.MediaIndexer
 import com.memorycurator.app.data.media.MediaPhoto
 import com.memorycurator.app.data.media.MediaRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -45,6 +46,9 @@ class AICurationViewModel(
 
     private val _selectedIds = MutableStateFlow<Set<Long>>(emptySet())
     val selectedIds: StateFlow<Set<Long>> = _selectedIds
+
+    private val _isSyncing = MutableStateFlow(false)
+    val isSyncing: StateFlow<Boolean> = _isSyncing
 
     private var allPhotosFromSession: List<MediaPhoto> = emptyList()
 
@@ -178,19 +182,27 @@ class AICurationViewModel(
 
     private suspend fun refreshResults() {
         if (allPhotosFromSession.isEmpty()) return
+        val sessionIds = allPhotosFromSession.map { it.id }.toSet()
+        
         val savedEntities = withContext(Dispatchers.IO) {
             repository.getMediaEntities(allPhotosFromSession.map { it.id })
         }
         
-        _analysisResults.value = savedEntities.filter { !it.isArchived }.map { entity ->
-            CuratedResult(
-                photo = allPhotosFromSession.find { it.id == entity.id } ?: allPhotosFromSession.first(),
-                score = entity.aiScore,
-                isBestTake = entity.isBestTake,
-                rejectionReason = RejectionReason.valueOf(entity.rejectionReason ?: "NONE"),
-                clusterId = entity.clusterId
-            )
-        }
+        _analysisResults.value = savedEntities
+            .mapNotNull { entity ->
+                val photo = allPhotosFromSession.find { it.id == entity.id }
+                if (photo != null && !entity.isArchived) {
+                    CuratedResult(
+                        photo = photo.copy(dateModified = entity.dateModified), // Sync modified date
+                        score = entity.aiScore,
+                        isBestTake = entity.isBestTake,
+                        rejectionReason = runCatching { 
+                            RejectionReason.valueOf(entity.rejectionReason ?: "NONE")
+                        }.getOrDefault(RejectionReason.NONE),
+                        clusterId = entity.clusterId
+                    )
+                } else null
+            }
     }
 
     fun toggleBestTake(photoId: Long) {
@@ -237,12 +249,15 @@ class AICurationViewModel(
     fun archivePhotos(photoIds: List<Long>) {
         viewModelScope.launch {
             if (photoIds.isNotEmpty()) {
+                _isSyncing.value = true
                 withContext(Dispatchers.IO) {
                     repository.archiveMedia(photoIds)
                 }
+                // Small delay to allow MediaStore to update its index
+                delay(500)
                 refreshResults()
-                // Force a re-index of the gallery to pick up the physical folder change
                 mediaIndexer.indexMedia()
+                _isSyncing.value = false
             }
         }
     }
@@ -250,12 +265,14 @@ class AICurationViewModel(
     fun restorePhotos(photoIds: List<Long>) {
         viewModelScope.launch {
             if (photoIds.isNotEmpty()) {
+                _isSyncing.value = true
                 withContext(Dispatchers.IO) {
                     repository.restoreMedia(photoIds)
                 }
+                delay(500)
                 refreshResults()
-                // Force a re-index
                 mediaIndexer.indexMedia()
+                _isSyncing.value = false
             }
         }
     }

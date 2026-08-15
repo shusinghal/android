@@ -1,9 +1,13 @@
 package com.memorycurator.app
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -55,6 +59,7 @@ class MainActivity : ComponentActivity() {
         galleryViewModel = ViewModelProvider(this, factory)[GalleryViewModel::class.java]
         
         checkAndRequestPermissions()
+        checkAndRequestStorageManagerPermission()
 
         setContent {
             GlassTheme {
@@ -88,6 +93,17 @@ class MainActivity : ComponentActivity() {
 
         if (missingPermissions.isNotEmpty()) {
             requestPermissionLauncher.launch(missingPermissions.toTypedArray())
+        }
+    }
+
+    private fun checkAndRequestStorageManagerPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!Environment.isExternalStorageManager()) {
+                val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+                    data = Uri.fromParts("package", packageName, null)
+                }
+                startActivity(intent)
+            }
         }
     }
 }

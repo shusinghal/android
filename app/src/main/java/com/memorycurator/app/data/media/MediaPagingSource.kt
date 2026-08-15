@@ -25,6 +25,7 @@ class MediaPagingSource(
             val projection = arrayOf(
                 MediaStore.Files.FileColumns._ID,
                 MediaStore.Files.FileColumns.DATE_TAKEN,
+                MediaStore.Files.FileColumns.DATE_MODIFIED,
                 MediaStore.Files.FileColumns.MEDIA_TYPE
             )
 
@@ -59,6 +60,10 @@ class MediaPagingSource(
                     cursor.getColumnIndexOrThrow(
                         MediaStore.Files.FileColumns.DATE_TAKEN
                     )
+                val modifiedColumn =
+                    cursor.getColumnIndexOrThrow(
+                        MediaStore.Files.FileColumns.DATE_MODIFIED
+                    )
                 val typeColumn =
                     cursor.getColumnIndexOrThrow(
                         MediaStore.Files.FileColumns.MEDIA_TYPE
@@ -75,6 +80,8 @@ class MediaPagingSource(
                             cursor.getLong(idColumn)
                         val dateTaken =
                             cursor.getLong(dateColumn)
+                        val dateModified =
+                            cursor.getLong(modifiedColumn)
                         val mediaType =
                             cursor.getInt(typeColumn)
                         
@@ -92,6 +99,7 @@ class MediaPagingSource(
                                 id = id,
                                 contentUri = contentUri,
                                 dateTaken = dateTaken,
+                                dateModified = dateModified,
                                 isVideo = isVideo
                             )
                         )

@@ -14,6 +14,7 @@ import coil.request.ImageRequest
 @Composable
 fun ZoomableImage(
     imageUri: Any,
+    dateModified: Long = 0,
     onTap: () -> Unit,
     onZoomChanged: (Boolean) -> Unit
 ) {
@@ -37,6 +38,7 @@ fun ZoomableImage(
     AsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
             .data(imageUri)
+            .setParameter("modified", dateModified)
             .crossfade(true)
             .build(),
 

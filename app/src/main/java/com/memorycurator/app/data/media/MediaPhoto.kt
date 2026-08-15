@@ -10,5 +10,7 @@ data class MediaPhoto(
 
     val dateTaken: Long,
 
+    val dateModified: Long,
+
     val isVideo: Boolean = false
 )

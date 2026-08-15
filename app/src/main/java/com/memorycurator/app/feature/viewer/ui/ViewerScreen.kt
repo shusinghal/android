@@ -67,6 +67,7 @@ fun ViewerScreen(
                 } else {
                     ZoomableImage(
                         imageUri = media.contentUri,
+                        dateModified = media.dateModified,
                         onTap = {
                             if (!isProcessing) onDismiss()
                         },

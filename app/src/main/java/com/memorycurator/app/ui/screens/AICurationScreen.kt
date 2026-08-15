@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.memorycurator.app.core.ai.CuratedResult
 import com.memorycurator.app.core.ai.RejectionReason
 import com.memorycurator.app.data.media.MediaIndexer
@@ -75,6 +76,7 @@ fun AICurationScreen(
     
     val isSelectionMode by viewModel.isSelectionMode.collectAsState()
     val selectedIds by viewModel.selectedIds.collectAsState()
+    val isSyncing by viewModel.isSyncing.collectAsState()
     
     var selectedPhotoIndex by remember { mutableIntStateOf(-1) }
     var viewerSourceIsKeepers by remember { mutableStateOf(true) }
@@ -105,10 +107,29 @@ fun AICurationScreen(
         }
     }
 
+    val writeLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            // Permission granted, trigger the archive again
+            viewModel.archiveSelected()
+        }
+    }
+
     fun requestTrash(uris: List<Uri>) {
         if (uris.isEmpty()) return
         val pendingIntent = MediaStore.createTrashRequest(context.contentResolver, uris, true)
         trashLauncher.launch(IntentSenderRequest.Builder(pendingIntent.intentSender).build())
+    }
+
+    fun requestWrite(uris: List<Uri>) {
+        if (uris.isEmpty()) return
+        try {
+            val pendingIntent = MediaStore.createWriteRequest(context.contentResolver, uris)
+            writeLauncher.launch(IntentSenderRequest.Builder(pendingIntent.intentSender).build())
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     Column(
@@ -119,6 +140,7 @@ fun AICurationScreen(
         CurationHeader(
             onBack = onBack,
             isAnalyzing = isAnalyzing,
+            isSyncing = isSyncing,
             isSelectionMode = isSelectionMode,
             selectedCount = selectedIds.size,
             onDeleteSelected = {
@@ -126,6 +148,13 @@ fun AICurationScreen(
                     .filter { it.photo.id in selectedIds }
                     .map { it.photo.contentUri }
                 requestTrash(uris)
+            },
+            onArchiveSelected = {
+                val uris = analysisResults
+                    .filter { it.photo.id in selectedIds }
+                    .map { it.photo.contentUri }
+                // Proactively request write permission for physical move (delete source)
+                requestWrite(uris)
             },
             onShareSelected = {
                 val uris = analysisResults
@@ -300,10 +329,15 @@ fun CurationPhotoCard(
             .clip(RoundedCornerShape(cornerRadius))
     ) {
         AsyncImage(
-            model = result.photo.contentUri,
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(result.photo.contentUri)
+                .setParameter("modified", result.photo.dateModified)
+                .crossfade(true)
+                .build(),
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            error = androidx.compose.ui.graphics.painter.ColorPainter(Color.DarkGray)
         )
 
         if (isSelectionMode) {
@@ -375,9 +409,11 @@ fun CurationPhotoCard(
 fun CurationHeader(
     onBack: () -> Unit,
     isAnalyzing: Boolean,
+    isSyncing: Boolean = false,
     isSelectionMode: Boolean,
     selectedCount: Int,
     onDeleteSelected: () -> Unit,
+    onArchiveSelected: () -> Unit,
     onShareSelected: () -> Unit,
     onSelectAll: () -> Unit,
     onCancelSelection: () -> Unit
@@ -406,6 +442,13 @@ fun CurationHeader(
                     tint = if (selectedCount > 0) Color.White else Color.White.copy(alpha = 0.4f)
                 )
             }
+            IconButton(onClick = onArchiveSelected, enabled = selectedCount > 0) {
+                Icon(
+                    Icons.Default.Archive, 
+                    "Archive",
+                    tint = if (selectedCount > 0) Color.White else Color.White.copy(alpha = 0.4f)
+                )
+            }
             IconButton(onClick = onSelectAll) {
                 Icon(Icons.Default.SelectAll, "Select All", tint = Color.White)
             }
@@ -424,8 +467,8 @@ fun CurationHeader(
             Column(modifier = Modifier.weight(1f)) {
                 Text("Smart Review", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Text(
-                    text = if (isAnalyzing) "Processing..." else "AI Analysis Complete",
-                    color = Color.White.copy(alpha = 0.6f),
+                    text = if (isSyncing) "Syncing gallery..." else if (isAnalyzing) "Processing..." else "AI Analysis Complete",
+                    color = if (isSyncing) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.6f),
                     fontSize = 12.sp
                 )
             }
@@ -487,9 +530,9 @@ fun SectionHeader(
 @Composable
 fun AICurationScreenPreview() {
     val dummyPhotos = listOf(
-        MediaPhoto(1, Uri.EMPTY, System.currentTimeMillis()),
-        MediaPhoto(2, Uri.EMPTY, System.currentTimeMillis()),
-        MediaPhoto(3, Uri.EMPTY, System.currentTimeMillis())
+        MediaPhoto(1, Uri.EMPTY, System.currentTimeMillis(), System.currentTimeMillis()),
+        MediaPhoto(2, Uri.EMPTY, System.currentTimeMillis(), System.currentTimeMillis()),
+        MediaPhoto(3, Uri.EMPTY, System.currentTimeMillis(), System.currentTimeMillis())
     )
 
     MemoryCuratorTheme {
@@ -529,8 +572,10 @@ fun AICurationScreenPreview() {
                 override suspend fun restoreMedia(ids: List<Long>) {}
                 override suspend fun updateMediaUri(id: Long, newUri: String) {}
                 override suspend fun delete(entity: com.memorycurator.app.data.local.MediaEntity) {}
+                override suspend fun transferMetadata(oldId: Long, newId: Long, newUri: String, newFolder: String, isArchived: Boolean, originalFolder: String?) {}
                 override suspend fun getAllMediaSync(): List<com.memorycurator.app.data.local.MediaEntity> = emptyList()
                 override suspend fun deleteByIds(ids: List<Long>) {}
+                override suspend fun deleteByUri(uri: String) {}
             })
         )
     }

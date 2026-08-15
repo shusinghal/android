@@ -276,6 +276,7 @@ fun CurationViewerScreen(
                         ZoomableImage(
                             model = ImageRequest.Builder(LocalContext.current)
                                 .data(results[page].photo.contentUri)
+                                .setParameter("modified", results[page].photo.dateModified)
                                 .crossfade(true)
                                 .build(),
                             contentDescription = null,
@@ -360,6 +361,7 @@ fun CurationViewerScreen(
                         ZoomableImage(
                             model = ImageRequest.Builder(LocalContext.current)
                                 .data(photo.photo.contentUri)
+                                .setParameter("modified", photo.photo.dateModified)
                                 .crossfade(true)
                                 .build(),
                             contentDescription = null,
@@ -407,10 +409,15 @@ fun CurationViewerScreen(
                                     }
                             ) {
                                 AsyncImage(
-                                    model = member.photo.contentUri,
+                                    model = ImageRequest.Builder(LocalContext.current)
+                                        .data(member.photo.contentUri)
+                                        .setParameter("modified", member.photo.dateModified)
+                                        .crossfade(true)
+                                        .build(),
                                     contentDescription = null,
                                     contentScale = ContentScale.Crop,
-                                    modifier = Modifier.fillMaxSize()
+                                    modifier = Modifier.fillMaxSize(),
+                                    error = androidx.compose.ui.graphics.painter.ColorPainter(Color.DarkGray)
                                 )
                                 if (member.isBestTake) {
                                     Box(

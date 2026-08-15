@@ -6,7 +6,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.provider.MediaStore
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -86,6 +90,7 @@ fun TimelineDetailScreen(
     val context = LocalContext.current
     val analysisResults by viewModel?.analysisResults?.collectAsState() ?: remember { mutableStateOf(emptyList<CuratedResult>()) }
     val isAnalyzing by viewModel?.isAnalyzing?.collectAsState() ?: remember { mutableStateOf(false) }
+    val isSyncing by viewModel?.isSyncing?.collectAsState() ?: remember { mutableStateOf(false) }
     val progress by viewModel?.progress?.collectAsState() ?: remember { mutableStateOf(null) }
     val archivedPhotos by viewModel?.archivedPhotos?.collectAsState() ?: remember { mutableStateOf(emptyList<MediaPhoto>()) }
     
@@ -101,6 +106,24 @@ fun TimelineDetailScreen(
     }
 
     val gridState = rememberLazyGridState()
+
+    val writeLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            viewModel?.archiveSelected()
+        }
+    }
+
+    fun requestWrite(uris: List<Uri>) {
+        if (uris.isEmpty()) return
+        try {
+            val pendingIntent = MediaStore.createWriteRequest(context.contentResolver, uris)
+            writeLauncher.launch(IntentSenderRequest.Builder(pendingIntent.intentSender).build())
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 
     LaunchedEffect(group.photos) {
         viewModel?.setSessionPhotos(group.photos)
@@ -141,8 +164,8 @@ fun TimelineDetailScreen(
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "${group.photos.size} photos",
-                                color = Color.White.copy(alpha = 0.7f),
+                                text = if (isSyncing) "Syncing gallery..." else "${group.photos.size} photos",
+                                color = if (isSyncing) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.7f),
                                 fontSize = 12.sp
                             )
                         }
@@ -179,7 +202,12 @@ fun TimelineDetailScreen(
                                 )
                             }
                             IconButton(
-                                onClick = { viewModel?.archiveSelected() },
+                                onClick = { 
+                                    val uris = nonArchivedPhotos
+                                        .filter { it.id in selectedIds }
+                                        .map { it.contentUri }
+                                    requestWrite(uris)
+                                },
                                 enabled = selectedIds.isNotEmpty()
                             ) {
                                 Icon(
@@ -222,9 +250,11 @@ fun TimelineDetailScreen(
                 },
                 label = "analysis_transition"
             ) { analyzing ->
-                if (analyzing && progress != null) {
-                    Box(modifier = Modifier.padding(padding).fillMaxSize()) {
-                        AnalysisProgressView(progress!!)
+                if (analyzing) {
+                    progress?.let { currentProgress ->
+                        Box(modifier = Modifier.padding(padding).fillMaxSize()) {
+                            AnalysisProgressView(currentProgress)
+                        }
                     }
                 } else {
                     LazyVerticalGrid(
@@ -342,7 +372,7 @@ fun TimelineDetailScreen(
                                 }
                             }
                         } else {
-                            itemsIndexed(group.photos, key = { _, photo -> photo.id }) { index, photo ->
+                            itemsIndexed(nonArchivedPhotos, key = { _, photo -> photo.id }) { index, photo ->
                                 PhotoGridItem(
                                     photo = photo,
                                     isSelected = selectedIds.contains(photo.id),
@@ -407,11 +437,13 @@ fun PhotoGridItem(
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(photo.contentUri)
+                .setParameter("modified", photo.dateModified) // Force invalidation on change
                 .crossfade(true)
                 .build(),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
+            error = androidx.compose.ui.graphics.painter.ColorPainter(Color.DarkGray)
         )
 
         if (isSelectionMode) {
@@ -468,9 +500,9 @@ fun SectionHeaderSmall(
 @Composable
 fun TimelineDetailScreenPreview() {
     val mockPhotos = listOf(
-        MediaPhoto(1, Uri.EMPTY, System.currentTimeMillis()),
-        MediaPhoto(2, Uri.EMPTY, System.currentTimeMillis()),
-        MediaPhoto(3, Uri.EMPTY, System.currentTimeMillis())
+        MediaPhoto(1, Uri.EMPTY, System.currentTimeMillis(), System.currentTimeMillis()),
+        MediaPhoto(2, Uri.EMPTY, System.currentTimeMillis(), System.currentTimeMillis()),
+        MediaPhoto(3, Uri.EMPTY, System.currentTimeMillis(), System.currentTimeMillis())
     )
     val mockGroup = TimelineGroup(
         title = "Recent Memories",
@@ -492,7 +524,7 @@ fun TimelineDetailScreenPreview() {
 fun PhotoGridItemPreview() {
     MemoryCuratorTheme {
         PhotoGridItem(
-            photo = MediaPhoto(1, Uri.EMPTY, System.currentTimeMillis()),
+            photo = MediaPhoto(1, Uri.EMPTY, System.currentTimeMillis(), System.currentTimeMillis()),
             onClick = {},
             isSelected = false,
             isSelectionMode = false

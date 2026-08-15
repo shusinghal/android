@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [MediaEntity::class],
-    version = 3
+    version = 5
 )
 abstract class AppDatabase : RoomDatabase() {
 

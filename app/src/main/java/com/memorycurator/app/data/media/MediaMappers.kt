@@ -13,6 +13,8 @@ fun MediaEntity.toMediaPhoto(): MediaPhoto {
 
         dateTaken = dateTaken,
 
+        dateModified = dateModified,
+
         isVideo = mimeType?.startsWith("video/") == true
     )
 }

@@ -9,6 +9,9 @@ import androidx.paging.cachedIn
 import com.memorycurator.app.data.media.MediaIndexer
 import com.memorycurator.app.data.media.MediaPhoto
 import com.memorycurator.app.data.media.MediaRepository
+import android.content.ContentUris
+import android.net.Uri
+import android.provider.MediaStore
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +23,7 @@ import kotlinx.coroutines.launch
 class GalleryViewModel(
     private val repository: MediaRepository,
     private val mediaIndexer: MediaIndexer,
-    context: Context
+    private val context: Context
 ) : ViewModel() {
 
     private val prefs = context.getSharedPreferences("gallery_prefs", Context.MODE_PRIVATE)
@@ -43,8 +46,37 @@ class GalleryViewModel(
     val allPhotos: Flow<List<MediaPhoto>> =
         repository.getAllPhotos()
 
+    private val observer = object : android.database.ContentObserver(android.os.Handler(android.os.Looper.getMainLooper())) {
+        override fun onChange(selfChange: Boolean, uri: Uri?) {
+            uri?.let { targetUri ->
+                // Only trigger indexUri if targetUri contains a specific item ID (e.g., .../media/1234)
+                val hasItemId = runCatching { ContentUris.parseId(targetUri) }.isSuccess
+                if (hasItemId) {
+                    viewModelScope.launch {
+                        mediaIndexer.indexUri(targetUri)
+                    }
+                }
+            }
+        }
+    }
+
     init {
         indexMedia()
+        context.contentResolver.registerContentObserver(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            true,
+            observer
+        )
+        context.contentResolver.registerContentObserver(
+            MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+            true,
+            observer
+        )
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        context.contentResolver.unregisterContentObserver(observer)
     }
 
     fun toggleBestTakesOnly() {

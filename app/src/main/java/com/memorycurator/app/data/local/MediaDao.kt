@@ -66,10 +66,10 @@ interface MediaDao {
     @Query("UPDATE media SET folderName = :folderName, bucketId = :bucketId WHERE id = :id")
     suspend fun updateFolder(id: Long, folderName: String?, bucketId: String?)
 
-    @Query("UPDATE media SET isArchived = 1, folderName = 'Archive' WHERE id IN (:ids)")
+    @Query("UPDATE media SET isArchived = 1, originalFolderName = folderName, folderName = 'Archive' WHERE id IN (:ids)")
     suspend fun archiveMedia(ids: List<Long>)
 
-    @Query("UPDATE media SET isArchived = 0, folderName = 'MemoryCurator' WHERE id IN (:ids)")
+    @Query("UPDATE media SET isArchived = 0, folderName = COALESCE(originalFolderName, 'MemoryCurator'), originalFolderName = NULL WHERE id IN (:ids)")
     suspend fun restoreMedia(ids: List<Long>)
 
     @Query("UPDATE media SET uri = :newUri WHERE id = :id")
@@ -79,11 +79,17 @@ interface MediaDao {
     suspend fun delete(entity: MediaEntity)
 
     @Transaction
-    suspend fun transferMetadata(oldId: Long, newId: Long, newUri: String, newFolder: String, isArchived: Boolean) {
+    suspend fun transferMetadata(oldId: Long, newId: Long, newUri: String, newFolder: String, isArchived: Boolean, originalFolder: String?) {
         val oldEntity = getMediaById(oldId)
         if (oldEntity != null) {
             delete(oldEntity)
-            insertAll(listOf(oldEntity.copy(id = newId, uri = newUri, folderName = newFolder, isArchived = isArchived)))
+            insertAll(listOf(oldEntity.copy(
+                id = newId, 
+                uri = newUri, 
+                folderName = newFolder, 
+                isArchived = isArchived,
+                originalFolderName = originalFolder
+            )))
         }
     }
 
@@ -92,4 +98,7 @@ interface MediaDao {
 
     @Query("DELETE FROM media WHERE id IN (:ids)")
     suspend fun deleteByIds(ids: List<Long>)
+
+    @Query("DELETE FROM media WHERE uri = :uri")
+    suspend fun deleteByUri(uri: String)
 }

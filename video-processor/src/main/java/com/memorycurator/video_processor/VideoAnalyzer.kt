@@ -63,8 +63,8 @@ class VideoAnalyzer(private val context: Context) {
             override fun onCompleted(composition: Composition, exportResult: ExportResult) {
                 continuation.resume(outputFile)
             }
-            override fun onError(composition: Composition, exportResult: ExportResult, e: ExportException) {
-                continuation.resumeWithException(e)
+            override fun onError(composition: Composition, exportResult: ExportResult, exportException: ExportException) {
+                continuation.resumeWithException(exportException)
             }
         }
         transformer.addListener(listener)

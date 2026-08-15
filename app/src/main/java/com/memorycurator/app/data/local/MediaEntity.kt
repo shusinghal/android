@@ -17,6 +17,8 @@ data class MediaEntity(
 
     val dateTaken: Long,
 
+    val dateModified: Long,
+
     val mimeType: String?,
 
     val width: Int,
@@ -34,5 +36,6 @@ data class MediaEntity(
     val rejectionReason: String? = null,
     val clusterId: String? = null,
     val isManuallyModified: Boolean = false,
-    val isArchived: Boolean = false
+    val isArchived: Boolean = false,
+    val originalFolderName: String? = null
 )
