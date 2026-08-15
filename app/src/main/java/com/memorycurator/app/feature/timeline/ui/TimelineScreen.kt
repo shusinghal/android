@@ -27,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.memorycurator.app.ui.preview.PreviewStockPhotos
 import com.memorycurator.app.feature.timeline.model.TimelineGroup
 import com.memorycurator.app.ui.theme.GlassTheme
 import java.text.SimpleDateFormat
@@ -203,15 +204,19 @@ fun TimelineCard(
 @Preview(showBackground = true)
 @Composable
 fun TimelineScreenPreview() {
-    val mockGroup = TimelineGroup(
-        title = "October 2024",
-        photos = emptyList()
+    val mockGroup1 = TimelineGroup(
+        title = "Summer Trip",
+        photos = PreviewStockPhotos.getPhotos(5)
+    )
+    val mockGroup2 = TimelineGroup(
+        title = "Family Dinner",
+        photos = PreviewStockPhotos.getPhotos(3)
     )
 
     GlassTheme {
         Box(modifier = Modifier.background(Color.Black)) {
             TimelineScreen(
-                groups = listOf(mockGroup, mockGroup),
+                groups = listOf(mockGroup1, mockGroup2),
                 onGroupClick = {},
                 onBestTakesClick = {}
             )

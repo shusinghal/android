@@ -54,8 +54,8 @@ interface MediaDao {
     @Query("SELECT * FROM media WHERE id IN (:ids)")
     suspend fun getMediaByIds(ids: List<Long>): List<MediaEntity>
 
-    @Query("UPDATE media SET isBestTake = :isBest, isManuallyModified = 1 WHERE id = :id")
-    suspend fun updateBestTakeStatus(id: Long, isBest: Boolean)
+    @Query("UPDATE media SET isBestTake = :isBest, aiScore = :score, rejectionReason = :reason, isManuallyModified = 1 WHERE id = :id")
+    suspend fun updateMetadata(id: Long, isBest: Boolean, score: Float, reason: String?)
 
     @Query("UPDATE media SET aiScore = -1, isBestTake = 0, rejectionReason = NULL, clusterId = NULL, isManuallyModified = 0 WHERE id IN (:ids)")
     suspend fun resetAiMetadata(ids: List<Long>)

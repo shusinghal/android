@@ -64,6 +64,7 @@ import com.memorycurator.app.ui.screens.AICurationViewModel
 import com.memorycurator.app.ui.screens.AICurationViewModelFactory
 import com.memorycurator.app.ui.screens.CurationViewerScreen
 import com.memorycurator.app.ui.screens.AnalysisProgressView
+import com.memorycurator.app.ui.preview.PreviewStockPhotos
 import com.memorycurator.app.ui.theme.MemoryCuratorTheme
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -353,7 +354,7 @@ fun TimelineDetailScreen(
                             // show them in a generic section or handle as part of review
                             if (notAnalyzed.isNotEmpty()) {
                                 item(span = { GridItemSpan(3) }) {
-                                    SectionHeaderSmall("Other Photos", Icons.Default.Close)
+                                    SectionHeaderSmall("Yet to Review", Icons.Default.Close)
                                 }
                                 itemsIndexed(notAnalyzed) { index, result ->
                                     PhotoGridItem(
@@ -397,7 +398,7 @@ fun TimelineDetailScreen(
         }
 
         if (selectedIndex >= 0) {
-            if (isBestTakesActive && analysisResults.isNotEmpty() && viewerSourceList.isNotEmpty()) {
+            //if (isBestTakesActive && analysisResults.isNotEmpty() && viewerSourceList.isNotEmpty()) {
                 CurationViewerScreen(
                     results = viewerSourceList, // Pass only the relevant list (Keepers OR Review)
                     allResults = analysisResults,
@@ -405,13 +406,13 @@ fun TimelineDetailScreen(
                     onToggleAction = { id -> viewModel?.toggleBestTake(id) },
                     onDismiss = { selectedIndex = -1 }
                 )
-            } else {
-                ViewerScreen(
-                    photos = group.photos,
-                    initialIndex = selectedIndex,
-                    onDismiss = { selectedIndex = -1 }
-                )
-            }
+            //} else {
+             //   ViewerScreen(
+             //       photos = group.photos,
+             //       initialIndex = selectedIndex,
+             //       onDismiss = { selectedIndex = -1 }
+              //  )
+           // }
         }
     }
 }
@@ -499,11 +500,7 @@ fun SectionHeaderSmall(
 @Preview(showBackground = true, backgroundColor = 0xFF000000)
 @Composable
 fun TimelineDetailScreenPreview() {
-    val mockPhotos = listOf(
-        MediaPhoto(1, Uri.EMPTY, System.currentTimeMillis(), System.currentTimeMillis()),
-        MediaPhoto(2, Uri.EMPTY, System.currentTimeMillis(), System.currentTimeMillis()),
-        MediaPhoto(3, Uri.EMPTY, System.currentTimeMillis(), System.currentTimeMillis())
-    )
+    val mockPhotos = PreviewStockPhotos.getPhotos(9)
     val mockGroup = TimelineGroup(
         title = "Recent Memories",
         photos = mockPhotos

@@ -83,22 +83,29 @@ class MediaRepositoryImpl(
     }
 
     override suspend fun updateBestTakeStatus(id: Long, isBest: Boolean) {
-        mediaDao.updateBestTakeStatus(id, isBest)
+        val entity = mediaDao.getMediaById(id) ?: return
+        
+        // If not analyzed, set to 1.0 (Keep) and add a reason
+        val newScore = if (entity.aiScore == -1f) 1.0f else entity.aiScore
+        val newReason = if (entity.aiScore == -1f) "Manual User Choice" else entity.rejectionReason
+
+        // 1. Update Database with new score and reason
+        mediaDao.updateMetadata(id, isBest, newScore, newReason)
+        
         scope.launch {
-            mediaDao.getMediaById(id)?.let { entity ->
-                if (entity.mimeType?.startsWith("video") != true) {
-                    val path = getFilePathFromUri(Uri.parse(entity.uri)) ?: return@launch
-                    ExifMetadataManager.writeExifMetadata(
-                        path,
-                        CurationExifData(
-                            aiScore = entity.aiScore,
-                            isBestTake = entity.isBestTake,
-                            rejectionReason = entity.rejectionReason,
-                            clusterId = entity.clusterId,
-                            originalFolder = entity.originalFolderName ?: entity.folderName
-                        )
+            if (entity.mimeType?.startsWith("video") != true) {
+                val path = getFilePathFromUri(Uri.parse(entity.uri)) ?: return@launch
+                // 2. Write to physical file metadata
+                ExifMetadataManager.writeExifMetadata(
+                    path,
+                    CurationExifData(
+                        aiScore = newScore,
+                        isBestTake = isBest,
+                        rejectionReason = newReason,
+                        clusterId = entity.clusterId,
+                        originalFolder = entity.originalFolderName ?: entity.folderName
                     )
-                }
+                )
             }
         }
     }

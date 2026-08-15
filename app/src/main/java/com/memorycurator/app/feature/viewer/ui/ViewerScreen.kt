@@ -20,6 +20,9 @@ import androidx.compose.ui.window.DialogProperties
 import com.memorycurator.app.data.media.MediaPhoto
 import com.memorycurator.app.ui.components.VideoPlayer
 import com.memorycurator.video_processor.VideoAnalyzer
+import com.memorycurator.app.ui.preview.PreviewStockPhotos
+import com.memorycurator.app.ui.theme.MemoryCuratorTheme
+import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -62,7 +65,8 @@ fun ViewerScreen(
                 if (media.isVideo) {
                     VideoPlayer(
                         videoUri = media.contentUri,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
+                        active = page == pagerState.currentPage
                     )
                 } else {
                     ZoomableImage(
@@ -149,5 +153,17 @@ fun ViewerScreen(
                     .padding(bottom = 32.dp)
             )
         }
+    }
+}
+
+@Preview
+@Composable
+fun ViewerScreenPreview() {
+    MemoryCuratorTheme {
+        ViewerScreen(
+            photos = PreviewStockPhotos.getPhotos(5),
+            initialIndex = 0,
+            onDismiss = {}
+        )
     }
 }

@@ -2,6 +2,7 @@ package com.memorycurator.app.feature.gallery.ui
 
 import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -36,6 +37,7 @@ import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.memorycurator.app.ui.preview.PreviewStockPhotos
 import com.memorycurator.app.data.media.MediaPhoto
 import com.memorycurator.app.feature.viewer.ui.ViewerScreen
 import com.memorycurator.app.ui.gallery.GalleryViewModel
@@ -212,12 +214,58 @@ fun GalleryScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun GalleryGridPreview(
+    photos: List<MediaPhoto>,
+    state: LazyGridState = rememberLazyGridState()
+) {
+    Column(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 48.dp, start = 20.dp, end = 20.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Gallery",
+                color = Color.White,
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        LazyVerticalGrid(
+            state = state,
+            columns = GridCells.Adaptive(minSize = 120.dp),
+            modifier = Modifier.weight(1f).fillMaxWidth(),
+            contentPadding = PaddingValues(start = 6.dp, end = 6.dp, top = 8.dp, bottom = 100.dp)
+        ) {
+            items(count = photos.size) { index ->
+                val photo = photos[index]
+                Box(
+                    modifier = Modifier
+                        .padding(3.dp)
+                        .aspectRatio(1f)
+                        .clip(RoundedCornerShape(18.dp))
+                ) {
+                    AsyncImage(
+                        model = photo.contentUri,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+            }
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun GalleryScreenPreview() {
     MemoryCuratorTheme {
-        // Mocked preview would need a way to provide fake PagingData
-        // This is a simplified preview for structural visualization
-        Text("Gallery Screen Preview (requires mocked ViewModel)")
+        GalleryGridPreview(photos = PreviewStockPhotos.getPhotos(10))
     }
 }

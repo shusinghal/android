@@ -30,7 +30,9 @@ class MediaIndexer(
                 MediaStore.Files.FileColumns.HEIGHT,
                 MediaStore.Files.FileColumns.SIZE,
                 MediaStore.Files.FileColumns.MEDIA_TYPE,
-                MediaStore.Files.FileColumns.DATE_MODIFIED
+                MediaStore.Files.FileColumns.DATE_MODIFIED,
+                "latitude",
+                "longitude"
             )
 
             val selection = "${MediaStore.Files.FileColumns.MEDIA_TYPE} = ? OR ${MediaStore.Files.FileColumns.MEDIA_TYPE} = ?"
@@ -56,6 +58,8 @@ class MediaIndexer(
                 val heightCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.HEIGHT)
                 val sizeCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE)
                 val typeCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE)
+                val latCol = cursor.getColumnIndex("latitude")
+                val lonCol = cursor.getColumnIndex("longitude")
 
                 val allDbEntities = mediaDao.getAllMediaSync().associateBy { it.id }
 
@@ -97,6 +101,8 @@ class MediaIndexer(
                         width = cursor.getInt(widthCol),
                         height = cursor.getInt(heightCol),
                         size = cursor.getLong(sizeCol),
+                        latitude = if (latCol != -1) cursor.getDouble(latCol).takeIf { it != 0.0 } else null,
+                        longitude = if (lonCol != -1) cursor.getDouble(lonCol).takeIf { it != 0.0 } else null,
                         isArchived = isArchived,
                         aiScore = aiScore,
                         isBestTake = isBestTake,
@@ -134,7 +140,9 @@ class MediaIndexer(
                 MediaStore.Files.FileColumns.WIDTH,
                 MediaStore.Files.FileColumns.HEIGHT,
                 MediaStore.Files.FileColumns.SIZE,
-                MediaStore.Files.FileColumns.MEDIA_TYPE
+                MediaStore.Files.FileColumns.MEDIA_TYPE,
+                "latitude",
+                "longitude"
             )
 
             try {
@@ -144,6 +152,8 @@ class MediaIndexer(
                         val isArchived = folderName?.contains("Archive", ignoreCase = true) == true
                         val mediaType = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE))
                         val isVideo = mediaType == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO
+                        val latCol = cursor.getColumnIndex("latitude")
+                        val lonCol = cursor.getColumnIndex("longitude")
 
                         val entity = MediaEntity(
                             id = id,
@@ -156,6 +166,8 @@ class MediaIndexer(
                             width = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.WIDTH)),
                             height = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.HEIGHT)),
                             size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE)),
+                            latitude = if (latCol != -1) cursor.getDouble(latCol).takeIf { it != 0.0 } else null,
+                            longitude = if (lonCol != -1) cursor.getDouble(lonCol).takeIf { it != 0.0 } else null,
                             isArchived = isArchived
                         )
                         

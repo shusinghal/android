@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,17 +28,35 @@ import com.memorycurator.app.ui.theme.MemoryCuratorTheme
 @Composable
 fun VideoPlayer(
     videoUri: Uri,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    active: Boolean = true
 ) {
     val context = LocalContext.current
 
     val exoPlayer = remember(videoUri) {
-        ExoPlayer.Builder(context).build().apply {
-            val mediaItem = MediaItem.fromUri(videoUri)
-            setMediaItem(mediaItem)
-            prepare()
-            playWhenReady = true
+        try {
+            ExoPlayer.Builder(context).build().apply {
+                val mediaItem = MediaItem.fromUri(videoUri)
+                setMediaItem(mediaItem)
+                prepare()
+                playWhenReady = false // User must click play
+            }
+        } catch (e: Exception) {
+            null
         }
+    }
+
+    LaunchedEffect(active) {
+        if (!active) {
+            exoPlayer?.pause()
+        }
+    }
+
+    if (exoPlayer == null) {
+        Box(modifier = modifier.fillMaxSize().background(Color.Black), contentAlignment = Alignment.Center) {
+            Text("Error loading video", color = Color.White)
+        }
+        return
     }
 
     AndroidView(
@@ -56,7 +75,7 @@ fun VideoPlayer(
 
     DisposableEffect(exoPlayer) {
         onDispose {
-            exoPlayer.release()
+            exoPlayer?.release()
         }
     }
 }

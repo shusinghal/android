@@ -48,6 +48,7 @@ import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.memorycurator.app.core.ai.CuratedResult
+import com.memorycurator.app.ui.preview.PreviewStockPhotos
 import com.memorycurator.app.ui.components.VideoPlayer
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
@@ -246,11 +247,6 @@ fun CurationViewerScreen(
                                             verticalOffset.animateTo(0f, spring())
                                             activeItem?.let { onToggleAction(it.photo.id) }
                                             lockedActionColor = null
-                                            
-                                            // Auto-advance to next page if possible
-                                            if (mainPagerState.currentPage < results.size - 1) {
-                                                mainPagerState.animateScrollToPage(mainPagerState.currentPage + 1)
-                                            }
                                         } else {
                                             verticalOffset.animateTo(liftAnchor, spring())
                                         }
@@ -270,7 +266,8 @@ fun CurationViewerScreen(
                     if (results[page].photo.isVideo) {
                         VideoPlayer(
                             videoUri = results[page].photo.contentUri,
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier.fillMaxSize(),
+                            active = isCurrentPage
                         )
                     } else {
                         ZoomableImage(
@@ -335,7 +332,6 @@ fun CurationViewerScreen(
                                                 verticalOffset.animateTo(0f, spring())
                                                 onToggleAction(photo.photo.id)
                                                 lockedActionColor = null
-                                                focusedClusterPhoto = null
                                             } else {
                                                 verticalOffset.animateTo(liftAnchor, spring())
                                             }
@@ -355,7 +351,8 @@ fun CurationViewerScreen(
                     if (photo.photo.isVideo) {
                         VideoPlayer(
                             videoUri = photo.photo.contentUri,
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier.fillMaxSize(),
+                            active = true
                         )
                     } else {
                         ZoomableImage(
@@ -569,6 +566,30 @@ fun ZoomableImage(
                     translationX = offset.x
                     translationY = offset.y
                 }
+        )
+    }
+}
+
+@Preview
+@Composable
+fun CurationViewerScreenPreview() {
+    val mockPhotos = PreviewStockPhotos.getPhotos(5)
+    val mockResults = mockPhotos.mapIndexed { index, photo ->
+        CuratedResult(
+            photo = photo,
+            score = 0.8f + (index * 0.05f),
+            isBestTake = index % 2 == 0,
+            clusterId = if (index < 3) "cluster_1" else null
+        )
+    }
+
+    MemoryCuratorTheme {
+        CurationViewerScreen(
+            results = mockResults,
+            allResults = mockResults,
+            initialIndex = 0,
+            onToggleAction = {},
+            onDismiss = {}
         )
     }
 }
