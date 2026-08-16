@@ -213,9 +213,14 @@ class AICurationViewModel(
                 val item = currentList[index]
                 val newState = !item.isBestTake
 
-                // Mirror repository logic: if un-analyzed, give it a 1.0 score and clear reason
+                // If user is unchecking a best take, mark it as MANUAL ("Your choice")
+                // If it was un-analyzed (-1f), mark as MANUAL as well.
                 val newScore = if (item.score == -1f) 1.0f else item.score
-                val newReason = if (item.score == -1f) RejectionReason.NONE else item.rejectionReason
+                val newReason = if (!newState || item.score == -1f) {
+                    RejectionReason.MANUAL 
+                } else {
+                    item.rejectionReason
+                }
 
                 currentList[index] = item.copy(
                     isBestTake = newState,

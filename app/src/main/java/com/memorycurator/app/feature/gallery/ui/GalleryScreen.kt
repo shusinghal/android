@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -66,6 +67,9 @@ fun GalleryScreen(
     var selectedIndex by remember {
         mutableIntStateOf(-1)
     }
+
+    // Local state to track manual curation changes before Paging refresh
+    val manualToggles = remember { mutableStateMapOf<Long, Boolean>() }
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -204,10 +208,11 @@ fun GalleryScreen(
             // Map the paged photos to CuratedResults for the viewer
             val curatedResults = List(photos.itemCount) { i ->
                 val photo = photos[i] ?: MediaPhoto(0, Uri.EMPTY, 0, 0)
+                val isManualKeeper = manualToggles[photo.id] ?: false
                 CuratedResult(
                     photo = photo,
-                    score = -1f,
-                    isBestTake = false,
+                    score = if (isManualKeeper) 1.0f else -1f,
+                    isBestTake = isManualKeeper,
                     clusterId = null
                 )
             }
@@ -217,10 +222,10 @@ fun GalleryScreen(
                 allResults = curatedResults,
                 initialIndex = selectedIndex,
                 onToggleAction = { id ->
-                    val photo = curatedResults.find { it.photo.id == id }?.photo
-                    if (photo != null) {
-                        viewModel.toggleBestTake(id, true)
-                    }
+                    val current = manualToggles[id] ?: false
+                    val next = !current
+                    manualToggles[id] = next
+                    viewModel.toggleBestTake(id, next)
                 },
                 onDismiss = {
                     selectedIndex = -1

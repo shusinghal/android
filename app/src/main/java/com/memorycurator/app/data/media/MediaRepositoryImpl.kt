@@ -87,7 +87,7 @@ class MediaRepositoryImpl(
         
         // If not analyzed, set to 1.0 (Keep) and add a reason
         val newScore = if (entity.aiScore == -1f) 1.0f else entity.aiScore
-        val newReason = if (entity.aiScore == -1f) "Manual User Choice" else entity.rejectionReason
+        val newReason = if (entity.aiScore == -1f) com.memorycurator.app.core.ai.RejectionReason.MANUAL.name else entity.rejectionReason
 
         // 1. Update Database with new score and reason
         mediaDao.updateMetadata(id, isBest, newScore, newReason)

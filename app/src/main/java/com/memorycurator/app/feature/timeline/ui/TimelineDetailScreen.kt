@@ -53,6 +53,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.memorycurator.app.core.ai.CuratedResult
+import com.memorycurator.app.core.ai.RejectionReason
 import com.memorycurator.app.data.media.MediaIndexer
 import com.memorycurator.app.data.media.MediaPhoto
 import com.memorycurator.app.data.media.MediaRepository
@@ -102,6 +103,16 @@ fun TimelineDetailScreen(
     val nonArchivedPhotos = remember(group.photos, archivedPhotos) {
         val archivedIds = archivedPhotos.map { it.id }.toSet()
         group.photos.filter { it.id !in archivedIds }
+    }
+
+    // Keep viewerSourceList in sync with latest analysis results without changing structure
+    LaunchedEffect(analysisResults) {
+        if (selectedIndex >= 0 && viewerSourceList.isNotEmpty()) {
+            val latestMap = analysisResults.associateBy { it.photo.id }
+            viewerSourceList = viewerSourceList.map { item ->
+                latestMap[item.photo.id] ?: item
+            }
+        }
     }
 
     // Map non-archived photos into CuratedResult so all view modes can use the viewer
@@ -305,6 +316,8 @@ fun TimelineDetailScreen(
                                 itemsIndexed(keepers, key = { _, result -> result.photo.id }) { index, result ->
                                     PhotoGridItem(
                                         photo = result.photo,
+                                        rejectionReason = result.rejectionReason,
+                                        isBestTake = result.isBestTake,
                                         isSelected = selectedIds.contains(result.photo.id),
                                         isSelectionMode = isSelectionMode,
                                         modifier = Modifier.animateItem(),
@@ -349,6 +362,8 @@ fun TimelineDetailScreen(
                                 itemsIndexed(forReview, key = { _, result -> result.photo.id }) { index, result ->
                                     PhotoGridItem(
                                         photo = result.photo,
+                                        rejectionReason = result.rejectionReason,
+                                        isBestTake = result.isBestTake,
                                         isSelected = selectedIds.contains(result.photo.id),
                                         isSelectionMode = isSelectionMode,
                                         modifier = Modifier.animateItem(),
@@ -393,6 +408,8 @@ fun TimelineDetailScreen(
                                 itemsIndexed(notAnalyzed, key = { _, result -> result.photo.id }) { index, result ->
                                     PhotoGridItem(
                                         photo = result.photo,
+                                        rejectionReason = result.rejectionReason,
+                                        isBestTake = result.isBestTake,
                                         isSelected = selectedIds.contains(result.photo.id),
                                         isSelectionMode = isSelectionMode,
                                         modifier = Modifier.animateItem(),
@@ -413,8 +430,11 @@ fun TimelineDetailScreen(
                         } else {
                             // Default Grid View (Standard non-curated view)
                             itemsIndexed(nonArchivedPhotos, key = { _, photo -> photo.id }) { index, photo ->
+                                val curatedResult = fallbackCuratedResults.getOrNull(index)
                                 PhotoGridItem(
                                     photo = photo,
+                                    rejectionReason = curatedResult?.rejectionReason,
+                                    isBestTake = curatedResult?.isBestTake ?: false,
                                     isSelected = selectedIds.contains(photo.id),
                                     isSelectionMode = isSelectionMode,
                                     modifier = Modifier.animateItem(),
@@ -454,6 +474,8 @@ fun TimelineDetailScreen(
 @Composable
 fun PhotoGridItem(
     photo: MediaPhoto,
+    rejectionReason: RejectionReason? = null,
+    isBestTake: Boolean = false,
     isSelected: Boolean = false,
     isSelectionMode: Boolean = false,
     modifier: Modifier = Modifier,
@@ -467,6 +489,18 @@ fun PhotoGridItem(
             .setParameter("modified", photo.dateModified)
             .crossfade(true)
             .build()
+    }
+
+    val label = remember(rejectionReason, isBestTake) {
+        if (isBestTake || rejectionReason == RejectionReason.NONE) null else when (rejectionReason) {
+            RejectionReason.DUPLICATE -> "Similar"
+            RejectionReason.BLURRY -> "Hazy"
+            RejectionReason.EYES_CLOSED -> "Blinked"
+            RejectionReason.POOR_LIGHTING -> "Darkish"
+            RejectionReason.LOW_QUALITY -> "Subpar"
+            RejectionReason.MANUAL -> "Your choice"
+            else -> null
+        }
     }
 
     Box(
@@ -484,6 +518,24 @@ fun PhotoGridItem(
             contentScale = ContentScale.Crop,
             error = ColorPainter(Color.DarkGray)
         )
+
+        // Reason Badge (Bottom Left)
+        if (label != null) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(6.dp)
+                    .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(4.dp))
+                    .padding(horizontal = 6.dp, vertical = 2.dp)
+            ) {
+                Text(
+                    text = label,
+                    color = Color.White,
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
 
         if (isSelectionMode) {
             Box(

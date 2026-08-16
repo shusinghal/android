@@ -8,7 +8,6 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.*
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -33,7 +32,6 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CopyAll
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.SelectAll
@@ -74,6 +72,10 @@ fun AICurationScreen(
     )
     val context = LocalContext.current
     
+    LaunchedEffect(photos) {
+        viewModel.setSessionPhotos(photos)
+    }
+
     val isSelectionMode by viewModel.isSelectionMode.collectAsState()
     val selectedIds by viewModel.selectedIds.collectAsState()
     val isSyncing by viewModel.isSyncing.collectAsState()
@@ -187,12 +189,6 @@ fun AICurationScreen(
                 },
                 isSelectionMode = isSelectionMode,
                 selectedIds = selectedIds,
-                onDeleteSuggestions = {
-                    val uris = forReview.map { it.photo.contentUri }
-                    val ids = forReview.map { it.photo.id }
-                    requestTrash(uris)
-                    viewModel.archivePhotos(ids)
-                },
                 onToggleSection = { ids ->
                     viewModel.toggleSectionSelection(ids)
                 }
@@ -223,7 +219,6 @@ fun CurationResultsGrid(
     onPhotoLongClick: (CuratedResult) -> Unit,
     isSelectionMode: Boolean,
     selectedIds: Set<Long>,
-    onDeleteSuggestions: () -> Unit,
     onToggleSection: (List<Long>) -> Unit
 ) {
     LazyVerticalGrid(
@@ -373,31 +368,43 @@ fun CurationPhotoCard(
             }
 
             if (!isKeeper && result.rejectionReason != RejectionReason.NONE) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(4.dp)
-                        .background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(4.dp))
-                        .padding(horizontal = 4.dp, vertical = 2.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = when (result.rejectionReason) {
-                                RejectionReason.EYES_CLOSED -> Icons.Default.VisibilityOff
-                                RejectionReason.DUPLICATE -> Icons.Default.CopyAll
-                                RejectionReason.BLURRY -> Icons.Default.BlurOn
-                                else -> Icons.Default.ErrorOutline
-                            },
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(10.dp)
-                        )
-                        Spacer(Modifier.width(4.dp))
-                        Text(
-                            text = result.rejectionReason.name.lowercase().replaceFirstChar { it.uppercase() },
-                            color = Color.White,
-                            fontSize = 8.sp
-                        )
+                val label = when (result.rejectionReason) {
+                    RejectionReason.DUPLICATE -> "Similar"
+                    RejectionReason.BLURRY -> "Hazy"
+                    RejectionReason.EYES_CLOSED -> "Blinked"
+                    RejectionReason.POOR_LIGHTING -> "Darkish"
+                    RejectionReason.LOW_QUALITY -> "Subpar"
+                    RejectionReason.MANUAL -> "Your choice"
+                    else -> ""
+                }
+                
+                if (label.isNotEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(4.dp)
+                            .background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(4.dp))
+                            .padding(horizontal = 4.dp, vertical = 2.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = when (result.rejectionReason) {
+                                    RejectionReason.EYES_CLOSED -> Icons.Default.VisibilityOff
+                                    RejectionReason.DUPLICATE -> Icons.Default.CopyAll
+                                    RejectionReason.BLURRY -> Icons.Default.BlurOn
+                                    else -> Icons.Default.ErrorOutline
+                                },
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(10.dp)
+                            )
+                            Spacer(Modifier.width(4.dp))
+                            Text(
+                                text = label,
+                                color = Color.White,
+                                fontSize = 8.sp
+                            )
+                        }
                     }
                 }
             }
@@ -564,7 +571,7 @@ fun AICurationScreenPreview() {
                 override suspend fun getMediaWithLocationSync() = error("Not implemented")
                 override suspend fun getMediaById(id: Long) = error("Not implemented")
                 override suspend fun getMediaByIds(ids: List<Long>) = error("Not implemented")
-                override suspend fun updateBestTakeStatus(id: Long, isBest: Boolean) {}
+                override suspend fun updateMetadata(id: Long, isBest: Boolean, score: Float, reason: String?) {}
                 override suspend fun resetAiMetadata(ids: List<Long>) {}
                 override suspend fun updateArchiveStatus(id: Long, folderName: String?, bucketId: String?, isArchived: Boolean) {}
                 override suspend fun updateFolder(id: Long, folderName: String?, bucketId: String?) {}
