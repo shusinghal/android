@@ -212,9 +212,18 @@ class AICurationViewModel(
             if (index != -1) {
                 val item = currentList[index]
                 val newState = !item.isBestTake
-                currentList[index] = item.copy(isBestTake = newState)
+
+                // Mirror repository logic: if un-analyzed, give it a 1.0 score and clear reason
+                val newScore = if (item.score == -1f) 1.0f else item.score
+                val newReason = if (item.score == -1f) RejectionReason.NONE else item.rejectionReason
+
+                currentList[index] = item.copy(
+                    isBestTake = newState,
+                    score = newScore,
+                    rejectionReason = newReason
+                )
                 _analysisResults.value = currentList
-                
+
                 withContext(Dispatchers.IO) {
                     repository.updateBestTakeStatus(photoId, newState)
                 }

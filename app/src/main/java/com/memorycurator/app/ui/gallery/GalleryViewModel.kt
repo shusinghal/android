@@ -90,7 +90,7 @@ class GalleryViewModel(
     fun toggleBestTake(photoId: Long, isBest: Boolean) {
         viewModelScope.launch {
             repository.updateBestTakeStatus(photoId, isBest)
-            indexMedia()
+            // No need to call indexMedia() here as PagingSource is reactive
         }
     }
 

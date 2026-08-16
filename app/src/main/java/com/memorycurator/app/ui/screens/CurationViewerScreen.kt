@@ -279,7 +279,7 @@ fun CurationViewerScreen(
                 modifier = Modifier.fillMaxSize(),
                 userScrollEnabled = focusedClusterPhoto == null && !swipeState.isLifted && !swipeState.isDragging && !isZoomed,
                 pageSpacing = (-8).dp,
-                beyondViewportPageCount = 1,
+                beyondViewportPageCount = 0,
                 contentPadding = PaddingValues(horizontal = 16.dp)
             ) { page ->
                 val result = results.getOrNull(page) ?: return@HorizontalPager

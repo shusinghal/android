@@ -11,8 +11,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -34,17 +38,21 @@ fun GlassAlbumCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(24.dp))
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color.White.copy(alpha = 0.12f),
-                        Color.White.copy(alpha = 0.03f)
+            .background(Color.Black.copy(alpha = 0.35f)) // Structure
+            .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
+            .drawWithCache {
+                onDrawWithContent {
+                    drawContent()
+                    // This creates the "Glow" effect by overlaying white onto background colors
+                    drawRect(
+                        color = Color.White.copy(alpha = 0.15f),
+                        blendMode = BlendMode.Overlay
                     )
-                )
-            )
+                }
+            }
             .border(
                 width = 1.dp,
-                color = Color.White.copy(alpha = 0.1f),
+                color = Color.White.copy(alpha = 0.15f),
                 shape = RoundedCornerShape(24.dp)
             )
             .clickable { onClick() }
@@ -89,7 +97,8 @@ fun GlassAlbumCard(
                 Box(
                     modifier = Modifier
                         .padding(top = 4.dp)
-                        .background(Color.White.copy(alpha = 0.15f), RoundedCornerShape(8.dp))
+                        .background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
+                        .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
                         .clickable { onBestTakesClick() }
                         .padding(horizontal = 10.dp, vertical = 6.dp)
                 ) {

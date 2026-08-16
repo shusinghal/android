@@ -15,33 +15,26 @@ import com.memorycurator.app.R
 import com.memorycurator.app.ui.core.glassBlur
 
 @Composable
-@Preview
 fun BlurBackground() {
-
-    Box {
-
+    Box(modifier = Modifier.fillMaxSize()) {
+        // 1. The Sharp Background Image (No blur for "Vibrancy")
         Image(
-            painter = painterResource(
-                id = R.drawable.bg_main
-            ),
+            painter = painterResource(id = R.drawable.bg_main),
             contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxSize()
-                .glassBlur()
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
         )
 
+        // 2. Dynamic Scrims for Readability
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
-                    Brush.verticalGradient(
-
+                    brush = Brush.verticalGradient(
                         colors = listOf(
-
-                            Color(0x88000000),
-
-                            Color(0xCC000000)
+                            Color.Black.copy(alpha = 0.6f),
+                            Color.Transparent,
+                            Color.Black.copy(alpha = 0.8f)
                         )
                     )
                 )

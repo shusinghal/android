@@ -12,7 +12,7 @@ private val GlassColors = darkColorScheme(
 
     background = Color.Black,
 
-    surface = Color(0x22FFFFFF),
+    surface = Color(0x66000000),
 
     onSurface = Color.White,
 

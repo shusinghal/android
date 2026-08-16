@@ -185,7 +185,7 @@ fun TimelineCard(
                 Box(
                     modifier = Modifier
                         .background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
-                        .border(1.dp, Color.White.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                        .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
                         .clickable { onBestTakesClick() }
                         .padding(horizontal = 12.dp, vertical = 6.dp)
                 ) {
