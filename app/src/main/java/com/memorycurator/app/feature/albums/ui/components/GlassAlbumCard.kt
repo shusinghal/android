@@ -44,7 +44,7 @@ fun GlassAlbumCard(
             )
             .border(
                 width = 1.dp,
-                color = Color.White.copy(alpha = 0.08f),
+                color = Color.White.copy(alpha = 0.1f),
                 shape = RoundedCornerShape(24.dp)
             )
             .clickable { onClick() }

@@ -1,6 +1,8 @@
 package com.memorycurator.app.ui.gallery
 
+import android.content.ContentResolver
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -19,14 +21,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
+import androidx.core.content.edit
 
 class GalleryViewModel(
     private val repository: MediaRepository,
     private val mediaIndexer: MediaIndexer,
-    private val context: Context
+    private val prefs: SharedPreferences,
+    private val contentResolver: ContentResolver
 ) : ViewModel() {
-
-    private val prefs = context.getSharedPreferences("gallery_prefs", Context.MODE_PRIVATE)
 
     private val _uiState =
         MutableStateFlow(GalleryUiState())
@@ -62,12 +64,12 @@ class GalleryViewModel(
 
     init {
         indexMedia()
-        context.contentResolver.registerContentObserver(
+        contentResolver.registerContentObserver(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             true,
             observer
         )
-        context.contentResolver.registerContentObserver(
+        contentResolver.registerContentObserver(
             MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
             true,
             observer
@@ -76,13 +78,20 @@ class GalleryViewModel(
 
     override fun onCleared() {
         super.onCleared()
-        context.contentResolver.unregisterContentObserver(observer)
+        contentResolver.unregisterContentObserver(observer)
     }
 
     fun toggleBestTakesOnly() {
         val newValue = !_isBestTakesOnly.value
         _isBestTakesOnly.value = newValue
-        prefs.edit().putBoolean("best_takes_only", newValue).apply()
+        prefs.edit { putBoolean("best_takes_only", newValue) }
+    }
+
+    fun toggleBestTake(photoId: Long, isBest: Boolean) {
+        viewModelScope.launch {
+            repository.updateBestTakeStatus(photoId, isBest)
+            indexMedia()
+        }
     }
 
     fun indexMedia() {
@@ -111,7 +120,8 @@ class GalleryViewModelFactory(
         return GalleryViewModel(
             repository,
             mediaIndexer,
-            context
+            context.getSharedPreferences("gallery_prefs", Context.MODE_PRIVATE),
+            context.contentResolver
         ) as T
     }
 }

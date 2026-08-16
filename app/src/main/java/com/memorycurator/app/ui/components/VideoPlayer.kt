@@ -29,7 +29,9 @@ import com.memorycurator.app.ui.theme.MemoryCuratorTheme
 fun VideoPlayer(
     videoUri: Uri,
     modifier: Modifier = Modifier,
-    active: Boolean = true
+    active: Boolean = true,
+    showControls : Boolean = true,
+    autoPlay: Boolean = false
 ) {
     val context = LocalContext.current
 
@@ -39,7 +41,7 @@ fun VideoPlayer(
                 val mediaItem = MediaItem.fromUri(videoUri)
                 setMediaItem(mediaItem)
                 prepare()
-                playWhenReady = false // User must click play
+                playWhenReady = autoPlay // User must click play
             }
         } catch (e: Exception) {
             null
@@ -64,7 +66,7 @@ fun VideoPlayer(
         factory = {
             PlayerView(context).apply {
                 player = exoPlayer
-                useController = true
+                useController = showControls
                 layoutParams = FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
@@ -73,9 +75,9 @@ fun VideoPlayer(
         }
     )
 
-    DisposableEffect(exoPlayer) {
+    DisposableEffect(videoUri) {
         onDispose {
-            exoPlayer?.release()
+            exoPlayer.release()
         }
     }
 }

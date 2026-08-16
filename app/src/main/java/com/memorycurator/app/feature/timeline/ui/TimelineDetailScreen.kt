@@ -1,8 +1,5 @@
 package com.memorycurator.app.feature.timeline.ui
 
-import androidx.compose.animation.*
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.ui.tooling.preview.Preview
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -11,9 +8,10 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -24,47 +22,46 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.BatchPrediction
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material.icons.filled.PlayCircle
-import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.memorycurator.app.core.ai.CuratedResult
-import com.memorycurator.app.core.ai.RejectionReason
 import com.memorycurator.app.data.media.MediaIndexer
 import com.memorycurator.app.data.media.MediaPhoto
 import com.memorycurator.app.data.media.MediaRepository
 import com.memorycurator.app.feature.timeline.model.TimelineGroup
-import com.memorycurator.app.feature.viewer.ui.ViewerScreen
+import com.memorycurator.app.ui.preview.PreviewStockPhotos
 import com.memorycurator.app.ui.screens.AICurationViewModel
 import com.memorycurator.app.ui.screens.AICurationViewModelFactory
-import com.memorycurator.app.ui.screens.CurationViewerScreen
 import com.memorycurator.app.ui.screens.AnalysisProgressView
-import com.memorycurator.app.ui.preview.PreviewStockPhotos
+import com.memorycurator.app.ui.screens.CurationViewerScreen
 import com.memorycurator.app.ui.theme.MemoryCuratorTheme
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -78,7 +75,6 @@ fun TimelineDetailScreen(
 ) {
     var selectedIndex by remember { mutableIntStateOf(-1) }
     var isBestTakesActive by rememberSaveable { mutableStateOf(false) }
-    // Track which filtered list is being viewed in the viewer
     var viewerSourceList by remember { mutableStateOf<List<CuratedResult>>(emptyList()) }
 
     val viewModel: AICurationViewModel? = if (repository != null && mediaIndexer != null) {
@@ -89,21 +85,36 @@ fun TimelineDetailScreen(
     } else null
 
     val context = LocalContext.current
-    val analysisResults by viewModel?.analysisResults?.collectAsState() ?: remember { mutableStateOf(emptyList<CuratedResult>()) }
+    val analysisResults by viewModel?.analysisResults?.collectAsState() ?: remember { mutableStateOf(emptyList()) }
     val isAnalyzing by viewModel?.isAnalyzing?.collectAsState() ?: remember { mutableStateOf(false) }
     val isSyncing by viewModel?.isSyncing?.collectAsState() ?: remember { mutableStateOf(false) }
     val progress by viewModel?.progress?.collectAsState() ?: remember { mutableStateOf(null) }
-    val archivedPhotos by viewModel?.archivedPhotos?.collectAsState() ?: remember { mutableStateOf(emptyList<MediaPhoto>()) }
-    
-    val isSelectionMode by viewModel?.isSelectionMode?.collectAsState() ?: remember { mutableStateOf(false) }
-    val selectedIds by viewModel?.selectedIds?.collectAsState() ?: remember { mutableStateOf(emptySet<Long>()) }
+    val archivedPhotos by viewModel?.archivedPhotos?.collectAsState() ?: remember { mutableStateOf(emptyList()) }
 
+    val isSelectionMode by viewModel?.isSelectionMode?.collectAsState() ?: remember { mutableStateOf(false) }
+    val selectedIds by viewModel?.selectedIds?.collectAsState() ?: remember { mutableStateOf(emptySet()) }
+
+    // Derived Category Slices
     val keepers = remember(analysisResults) { analysisResults.filter { it.score != -1f && it.isBestTake } }
     val forReview = remember(analysisResults) { analysisResults.filter { it.score != -1f && !it.isBestTake } }
     val notAnalyzed = remember(analysisResults) { analysisResults.filter { it.score == -1f } }
+
     val nonArchivedPhotos = remember(group.photos, archivedPhotos) {
         val archivedIds = archivedPhotos.map { it.id }.toSet()
         group.photos.filter { it.id !in archivedIds }
+    }
+
+    // Map non-archived photos into CuratedResult so all view modes can use the viewer
+    val fallbackCuratedResults = remember(nonArchivedPhotos, analysisResults) {
+        val analysisMap = analysisResults.associateBy { it.photo.id }
+        nonArchivedPhotos.map { photo ->
+            analysisMap[photo.id] ?: CuratedResult(
+                photo = photo,
+                score = -1f,
+                isBestTake = false,
+                clusterId = null
+            )
+        }
     }
 
     val gridState = rememberLazyGridState()
@@ -130,14 +141,12 @@ fun TimelineDetailScreen(
         viewModel?.setSessionPhotos(group.photos)
     }
 
-    // Auto-activate Best Takes UI if analysis already exists (persists from previous sessions)
     LaunchedEffect(analysisResults) {
         if (analysisResults.any { it.score != -1f }) {
             isBestTakesActive = true
         }
     }
 
-    // Scroll to top when analysis finishes and we switch to Curation view
     LaunchedEffect(isAnalyzing) {
         if (!isAnalyzing && isBestTakesActive && analysisResults.isNotEmpty()) {
             gridState.scrollToItem(0)
@@ -165,7 +174,7 @@ fun TimelineDetailScreen(
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = if (isSyncing) "Syncing gallery..." else "${group.photos.size} photos",
+                                text = if (isSyncing) "Syncing gallery..." else "${nonArchivedPhotos.size} photos",
                                 color = if (isSyncing) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.7f),
                                 fontSize = 12.sp
                             )
@@ -188,7 +197,7 @@ fun TimelineDetailScreen(
                                 Icon(Icons.Default.SelectAll, "Select All", tint = Color.White)
                             }
                             IconButton(
-                                onClick = { 
+                                onClick = {
                                     val uris = nonArchivedPhotos
                                         .filter { it.id in selectedIds }
                                         .map { it.contentUri }
@@ -203,7 +212,7 @@ fun TimelineDetailScreen(
                                 )
                             }
                             IconButton(
-                                onClick = { 
+                                onClick = {
                                     val uris = nonArchivedPhotos
                                         .filter { it.id in selectedIds }
                                         .map { it.contentUri }
@@ -218,7 +227,6 @@ fun TimelineDetailScreen(
                                 )
                             }
                         } else if (isBestTakesActive && analysisResults.isNotEmpty()) {
-                            // Reset word instead of icon
                             TextButton(onClick = {
                                 isBestTakesActive = false
                                 viewModel?.resetCuration(group.photos)
@@ -246,14 +254,16 @@ fun TimelineDetailScreen(
         ) { padding ->
             AnimatedContent(
                 targetState = isAnalyzing,
-                transitionSpec = {
-                    fadeIn() togetherWith fadeOut()
-                },
+                transitionSpec = { fadeIn() togetherWith fadeOut() },
                 label = "analysis_transition"
             ) { analyzing ->
                 if (analyzing) {
                     progress?.let { currentProgress ->
-                        Box(modifier = Modifier.padding(padding).fillMaxSize()) {
+                        Box(
+                            modifier = Modifier
+                                .padding(padding)
+                                .fillMaxSize()
+                        ) {
                             AnalysisProgressView(currentProgress)
                         }
                     }
@@ -261,17 +271,21 @@ fun TimelineDetailScreen(
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(3),
                         state = gridState,
-                        modifier = Modifier.fillMaxSize().padding(padding),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding),
                         contentPadding = PaddingValues(1.dp),
                         verticalArrangement = Arrangement.spacedBy(1.dp),
                         horizontalArrangement = Arrangement.spacedBy(1.dp)
                     ) {
-
-                        if (isBestTakesActive && (keepers.isNotEmpty() || forReview.isNotEmpty())) {
+                        if (isBestTakesActive && (keepers.isNotEmpty() || forReview.isNotEmpty() || notAnalyzed.isNotEmpty())) {
+                            // Section 1: Keepers
                             if (keepers.isNotEmpty()) {
                                 item(span = { GridItemSpan(3) }, key = "keepers_header") {
                                     val sectionIds = remember(keepers) { keepers.map { it.photo.id } }
-                                    val allSelected = remember(selectedIds, sectionIds) { sectionIds.isNotEmpty() && sectionIds.all { selectedIds.contains(it) } }
+                                    val allSelected = remember(selectedIds, sectionIds) {
+                                        sectionIds.isNotEmpty() && sectionIds.all { selectedIds.contains(it) }
+                                    }
                                     SectionHeaderSmall(
                                         title = "Keepers",
                                         icon = Icons.Default.AutoAwesome,
@@ -294,12 +308,12 @@ fun TimelineDetailScreen(
                                         isSelected = selectedIds.contains(result.photo.id),
                                         isSelectionMode = isSelectionMode,
                                         modifier = Modifier.animateItem(),
-                                        onClick = { 
+                                        onClick = {
                                             if (isSelectionMode) {
                                                 viewModel?.togglePhotoSelection(result.photo.id)
                                             } else {
                                                 viewerSourceList = keepers
-                                                selectedIndex = index 
+                                                selectedIndex = index
                                             }
                                         },
                                         onLongClick = {
@@ -308,11 +322,14 @@ fun TimelineDetailScreen(
                                     )
                                 }
                             }
-                            
+
+                            // Section 2: For Review
                             if (forReview.isNotEmpty()) {
                                 item(span = { GridItemSpan(3) }, key = "review_header") {
                                     val sectionIds = remember(forReview) { forReview.map { it.photo.id } }
-                                    val allSelected = remember(selectedIds, sectionIds) { sectionIds.isNotEmpty() && sectionIds.all { selectedIds.contains(it) } }
+                                    val allSelected = remember(selectedIds, sectionIds) {
+                                        sectionIds.isNotEmpty() && sectionIds.all { selectedIds.contains(it) }
+                                    }
                                     SectionHeaderSmall(
                                         title = "For Review",
                                         icon = Icons.Default.BatchPrediction,
@@ -335,12 +352,12 @@ fun TimelineDetailScreen(
                                         isSelected = selectedIds.contains(result.photo.id),
                                         isSelectionMode = isSelectionMode,
                                         modifier = Modifier.animateItem(),
-                                        onClick = { 
+                                        onClick = {
                                             if (isSelectionMode) {
                                                 viewModel?.togglePhotoSelection(result.photo.id)
                                             } else {
                                                 viewerSourceList = forReview
-                                                selectedIndex = index 
+                                                selectedIndex = index
                                             }
                                         },
                                         onLongClick = {
@@ -349,18 +366,36 @@ fun TimelineDetailScreen(
                                     )
                                 }
                             }
-                            
-                            // If user clicked "Best Takes" but some photos weren't analyzed or were new, 
-                            // show them in a generic section or handle as part of review
+
+                            // Section 3: Yet to Review / Unanalyzed
                             if (notAnalyzed.isNotEmpty()) {
-                                item(span = { GridItemSpan(3) }) {
-                                    SectionHeaderSmall("Yet to Review", Icons.Default.Close)
+                                item(span = { GridItemSpan(3) }, key = "not_analyzed_header") {
+                                    val sectionIds = remember(notAnalyzed) { notAnalyzed.map { it.photo.id } }
+                                    val allSelected = remember(selectedIds, sectionIds) {
+                                        sectionIds.isNotEmpty() && sectionIds.all { selectedIds.contains(it) }
+                                    }
+                                    SectionHeaderSmall(
+                                        title = "Yet to Review",
+                                        icon = Icons.Default.HelpOutline,
+                                        action = {
+                                            if (isSelectionMode) {
+                                                IconButton(onClick = { viewModel?.toggleSectionSelection(sectionIds) }) {
+                                                    Icon(
+                                                        imageVector = if (allSelected) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
+                                                        contentDescription = "Select All",
+                                                        tint = if (allSelected) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.7f)
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    )
                                 }
-                                itemsIndexed(notAnalyzed) { index, result ->
+                                itemsIndexed(notAnalyzed, key = { _, result -> result.photo.id }) { index, result ->
                                     PhotoGridItem(
                                         photo = result.photo,
                                         isSelected = selectedIds.contains(result.photo.id),
                                         isSelectionMode = isSelectionMode,
+                                        modifier = Modifier.animateItem(),
                                         onClick = {
                                             if (isSelectionMode) {
                                                 viewModel?.togglePhotoSelection(result.photo.id)
@@ -368,22 +403,27 @@ fun TimelineDetailScreen(
                                                 viewerSourceList = notAnalyzed
                                                 selectedIndex = index
                                             }
+                                        },
+                                        onLongClick = {
+                                            viewModel?.togglePhotoSelection(result.photo.id)
                                         }
                                     )
                                 }
                             }
                         } else {
+                            // Default Grid View (Standard non-curated view)
                             itemsIndexed(nonArchivedPhotos, key = { _, photo -> photo.id }) { index, photo ->
                                 PhotoGridItem(
                                     photo = photo,
                                     isSelected = selectedIds.contains(photo.id),
                                     isSelectionMode = isSelectionMode,
                                     modifier = Modifier.animateItem(),
-                                    onClick = { 
+                                    onClick = {
                                         if (isSelectionMode) {
                                             viewModel?.togglePhotoSelection(photo.id)
                                         } else {
-                                            selectedIndex = index 
+                                            viewerSourceList = fallbackCuratedResults
+                                            selectedIndex = index
                                         }
                                     },
                                     onLongClick = {
@@ -397,22 +437,15 @@ fun TimelineDetailScreen(
             }
         }
 
+        // Full Screen Large Photo/Video Viewer (Always use Curation Mode)
         if (selectedIndex >= 0) {
-            //if (isBestTakesActive && analysisResults.isNotEmpty() && viewerSourceList.isNotEmpty()) {
-                CurationViewerScreen(
-                    results = viewerSourceList, // Pass only the relevant list (Keepers OR Review)
-                    allResults = analysisResults,
-                    initialIndex = selectedIndex,
-                    onToggleAction = { id -> viewModel?.toggleBestTake(id) },
-                    onDismiss = { selectedIndex = -1 }
-                )
-            //} else {
-             //   ViewerScreen(
-             //       photos = group.photos,
-             //       initialIndex = selectedIndex,
-             //       onDismiss = { selectedIndex = -1 }
-              //  )
-           // }
+            CurationViewerScreen(
+                results = viewerSourceList,
+                allResults = if (analysisResults.isNotEmpty()) analysisResults else viewerSourceList,
+                initialIndex = selectedIndex,
+                onToggleAction = { id -> viewModel?.toggleBestTake(id) },
+                onDismiss = { selectedIndex = -1 }
+            )
         }
     }
 }
@@ -427,6 +460,15 @@ fun PhotoGridItem(
     onClick: () -> Unit,
     onLongClick: () -> Unit = {}
 ) {
+    val context = LocalContext.current
+    val imageRequest = remember(photo.contentUri, photo.dateModified) {
+        ImageRequest.Builder(context)
+            .data(photo.contentUri)
+            .setParameter("modified", photo.dateModified)
+            .crossfade(true)
+            .build()
+    }
+
     Box(
         modifier = modifier
             .aspectRatio(1f)
@@ -436,15 +478,11 @@ fun PhotoGridItem(
             )
     ) {
         AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(photo.contentUri)
-                .setParameter("modified", photo.dateModified) // Force invalidation on change
-                .crossfade(true)
-                .build(),
+            model = imageRequest,
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop,
-            error = androidx.compose.ui.graphics.painter.ColorPainter(Color.DarkGray)
+            error = ColorPainter(Color.DarkGray)
         )
 
         if (isSelectionMode) {
@@ -481,7 +519,7 @@ fun PhotoGridItem(
 
 @Composable
 fun SectionHeaderSmall(
-    title: String, 
+    title: String,
     icon: ImageVector,
     action: @Composable () -> Unit = {}
 ) {
@@ -495,7 +533,6 @@ fun SectionHeaderSmall(
         action()
     }
 }
-
 
 @Preview(showBackground = true, backgroundColor = 0xFF000000)
 @Composable
@@ -531,7 +568,7 @@ fun PhotoGridItemPreview() {
 
 fun sharePhotos(context: Context, uris: List<Uri>) {
     if (uris.isEmpty()) return
-    
+
     val intent = if (uris.size == 1) {
         Intent(Intent.ACTION_SEND).apply {
             type = context.contentResolver.getType(uris[0]) ?: "image/*"
@@ -543,7 +580,7 @@ fun sharePhotos(context: Context, uris: List<Uri>) {
             putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(uris))
         }
     }
-    
+
     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     val chooser = Intent.createChooser(intent, "Share with")
     chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

@@ -38,9 +38,10 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.memorycurator.app.ui.preview.PreviewStockPhotos
+import com.memorycurator.app.core.ai.CuratedResult
 import com.memorycurator.app.data.media.MediaPhoto
-import com.memorycurator.app.feature.viewer.ui.ViewerScreen
 import com.memorycurator.app.ui.gallery.GalleryViewModel
+import com.memorycurator.app.ui.screens.CurationViewerScreen
 import com.memorycurator.app.ui.theme.MemoryCuratorTheme
 import kotlinx.coroutines.flow.flowOf
 
@@ -200,16 +201,31 @@ fun GalleryScreen(
             selectedIndex >= 0 &&
             selectedIndex < photos.itemCount
         ) {
-            val selectedPhoto = photos[selectedIndex]
-            if (selectedPhoto != null) {
-                ViewerScreen(
-                    photos = listOf(selectedPhoto),
-                    initialIndex = 0,
-                    onDismiss = {
-                        selectedIndex = -1
-                    }
+            // Map the paged photos to CuratedResults for the viewer
+            val curatedResults = List(photos.itemCount) { i ->
+                val photo = photos[i] ?: MediaPhoto(0, Uri.EMPTY, 0, 0)
+                CuratedResult(
+                    photo = photo,
+                    score = -1f,
+                    isBestTake = false,
+                    clusterId = null
                 )
             }
+
+            CurationViewerScreen(
+                results = curatedResults,
+                allResults = curatedResults,
+                initialIndex = selectedIndex,
+                onToggleAction = { id ->
+                    val photo = curatedResults.find { it.photo.id == id }?.photo
+                    if (photo != null) {
+                        viewModel.toggleBestTake(id, true)
+                    }
+                },
+                onDismiss = {
+                    selectedIndex = -1
+                }
+            )
         }
     }
 }

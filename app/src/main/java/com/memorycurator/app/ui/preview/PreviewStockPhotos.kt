@@ -5,26 +5,18 @@ import com.memorycurator.app.data.media.MediaPhoto
 
 /**
  * Stock photos for Compose Previews.
- * Using common high-quality placeholder images.
+ * Uses local resources and negative IDs to prevent production data pollution.
  */
 object PreviewStockPhotos {
-    private val urls = listOf(
-        "https://picsum.photos/id/10/800/800",
-        "https://picsum.photos/id/11/800/800",
-        "https://picsum.photos/id/12/800/800",
-        "https://picsum.photos/id/13/800/800",
-        "https://picsum.photos/id/14/800/800",
-        "https://picsum.photos/id/15/800/800",
-        "https://picsum.photos/id/16/800/800",
-        "https://picsum.photos/id/17/800/800",
-        "https://picsum.photos/id/18/800/800",
-        "https://picsum.photos/id/19/800/800"
-    )
+    
+    // Using a local resource ensures the Preview can render it without internet
+    private val mockUri = Uri.parse("android.resource://com.memorycurator.app/drawable/bg_main")
 
-    val photos: List<MediaPhoto> = urls.mapIndexed { index, url ->
+    val photos: List<MediaPhoto> = List(10) { index ->
         MediaPhoto(
-            id = index.toLong(),
-            contentUri = Uri.parse(url),
+            // Use negative IDs to ensure they never clash with real MediaStore IDs (which are positive)
+            id = -(index + 1).toLong(),
+            contentUri = mockUri,
             dateTaken = System.currentTimeMillis() - (index * 86400000L),
             dateModified = System.currentTimeMillis() - (index * 86400000L),
             isVideo = false
