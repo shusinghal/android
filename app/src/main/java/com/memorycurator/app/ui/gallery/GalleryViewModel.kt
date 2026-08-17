@@ -63,7 +63,6 @@ class GalleryViewModel(
     }
 
     init {
-        indexMedia()
         contentResolver.registerContentObserver(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             true,

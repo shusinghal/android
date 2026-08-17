@@ -59,9 +59,6 @@ class AICurationViewModel(
         }
     }
 
-    val archivedPhotos: StateFlow<List<MediaPhoto>> = repository.getArchivedPhotos()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
     fun toggleSelectionMode(enabled: Boolean) {
         _isSelectionMode.value = enabled
         if (!enabled) {
@@ -123,11 +120,28 @@ class AICurationViewModel(
         }
     }
 
+    fun deleteSelected() {
+        val idsToDelete = _selectedIds.value.toList()
+        if (idsToDelete.isNotEmpty()) {
+            deletePhotos(idsToDelete)
+            toggleSelectionMode(false)
+        }
+    }
+
     fun archiveSelected() {
         val idsToArchive = _selectedIds.value.toList()
         if (idsToArchive.isNotEmpty()) {
-            archivePhotos(idsToArchive)
-            toggleSelectionMode(false)
+            viewModelScope.launch {
+                _isSyncing.value = true
+                withContext(Dispatchers.IO) {
+                    repository.archiveMedia(idsToArchive)
+                }
+                // Small delay to allow UI to feel responsive
+                delay(300)
+                refreshResults()
+                toggleSelectionMode(false)
+                _isSyncing.value = false
+            }
         }
     }
 
@@ -182,16 +196,16 @@ class AICurationViewModel(
 
     private suspend fun refreshResults() {
         if (allPhotosFromSession.isEmpty()) return
-        val sessionIds = allPhotosFromSession.map { it.id }.toSet()
         
         val savedEntities = withContext(Dispatchers.IO) {
             repository.getMediaEntities(allPhotosFromSession.map { it.id })
         }
         
         _analysisResults.value = savedEntities
+            .filter { !it.isArchived }
             .mapNotNull { entity ->
                 val photo = allPhotosFromSession.find { it.id == entity.id }
-                if (photo != null && !entity.isArchived) {
+                if (photo != null) {
                     CuratedResult(
                         photo = photo.copy(dateModified = entity.dateModified), // Sync modified date
                         score = entity.aiScore,
@@ -247,42 +261,27 @@ class AICurationViewModel(
         }
     }
 
-    fun archiveAllUnderReview() {
+    fun deleteAllUnderReview() {
         viewModelScope.launch {
-            val toArchive = _analysisResults.value.filter { !it.isBestTake }.map { it.photo.id }
-            if (toArchive.isNotEmpty()) {
-                archivePhotos(toArchive)
+            val toDelete = _analysisResults.value.filter { !it.isBestTake }.map { it.photo.id }
+            if (toDelete.isNotEmpty()) {
+                deletePhotos(toDelete)
             }
         }
     }
 
-    fun archivePhoto(photoId: Long) {
-        archivePhotos(listOf(photoId))
+    fun deletePhoto(photoId: Long) {
+        deletePhotos(listOf(photoId))
     }
 
-    fun archivePhotos(photoIds: List<Long>) {
+    fun deletePhotos(photoIds: List<Long>) {
         viewModelScope.launch {
             if (photoIds.isNotEmpty()) {
                 _isSyncing.value = true
                 withContext(Dispatchers.IO) {
-                    repository.archiveMedia(photoIds)
+                    repository.deleteMediaFromDb(photoIds)
                 }
                 // Small delay to allow MediaStore to update its index
-                delay(500)
-                refreshResults()
-                mediaIndexer.indexMedia()
-                _isSyncing.value = false
-            }
-        }
-    }
-
-    fun restorePhotos(photoIds: List<Long>) {
-        viewModelScope.launch {
-            if (photoIds.isNotEmpty()) {
-                _isSyncing.value = true
-                withContext(Dispatchers.IO) {
-                    repository.restoreMedia(photoIds)
-                }
                 delay(500)
                 refreshResults()
                 mediaIndexer.indexMedia()

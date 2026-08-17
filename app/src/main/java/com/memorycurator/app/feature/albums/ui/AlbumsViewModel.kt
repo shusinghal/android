@@ -46,15 +46,6 @@ class AlbumsViewModel(
                 initialValue = emptyList()
             )
 
-    val archivedPhotos: Flow<List<MediaPhoto>> =
-        mediaRepository.getArchivedPhotos()
-
-    fun restoreMedia(ids: List<Long>) {
-        viewModelScope.launch {
-            mediaRepository.restoreMedia(ids)
-        }
-    }
-
     suspend fun getPhotosInAlbum(album: Album): List<MediaPhoto> {
         return repository.getPhotosInAlbum(album.folderName)
     }

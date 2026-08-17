@@ -58,8 +58,8 @@ class MainActivity : ComponentActivity() {
         )
         galleryViewModel = ViewModelProvider(this, factory)[GalleryViewModel::class.java]
         
-        checkAndRequestPermissions()
-        checkAndRequestStorageManagerPermission()
+       // checkAndRequestPermissions()
+      //  checkAndRequestStorageManagerPermission()
 
         setContent {
             GlassTheme {

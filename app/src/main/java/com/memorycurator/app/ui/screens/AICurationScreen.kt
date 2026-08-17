@@ -23,7 +23,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.BatchPrediction
 import androidx.compose.material.icons.filled.BlurOn
@@ -105,15 +104,6 @@ fun AICurationScreen(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) { result ->
         if (result.resultCode == android.app.Activity.RESULT_OK) {
-            onBack()
-        }
-    }
-
-    val writeLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartIntentSenderForResult()
-    ) { result ->
-        if (result.resultCode == android.app.Activity.RESULT_OK) {
-            // Permission granted, trigger the archive again
             viewModel.archiveSelected()
         }
     }
@@ -122,16 +112,6 @@ fun AICurationScreen(
         if (uris.isEmpty()) return
         val pendingIntent = MediaStore.createTrashRequest(context.contentResolver, uris, true)
         trashLauncher.launch(IntentSenderRequest.Builder(pendingIntent.intentSender).build())
-    }
-
-    fun requestWrite(uris: List<Uri>) {
-        if (uris.isEmpty()) return
-        try {
-            val pendingIntent = MediaStore.createWriteRequest(context.contentResolver, uris)
-            writeLauncher.launch(IntentSenderRequest.Builder(pendingIntent.intentSender).build())
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
     }
 
     Column(
@@ -150,13 +130,6 @@ fun AICurationScreen(
                     .filter { it.photo.id in selectedIds }
                     .map { it.photo.contentUri }
                 requestTrash(uris)
-            },
-            onArchiveSelected = {
-                val uris = analysisResults
-                    .filter { it.photo.id in selectedIds }
-                    .map { it.photo.contentUri }
-                // Proactively request write permission for physical move (delete source)
-                requestWrite(uris)
             },
             onShareSelected = {
                 val uris = analysisResults
@@ -420,7 +393,6 @@ fun CurationHeader(
     isSelectionMode: Boolean,
     selectedCount: Int,
     onDeleteSelected: () -> Unit,
-    onArchiveSelected: () -> Unit,
     onShareSelected: () -> Unit,
     onSelectAll: () -> Unit,
     onCancelSelection: () -> Unit
@@ -445,14 +417,7 @@ fun CurationHeader(
             IconButton(onClick = onShareSelected, enabled = selectedCount > 0) {
                 Icon(
                     Icons.Default.Share, 
-                    "Share", 
-                    tint = if (selectedCount > 0) Color.White else Color.White.copy(alpha = 0.4f)
-                )
-            }
-            IconButton(onClick = onArchiveSelected, enabled = selectedCount > 0) {
-                Icon(
-                    Icons.Default.Archive, 
-                    "Archive",
+                    "Share",
                     tint = if (selectedCount > 0) Color.White else Color.White.copy(alpha = 0.4f)
                 )
             }
@@ -556,6 +521,7 @@ fun AICurationScreenPreview() {
                 override suspend fun resetAiMetadata(ids: List<Long>) {}
                 override suspend fun archiveMedia(ids: List<Long>) {}
                 override suspend fun restoreMedia(ids: List<Long>) {}
+                override suspend fun deleteMediaFromDb(ids: List<Long>) {}
             },
             mediaIndexer = MediaIndexer(LocalContext.current, object : com.memorycurator.app.data.local.MediaDao {
                 override suspend fun insertAll(media: List<com.memorycurator.app.data.local.MediaEntity>) {}
@@ -573,16 +539,26 @@ fun AICurationScreenPreview() {
                 override suspend fun getMediaByIds(ids: List<Long>) = error("Not implemented")
                 override suspend fun updateMetadata(id: Long, isBest: Boolean, score: Float, reason: String?) {}
                 override suspend fun resetAiMetadata(ids: List<Long>) {}
-                override suspend fun updateArchiveStatus(id: Long, folderName: String?, bucketId: String?, isArchived: Boolean) {}
+                override suspend fun updateArchiveStatus(id: Long, isArchived: Boolean) {}
                 override suspend fun updateFolder(id: Long, folderName: String?, bucketId: String?) {}
                 override suspend fun archiveMedia(ids: List<Long>) {}
                 override suspend fun restoreMedia(ids: List<Long>) {}
                 override suspend fun updateMediaUri(id: Long, newUri: String) {}
                 override suspend fun delete(entity: com.memorycurator.app.data.local.MediaEntity) {}
-                override suspend fun transferMetadata(oldId: Long, newId: Long, newUri: String, newFolder: String, isArchived: Boolean, originalFolder: String?) {}
+                override suspend fun transferMetadata(oldId: Long, newId: Long, newUri: String, newFolder: String, originalFolder: String?) {}
                 override suspend fun getAllMediaSync(): List<com.memorycurator.app.data.local.MediaEntity> = emptyList()
+                override suspend fun getLastModifiedTimestamp(): Long? = 0L
+                override suspend fun deleteById(id: Long) {}
                 override suspend fun deleteByIds(ids: List<Long>) {}
+                override suspend fun deleteMissingIds(scannedIds: Set<Long>) {}
                 override suspend fun deleteByUri(uri: String) {}
+                override suspend fun insertOrIgnorePreservingAI(media: List<com.memorycurator.app.data.local.MediaEntity>) {}
+                override suspend fun insertOrUpdateSingle(entity: com.memorycurator.app.data.local.MediaEntity) {}
+                override suspend fun updateSystemMetadata(
+                    id: Long, uri: String, bucketId: String?, folderName: String?,
+                    dateTaken: Long, dateModified: Long, mimeType: String?,
+                    width: Int, height: Int, size: Long
+                ) {}
             })
         )
     }

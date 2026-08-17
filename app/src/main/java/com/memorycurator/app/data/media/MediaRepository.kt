@@ -10,8 +10,6 @@ interface MediaRepository {
     
     fun getAllPhotos(): Flow<List<MediaPhoto>>
     
-    fun getArchivedPhotos(): Flow<List<MediaPhoto>>
-    
     suspend fun getMediaEntities(ids: List<Long>): List<MediaEntity>
     
     suspend fun saveAiResults(entities: List<MediaEntity>)
@@ -21,6 +19,10 @@ interface MediaRepository {
     suspend fun resetAiMetadata(ids: List<Long>)
 
     suspend fun archiveMedia(ids: List<Long>)
-
+    
     suspend fun restoreMedia(ids: List<Long>)
+
+    fun getArchivedPhotos(): Flow<List<MediaPhoto>>
+
+    suspend fun deleteMediaFromDb(ids: List<Long>)
 }

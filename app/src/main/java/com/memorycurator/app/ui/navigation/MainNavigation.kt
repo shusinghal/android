@@ -120,6 +120,7 @@ fun MainNavigation(
                     .putBoolean("first_run", false)
                     .apply()
                 showOnboarding = false
+                viewModel.indexMedia()
             }
         )
         return

@@ -30,7 +30,7 @@ import com.memorycurator.app.ui.theme.MemoryCuratorTheme
 fun OnboardingScreen(onContinue: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
         BlurBackground()
-        
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -39,16 +39,15 @@ fun OnboardingScreen(onContinue: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Logo or Icon
             Icon(
                 imageVector = Icons.Default.AutoAwesome,
                 contentDescription = null,
                 tint = Color.White,
                 modifier = Modifier.size(64.dp)
             )
-            
+
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             Text(
                 text = "Welcome to MemoryCurator",
                 color = Color.White,
@@ -56,7 +55,7 @@ fun OnboardingScreen(onContinue: () -> Unit) {
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
-            
+
             Text(
                 text = "Personalized on-device AI for your memories",
                 color = Color.White.copy(alpha = 0.7f),
@@ -64,31 +63,31 @@ fun OnboardingScreen(onContinue: () -> Unit) {
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 8.dp)
             )
-            
-            Spacer(modifier = Modifier.height(40.dp))
-            
-            // Expectation Cards
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Information Items
             ExpectationItem(
                 icon = Icons.Default.Favorite,
                 title = "Subjective Quality",
                 description = "AI identifies technical flaws, but you know the emotional value. It suggests, you decide."
             )
-            
+
             ExpectationItem(
                 icon = Icons.Default.Timer,
                 title = "On-Device Speed",
                 description = "Processing happens locally for your privacy. It might take a few seconds per group."
             )
-            
+
             ExpectationItem(
                 icon = Icons.Default.BatteryAlert,
                 title = "Resource Intensive",
                 description = "Running AI models uses battery and power. We only run it when you ask."
             )
-            
+
             Spacer(modifier = Modifier.height(48.dp))
-            
-            // Continue Button
+
+            // The main action button
             Button(
                 onClick = onContinue,
                 modifier = Modifier
@@ -112,11 +111,7 @@ fun OnboardingScreen(onContinue: () -> Unit) {
 }
 
 @Composable
-fun ExpectationItem(
-    icon: ImageVector,
-    title: String,
-    description: String
-) {
+fun ExpectationItem(icon: ImageVector, title: String, description: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -127,28 +122,11 @@ fun ExpectationItem(
             .padding(16.dp)
     ) {
         Row(verticalAlignment = Alignment.Top) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = Color.White.copy(alpha = 0.9f),
-                modifier = Modifier.size(24.dp)
-            )
-            
+            Icon(icon, null, tint = Color.White.copy(alpha = 0.9f), modifier = Modifier.size(24.dp))
             Spacer(modifier = Modifier.width(16.dp))
-            
             Column {
-                Text(
-                    text = title,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
-                )
-                Text(
-                    text = description,
-                    color = Color.White.copy(alpha = 0.6f),
-                    fontSize = 14.sp,
-                    lineHeight = 20.sp
-                )
+                Text(text = title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(text = description, color = Color.White.copy(alpha = 0.6f), fontSize = 14.sp, lineHeight = 20.sp)
             }
         }
     }

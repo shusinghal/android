@@ -36,6 +36,6 @@ data class MediaEntity(
     val rejectionReason: String? = null,
     val clusterId: String? = null,
     val isManuallyModified: Boolean = false,
-    val isArchived: Boolean = false,
-    val originalFolderName: String? = null
+    val originalFolderName: String? = null,
+    val isArchived: Boolean = false
 )

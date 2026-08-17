@@ -22,7 +22,7 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.BatchPrediction
@@ -90,7 +90,6 @@ fun TimelineDetailScreen(
     val isAnalyzing by viewModel?.isAnalyzing?.collectAsState() ?: remember { mutableStateOf(false) }
     val isSyncing by viewModel?.isSyncing?.collectAsState() ?: remember { mutableStateOf(false) }
     val progress by viewModel?.progress?.collectAsState() ?: remember { mutableStateOf(null) }
-    val archivedPhotos by viewModel?.archivedPhotos?.collectAsState() ?: remember { mutableStateOf(emptyList()) }
 
     val isSelectionMode by viewModel?.isSelectionMode?.collectAsState() ?: remember { mutableStateOf(false) }
     val selectedIds by viewModel?.selectedIds?.collectAsState() ?: remember { mutableStateOf(emptySet()) }
@@ -100,10 +99,8 @@ fun TimelineDetailScreen(
     val forReview = remember(analysisResults) { analysisResults.filter { it.score != -1f && !it.isBestTake } }
     val notAnalyzed = remember(analysisResults) { analysisResults.filter { it.score == -1f } }
 
-    val nonArchivedPhotos = remember(group.photos, archivedPhotos) {
-        val archivedIds = archivedPhotos.map { it.id }.toSet()
-        group.photos.filter { it.id !in archivedIds }
-    }
+    // Filter out photos that might have been deleted but index hasn't caught up
+    val activePhotos = group.photos
 
     // Keep viewerSourceList in sync with latest analysis results without changing structure
     LaunchedEffect(analysisResults) {
@@ -115,10 +112,10 @@ fun TimelineDetailScreen(
         }
     }
 
-    // Map non-archived photos into CuratedResult so all view modes can use the viewer
-    val fallbackCuratedResults = remember(nonArchivedPhotos, analysisResults) {
+    // Map photos into CuratedResult so all view modes can use the viewer
+    val fallbackCuratedResults = remember(activePhotos, analysisResults) {
         val analysisMap = analysisResults.associateBy { it.photo.id }
-        nonArchivedPhotos.map { photo ->
+        activePhotos.map { photo ->
             analysisMap[photo.id] ?: CuratedResult(
                 photo = photo,
                 score = -1f,
@@ -130,19 +127,19 @@ fun TimelineDetailScreen(
 
     val gridState = rememberLazyGridState()
 
-    val writeLauncher = rememberLauncherForActivityResult(
+    val deleteLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) { result ->
         if (result.resultCode == android.app.Activity.RESULT_OK) {
-            viewModel?.archiveSelected()
+            viewModel?.deleteSelected()
         }
     }
 
-    fun requestWrite(uris: List<Uri>) {
+    fun requestTrash(uris: List<Uri>) {
         if (uris.isEmpty()) return
         try {
-            val pendingIntent = MediaStore.createWriteRequest(context.contentResolver, uris)
-            writeLauncher.launch(IntentSenderRequest.Builder(pendingIntent.intentSender).build())
+            val pendingIntent = MediaStore.createTrashRequest(context.contentResolver, uris, true)
+            deleteLauncher.launch(IntentSenderRequest.Builder(pendingIntent.intentSender).build())
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -185,7 +182,7 @@ fun TimelineDetailScreen(
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = if (isSyncing) "Syncing gallery..." else "${nonArchivedPhotos.size} photos",
+                                text = if (isSyncing) "Syncing gallery..." else "${activePhotos.size} photos",
                                 color = if (isSyncing) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.7f),
                                 fontSize = 12.sp
                             )
@@ -209,7 +206,7 @@ fun TimelineDetailScreen(
                             }
                             IconButton(
                                 onClick = {
-                                    val uris = nonArchivedPhotos
+                                    val uris = activePhotos
                                         .filter { it.id in selectedIds }
                                         .map { it.contentUri }
                                     sharePhotos(context, uris)
@@ -224,16 +221,16 @@ fun TimelineDetailScreen(
                             }
                             IconButton(
                                 onClick = {
-                                    val uris = nonArchivedPhotos
+                                    val uris = activePhotos
                                         .filter { it.id in selectedIds }
                                         .map { it.contentUri }
-                                    requestWrite(uris)
+                                    requestTrash(uris)
                                 },
                                 enabled = selectedIds.isNotEmpty()
                             ) {
                                 Icon(
-                                    Icons.Default.Archive,
-                                    "Archive",
+                                    Icons.Default.Delete,
+                                    "Delete",
                                     tint = if (selectedIds.isNotEmpty()) Color.White else Color.White.copy(alpha = 0.4f)
                                 )
                             }
@@ -429,7 +426,7 @@ fun TimelineDetailScreen(
                             }
                         } else {
                             // Default Grid View (Standard non-curated view)
-                            itemsIndexed(nonArchivedPhotos, key = { _, photo -> photo.id }) { index, photo ->
+                            itemsIndexed(activePhotos, key = { _, photo -> photo.id }) { index, photo ->
                                 val curatedResult = fallbackCuratedResults.getOrNull(index)
                                 PhotoGridItem(
                                     photo = photo,
