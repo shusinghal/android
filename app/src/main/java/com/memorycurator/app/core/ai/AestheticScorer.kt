@@ -30,8 +30,8 @@ class AestheticScorer {
             intentLabels.any { intent -> label.text.contains(intent, ignoreCase = true) } 
         }
 
-        // 2. Composition Score (Rule of Thirds)
-        val compositionScore = calculateRuleOfThirds(bitmap.width, bitmap.height, faces)
+        // 2. Composition Score (Rule of Thirds + Visual Salience)
+        val compositionScore = calculateComposition(bitmap, faces)
 
         // 3. Color Harmony & Vibrancy
         val colorScore = calculateColorHarmony(bitmap)
@@ -53,29 +53,94 @@ class AestheticScorer {
         )
     }
 
-    private fun calculateRuleOfThirds(width: Int, height: Int, faces: List<Face>): Float {
-        if (faces.isEmpty()) return 0.5f // Default for scenery
-        
-        // Ideal points for faces are at 1/3 or 2/3 of width/height
-        val thirdW = width / 3f
-        val thirdH = height / 3f
-        val idealPoints = listOf(
-            Pair(thirdW, thirdH), Pair(thirdW * 2, thirdH),
-            Pair(thirdW, thirdH * 2), Pair(thirdW * 2, thirdH * 2)
-        )
+    private fun calculateComposition(bitmap: Bitmap, faces: List<Face>): Float {
+        val width = bitmap.width
+        val height = bitmap.height
 
-        var bestMatch = 0f
-        for (face in faces) {
-            val fx = face.boundingBox.centerX().toFloat()
-            val fy = face.boundingBox.centerY().toFloat()
-            
-            for ((ix, iy) in idealPoints) {
-                val dist = sqrt((fx - ix).toDouble().pow(2.0) + (fy - iy).toDouble().pow(2.0)).toFloat()
-                val normalizedDist = 1f - (dist / (width / 2f)).coerceIn(0f, 1f)
-                if (normalizedDist > bestMatch) bestMatch = normalizedDist
+        if (faces.isNotEmpty()) {
+            val thirdW = width / 3f
+            val thirdH = height / 3f
+            val idealPoints = listOf(
+                Pair(thirdW, thirdH), Pair(thirdW * 2, thirdH),
+                Pair(thirdW, thirdH * 2), Pair(thirdW * 2, thirdH * 2)
+            )
+
+            var bestMatch = 0f
+            for (face in faces) {
+                val fx = face.boundingBox.centerX().toFloat()
+                val fy = face.boundingBox.centerY().toFloat()
+                
+                for ((ix, iy) in idealPoints) {
+                    val normDx = abs(fx - ix) / (width / 2f)
+                    val normDy = abs(fy - iy) / (height / 2f)
+                    val dist = sqrt((normDx * normDx + normDy * normDy).toDouble()).toFloat()
+                    val normalizedDist = (1f - dist / 1.2f).coerceIn(0f, 1f)
+                    if (normalizedDist > bestMatch) bestMatch = normalizedDist
+                }
+            }
+            return bestMatch
+        } else {
+            // Non-facial grid-salience composition (Rule of Thirds for landscapes/objects)
+            return calculateNonFacialComposition(bitmap)
+        }
+    }
+
+    private fun calculateNonFacialComposition(bitmap: Bitmap): Float {
+        val width = bitmap.width
+        val height = bitmap.height
+        if (width < 6 || height < 6) return 0.5f
+
+        val pixels = IntArray(width * height)
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+
+        // Divide image into a 3x3 grid to evaluate visual weight distribution
+        val gridEdges = FloatArray(9)
+        val cellW = width / 3
+        val cellH = height / 3
+
+        for (cy in 0 until 3) {
+            for (cx in 0 until 3) {
+                var edgeSum = 0.0
+                var samples = 0
+                val startX = cx * cellW
+                val startY = cy * cellH
+                val endX = if (cx == 2) width - 1 else startX + cellW - 1
+                val endY = if (cy == 2) height - 1 else startY + cellH - 1
+
+                for (y in startY until endY step 3) {
+                    for (x in startX until endX step 3) {
+                        val idx = y * width + x
+                        val rightIdx = y * width + (x + 1)
+                        val downIdx = (y + 1) * width + x
+                        if (rightIdx < pixels.size && downIdx < pixels.size) {
+                            val lum = getLuminance(pixels[idx])
+                            val lumR = getLuminance(pixels[rightIdx])
+                            val lumD = getLuminance(pixels[downIdx])
+                            val dx = lumR - lum
+                            val dy = lumD - lum
+                            edgeSum += sqrt(dx * dx + dy * dy)
+                            samples++
+                        }
+                    }
+                }
+                gridEdges[cy * 3 + cx] = if (samples > 0) (edgeSum / samples).toFloat() else 0f
             }
         }
-        return bestMatch
+
+        val totalEnergy = gridEdges.sum()
+        if (totalEnergy <= 0.0001f) return 0.5f
+
+        // Rule-of-Thirds power points in 3x3 grid correspond to cells (0,1), (1,0), (1,1), (1,2), (2,1), etc.
+        // Intersections and central horizon / leading lines boost the composition score.
+        val centerEnergy = gridEdges[4]
+        val powerPointEnergy = gridEdges[1] + gridEdges[3] + gridEdges[5] + gridEdges[7]
+        val cornerEnergy = gridEdges[0] + gridEdges[2] + gridEdges[6] + gridEdges[8]
+
+        val powerRatio = (powerPointEnergy + centerEnergy * 0.8f) / totalEnergy
+        val balance = 1f - abs(gridEdges[3] + gridEdges[0] + gridEdges[6] - (gridEdges[5] + gridEdges[2] + gridEdges[8])) / totalEnergy
+
+        val compositionScore = (powerRatio * 0.6f + balance * 0.4f).coerceIn(0.35f, 0.95f)
+        return compositionScore
     }
 
     private fun calculateColorHarmony(bitmap: Bitmap): Float {
@@ -83,14 +148,31 @@ class AestheticScorer {
         bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
         
         var totalSaturation = 0f
-        for (pixel in pixels) {
-            val hsv = FloatArray(3)
-            Color.colorToHSV(pixel, hsv)
-            totalSaturation += hsv[1]
+        val step = (pixels.size / 500).coerceAtLeast(1)
+        var sampleCount = 0
+        val hsv = FloatArray(3)
+        var minSat = 1f
+        var maxSat = 0f
+
+        for (i in pixels.indices step step) {
+            Color.colorToHSV(pixels[i], hsv)
+            val sat = hsv[1]
+            totalSaturation += sat
+            if (sat < minSat) minSat = sat
+            if (sat > maxSat) maxSat = sat
+            sampleCount++
         }
-        val avgSaturation = totalSaturation / pixels.size
-        // 0.2 - 0.6 is a natural, pleasing range.
-        return (avgSaturation / 0.6f).coerceIn(0f, 1f)
+        val avgSaturation = if (sampleCount > 0) totalSaturation / sampleCount else 0.5f
+        val satSpread = (maxSat - minSat).coerceIn(0f, 1f)
+        
+        // Reward natural saturation (0.15 - 0.75) and healthy color dynamics
+        val satScore = when {
+            avgSaturation in 0.15f..0.75f -> 1.0f
+            avgSaturation < 0.15f -> (avgSaturation / 0.15f).coerceIn(0.3f, 1.0f)
+            else -> (1.0f - (avgSaturation - 0.75f) * 2f).coerceIn(0.4f, 1.0f)
+        }
+
+        return (satScore * 0.7f + satSpread * 0.3f).coerceIn(0f, 1f)
     }
 
     private fun calculateContrast(bitmap: Bitmap): Float {
@@ -99,15 +181,29 @@ class AestheticScorer {
         
         var minLum = 1f
         var maxLum = 0f
+        var sumLum = 0.0
+        var sumSqLum = 0.0
+        val step = (pixels.size / 500).coerceAtLeast(1)
+        var count = 0
         
-        // Sample every 10th pixel for performance
-        for (i in pixels.indices step 10) {
+        for (i in pixels.indices step step) {
             val lum = getLuminance(pixels[i])
             if (lum < minLum) minLum = lum
             if (lum > maxLum) maxLum = lum
+            sumLum += lum
+            sumSqLum += lum * lum
+            count++
         }
+
+        if (count == 0) return 0.5f
+        val meanLum = sumLum / count
+        val variance = (sumSqLum / count) - (meanLum * meanLum)
+        val stdDev = sqrt(variance.coerceAtLeast(0.0)).toFloat()
+        val dynamicRange = (maxLum - minLum).coerceIn(0f, 1f)
         
-        return (maxLum - minLum).coerceIn(0f, 1f)
+        // Ideal contrast has high dynamic range and moderate luminance standard deviation (~0.15 - 0.35)
+        val stdDevScore = (stdDev / 0.25f).coerceIn(0.3f, 1.0f)
+        return (dynamicRange * 0.5f + stdDevScore * 0.5f).coerceIn(0f, 1f)
     }
 
     private fun getLuminance(pixel: Int): Float {

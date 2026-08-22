@@ -340,44 +340,46 @@ fun CurationPhotoCard(
                 )
             }
 
-            if (!isKeeper && result.rejectionReason != RejectionReason.NONE) {
-                val label = when (result.rejectionReason) {
+            if (!isKeeper) {
+                val reason = result.rejectionReason
+                val label = when (reason) {
                     RejectionReason.DUPLICATE -> "Similar"
                     RejectionReason.BLURRY -> "Hazy"
                     RejectionReason.EYES_CLOSED -> "Blinked"
+                    RejectionReason.BAD_EXPRESSION -> "Awkward"
                     RejectionReason.POOR_LIGHTING -> "Darkish"
+                    RejectionReason.POOR_COMPOSITION -> "Framing"
                     RejectionReason.LOW_QUALITY -> "Subpar"
                     RejectionReason.MANUAL -> "Your choice"
-                    else -> ""
+                    RejectionReason.NONE -> "Subpar"
                 }
                 
-                if (label.isNotEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(4.dp)
-                            .background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(4.dp))
-                            .padding(horizontal = 4.dp, vertical = 2.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = when (result.rejectionReason) {
-                                    RejectionReason.EYES_CLOSED -> Icons.Default.VisibilityOff
-                                    RejectionReason.DUPLICATE -> Icons.Default.CopyAll
-                                    RejectionReason.BLURRY -> Icons.Default.BlurOn
-                                    else -> Icons.Default.ErrorOutline
-                                },
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(10.dp)
-                            )
-                            Spacer(Modifier.width(4.dp))
-                            Text(
-                                text = label,
-                                color = Color.White,
-                                fontSize = 8.sp
-                            )
-                        }
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(4.dp)
+                        .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(4.dp))
+                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = when (reason) {
+                                RejectionReason.EYES_CLOSED -> Icons.Default.VisibilityOff
+                                RejectionReason.DUPLICATE -> Icons.Default.CopyAll
+                                RejectionReason.BLURRY -> Icons.Default.BlurOn
+                                else -> Icons.Default.ErrorOutline
+                            },
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(10.dp)
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            text = label,
+                            color = Color.White,
+                            fontSize = 8.sp,
+                            fontWeight = FontWeight.Medium
+                        )
                     }
                 }
             }

@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
         val permissions = if (Build.VERSION.SDK_INT >= 33) {
             val list = mutableListOf(
                 Manifest.permission.READ_MEDIA_IMAGES,
-                Manifest.permission.READ_MEDIA_VIDEO
+            //    Manifest.permission.READ_MEDIA_VIDEO
             )
             if (Build.VERSION.SDK_INT >= 34) {
                 list.add("android.permission.READ_MEDIA_VISUAL_USER_SELECTED")

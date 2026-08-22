@@ -146,7 +146,6 @@ class AICurationViewModel(
     }
 
     fun filterBestTakes(context: Context, photos: List<MediaPhoto>) {
-        allPhotosFromSession = photos
         viewModelScope.launch {
             _isAnalyzing.value = true
             

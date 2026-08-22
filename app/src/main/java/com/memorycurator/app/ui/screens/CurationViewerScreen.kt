@@ -222,14 +222,16 @@ fun CurationViewerScreen(
     }
 
     val reviewReasonLabel = remember(activeItem) {
-        when (activeItem?.rejectionReason) {
+        if (activeItem?.isBestTake == true) null else when (activeItem?.rejectionReason) {
             RejectionReason.DUPLICATE -> "Similar"
             RejectionReason.BLURRY -> "Hazy"
             RejectionReason.EYES_CLOSED -> "Blinked"
+            RejectionReason.BAD_EXPRESSION -> "Awkward"
             RejectionReason.POOR_LIGHTING -> "Darkish"
+            RejectionReason.POOR_COMPOSITION -> "Framing"
             RejectionReason.LOW_QUALITY -> "Subpar"
             RejectionReason.MANUAL -> "Your choice"
-            else -> null
+            else -> "Subpar"
         }
     }
 

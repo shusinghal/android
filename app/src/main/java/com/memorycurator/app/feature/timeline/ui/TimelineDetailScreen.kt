@@ -9,6 +9,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -310,9 +311,10 @@ fun TimelineDetailScreen(
                                         }
                                     )
                                 }
-                                itemsIndexed(keepers, key = { _, result -> result.photo.id }) { index, result ->
+                                 itemsIndexed(keepers, key = { _, result -> result.photo.id }) { index, result ->
                                     PhotoGridItem(
                                         photo = result.photo,
+                                        score = result.score,
                                         rejectionReason = result.rejectionReason,
                                         isBestTake = result.isBestTake,
                                         isSelected = selectedIds.contains(result.photo.id),
@@ -359,6 +361,7 @@ fun TimelineDetailScreen(
                                 itemsIndexed(forReview, key = { _, result -> result.photo.id }) { index, result ->
                                     PhotoGridItem(
                                         photo = result.photo,
+                                        score = result.score,
                                         rejectionReason = result.rejectionReason,
                                         isBestTake = result.isBestTake,
                                         isSelected = selectedIds.contains(result.photo.id),
@@ -383,6 +386,7 @@ fun TimelineDetailScreen(
                             if (notAnalyzed.isNotEmpty()) {
                                 item(span = { GridItemSpan(3) }, key = "not_analyzed_header") {
                                     val sectionIds = remember(notAnalyzed) { notAnalyzed.map { it.photo.id } }
+                                    val unanalyzedPhotos = remember(notAnalyzed) { notAnalyzed.map { it.photo } }
                                     val allSelected = remember(selectedIds, sectionIds) {
                                         sectionIds.isNotEmpty() && sectionIds.all { selectedIds.contains(it) }
                                     }
@@ -398,6 +402,34 @@ fun TimelineDetailScreen(
                                                         tint = if (allSelected) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.7f)
                                                     )
                                                 }
+                                            } else {
+                                                Surface(
+                                                    onClick = {
+                                                        viewModel?.filterBestTakes(context, unanalyzedPhotos)
+                                                    },
+                                                    shape = RoundedCornerShape(12.dp),
+                                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f))
+                                                ) {
+                                                    Row(
+                                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Default.AutoAwesome,
+                                                            contentDescription = "Best Takes",
+                                                            tint = MaterialTheme.colorScheme.primary,
+                                                            modifier = Modifier.size(12.dp)
+                                                        )
+                                                        Spacer(Modifier.width(4.dp))
+                                                        Text(
+                                                            text = "Best Takes",
+                                                            color = MaterialTheme.colorScheme.primary,
+                                                            fontSize = 11.sp,
+                                                            fontWeight = FontWeight.Bold
+                                                        )
+                                                    }
+                                                }
                                             }
                                         }
                                     )
@@ -405,6 +437,7 @@ fun TimelineDetailScreen(
                                 itemsIndexed(notAnalyzed, key = { _, result -> result.photo.id }) { index, result ->
                                     PhotoGridItem(
                                         photo = result.photo,
+                                        score = result.score,
                                         rejectionReason = result.rejectionReason,
                                         isBestTake = result.isBestTake,
                                         isSelected = selectedIds.contains(result.photo.id),
@@ -430,6 +463,7 @@ fun TimelineDetailScreen(
                                 val curatedResult = fallbackCuratedResults.getOrNull(index)
                                 PhotoGridItem(
                                     photo = photo,
+                                    score = curatedResult?.score ?: -1f,
                                     rejectionReason = curatedResult?.rejectionReason,
                                     isBestTake = curatedResult?.isBestTake ?: false,
                                     isSelected = selectedIds.contains(photo.id),
@@ -471,6 +505,7 @@ fun TimelineDetailScreen(
 @Composable
 fun PhotoGridItem(
     photo: MediaPhoto,
+    score: Float = -1f,
     rejectionReason: RejectionReason? = null,
     isBestTake: Boolean = false,
     isSelected: Boolean = false,
@@ -488,15 +523,17 @@ fun PhotoGridItem(
             .build()
     }
 
-    val label = remember(rejectionReason, isBestTake) {
-        if (isBestTake || rejectionReason == RejectionReason.NONE) null else when (rejectionReason) {
+    val label = remember(rejectionReason, isBestTake, score) {
+        if (isBestTake || score == -1f || rejectionReason == null || rejectionReason == RejectionReason.NONE) null else when (rejectionReason) {
             RejectionReason.DUPLICATE -> "Similar"
             RejectionReason.BLURRY -> "Hazy"
             RejectionReason.EYES_CLOSED -> "Blinked"
+            RejectionReason.BAD_EXPRESSION -> "Awkward"
             RejectionReason.POOR_LIGHTING -> "Darkish"
+            RejectionReason.POOR_COMPOSITION -> "Framing"
             RejectionReason.LOW_QUALITY -> "Subpar"
             RejectionReason.MANUAL -> "Your choice"
-            else -> null
+            RejectionReason.NONE -> null
         }
     }
 

@@ -117,7 +117,8 @@ class ImageCuratorImpl : ImageCurator {
     data class PhotoMetadata(
         val labels: List<ImageLabel>,
         val faceCount: Int,
-        val dateTaken: Long
+        val dateTaken: Long,
+        val visualSignature: FloatArray
     )
 
     override suspend fun analyzePhotos(
@@ -138,8 +139,11 @@ class ImageCuratorImpl : ImageCurator {
                 // Load downsampled bitmap with correct EXIF orientation
                 val smallBitmap = loadOrientedBitmap(context, photo.contentUri)
                 
-                // Single-pass Technical Metrics (Sharpness + Lighting combined)
-                val (sharpness, lighting) = calculateTechnicalMetrics(smallBitmap)
+                // Grid-based Focal Sharpness & Lighting Analysis (Bokeh aware)
+                val (sharpness, lighting) = calculateTechnicalMetrics(smallBitmap, faces)
+
+                // Compute 8x8 downsampled visual signature for perceptual similarity matching
+                val visualSig = computeVisualSignature(smallBitmap)
 
                 // Aesthetic Analysis
                 val aestheticResult = aestheticScorer.calculateAestheticScore(smallBitmap, faces, labels)
@@ -148,7 +152,7 @@ class ImageCuratorImpl : ImageCurator {
                 smallBitmap.recycle()
 
                 // Cache metadata for clustering
-                photoMetadataCache[photo.id] = PhotoMetadata(labels, faces.size, photo.dateTaken)
+                photoMetadataCache[photo.id] = PhotoMetadata(labels, faces.size, photo.dateTaken, visualSig)
 
                 // Evaluate with specific decision tree & descriptions
                 val evaluation = evaluateQualityWithDescription(
@@ -216,7 +220,7 @@ class ImageCuratorImpl : ImageCurator {
         val technicalScore = (sharpness * 0.65f) + (lighting * 0.35f)
 
         // 🔴 1. Hard Technical Filters (Highest Priority)
-        if (sharpness < 0.2f) {
+        if (sharpness < 0.18f) {
             return AnalysisEvaluation(
                 score = 0.2f,
                 reason = RejectionReason.BLURRY,
@@ -233,29 +237,36 @@ class ImageCuratorImpl : ImageCurator {
             )
         }
 
-        // 🟢 2. Scenery / Landscape Evaluation (No Faces)
+        // 🟢 2. Scenery / Non-Facial Evaluation (No Faces)
         if (faces.isEmpty()) {
-            var contentScore = 0.3f 
-            val sceneryLabels = setOf("Nature", "Landscape", "Architecture", "Sunset", "Beach", "Mountain", "Food", "Pet", "Dog", "Cat", "Flower")
+            val sceneryLabels = setOf(
+                "Nature", "Landscape", "Architecture", "Sunset", "Beach", "Mountain", 
+                "Food", "Pet", "Dog", "Cat", "Flower", "Plant", "Tree", "Water", "Sky", 
+                "Building", "Monument", "Animal", "Art", "Vehicle", "Automotive", 
+                "Interior", "City", "Urban", "Outdoor", "Sea", "Cloud", "Sun", "Macro", 
+                "Flora", "Fauna", "Structure", "Still life"
+            )
             
             val detectedCategories = labels
-                .filter { it.confidence > 0.7f }
+                .filter { it.confidence > 0.65f }
                 .map { it.text }
                 .filter { label -> sceneryLabels.any { q -> label.contains(q, ignoreCase = true) } }
 
-            contentScore += (detectedCategories.size * 0.12f).coerceAtMost(0.4f)
-            val finalScore = ((contentScore * 0.4f) + (technicalScore * 0.3f) + (aestheticResult.overallScore * 0.3f)).coerceIn(0f, 1f)
+            val labelBonus = (detectedCategories.size * 0.10f).coerceAtMost(0.35f)
+            val baseContentScore = if (detectedCategories.isNotEmpty()) 0.55f + labelBonus else 0.50f
+            
+            val finalScore = ((baseContentScore * 0.35f) + (technicalScore * 0.35f) + (aestheticResult.overallScore * 0.30f)).coerceIn(0f, 1f)
 
             val reason = when {
                 finalScore >= 0.6f -> RejectionReason.NONE
-                aestheticResult.overallScore < 0.35f -> RejectionReason.POOR_COMPOSITION
+                aestheticResult.overallScore < 0.30f -> RejectionReason.POOR_COMPOSITION
                 else -> RejectionReason.LOW_QUALITY
             }
 
             val desc = if (detectedCategories.isNotEmpty()) {
-                "Scenery detected (${detectedCategories.joinToString()})."
+                "Scenery / Subject detected (${detectedCategories.take(3).joinToString()})."
             } else {
-                "General object photo."
+                "General photo, crisp focus and lighting."
             }
 
             return AnalysisEvaluation(
@@ -294,14 +305,14 @@ class ImageCuratorImpl : ImageCurator {
         val avgPose = totalPoseScore / faces.size
         val contentScore = (avgExpression * 0.75f) + (avgPose * 0.25f)
 
-        // Symmetry & Centering
+        // Aspect-ratio aware symmetry & centering
         val collectiveLeft = faces.minOf { it.boundingBox.left }
         val collectiveRight = faces.maxOf { it.boundingBox.right }
         val groupCenter = (collectiveLeft + collectiveRight) / 2f
-        val symmetryScore = 1f - (abs(groupCenter - (width / 2f)) / width).coerceIn(0f, 1f)
+        val symmetryScore = 1f - (abs(groupCenter - (width / 2f)) / (width / 2f)).coerceIn(0f, 1f)
 
-        val rawScore = ((contentScore * 0.4f) + (technicalScore * 0.2f) + 
-                        (aestheticResult.overallScore * 0.25f) + (symmetryScore * 0.15f)).coerceIn(0f, 1f)
+        val rawScore = ((contentScore * 0.40f) + (technicalScore * 0.25f) + 
+                        (aestheticResult.overallScore * 0.20f) + (symmetryScore * 0.15f)).coerceIn(0f, 1f)
 
         // 🎯 SPECIFIC REASON DECISION TREE (Prioritized)
         val (reason, description) = when {
@@ -311,7 +322,7 @@ class ImageCuratorImpl : ImageCurator {
             avgPose < 0.4f || avgExpression < 0.3f -> {
                 RejectionReason.BAD_EXPRESSION to "Subject looking away or awkward facial expression."
             }
-            aestheticResult.overallScore < 0.35f || symmetryScore < 0.3f -> {
+            aestheticResult.overallScore < 0.30f && symmetryScore < 0.3f -> {
                 RejectionReason.POOR_COMPOSITION to "Subject off-center or poor composition."
             }
             rawScore < 0.6f -> {
@@ -338,42 +349,56 @@ class ImageCuratorImpl : ImageCurator {
     }
 
     /**
-     * Single-pass Technical Analysis: Calculates Sharpness (Laplacian Variance) 
-     * and Lighting (Avg Luminance) in ONE loop to save CPU and memory.
+     * Grid-based Technical Analysis: Evaluates Focal Sharpness (Top Sharp Tiles / Face Regions)
+     * so portrait mode bokeh backgrounds do not cause false-positive BLURRY rejections.
      */
-    private fun calculateTechnicalMetrics(bitmap: Bitmap): Pair<Float, Float> {
+    private fun calculateTechnicalMetrics(bitmap: Bitmap, faces: List<Face>): Pair<Float, Float> {
         val width = bitmap.width
         val height = bitmap.height
         val pixels = IntArray(width * height)
         bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
         
         var totalLuminance = 0f
-        var sumLaplacian = 0.0
-        var sumSqLaplacian = 0.0
-        val count = (width - 2) * (height - 2).toDouble()
-        
-        for (y in 0 until height) {
-            for (x in 0 until width) {
-                val index = y * width + x
-                val pixel = pixels[index]
-                
-                val r = (pixel shr 16) and 0xFF
-                val g = (pixel shr 8) and 0xFF
-                val b = pixel and 0xFF
-                val lum = (0.299f * r + 0.587f * g + 0.114f * b) / 255f
-                
-                totalLuminance += lum
 
-                if (x in 1 until width - 1 && y in 1 until height - 1) {
-                    val left = getLuminance(pixels[index - 1])
-                    val right = getLuminance(pixels[index + 1])
-                    val top = getLuminance(pixels[index - width])
-                    val bottom = getLuminance(pixels[index + width])
-                    
-                    val laplacian = (left + right + top + bottom - 4 * lum)
-                    sumLaplacian += laplacian
-                    sumSqLaplacian += laplacian * laplacian
+        // Divide image into 4x4 tiles (16 regions) to locate the focal subject area
+        val tileRows = 4
+        val tileCols = 4
+        val tileW = width / tileCols
+        val tileH = height / tileRows
+        val tileVariances = FloatArray(tileRows * tileCols)
+
+        for (ty in 0 until tileRows) {
+            for (tx in 0 until tileCols) {
+                var sumLap = 0.0
+                var sumSqLap = 0.0
+                var sampleCount = 0
+
+                val startX = (tx * tileW).coerceAtLeast(1)
+                val endX = (if (tx == tileCols - 1) width - 2 else startX + tileW - 1).coerceAtMost(width - 2)
+                val startY = (ty * tileH).coerceAtLeast(1)
+                val endY = (if (ty == tileRows - 1) height - 2 else startY + tileH - 1).coerceAtMost(height - 2)
+
+                for (y in startY..endY) {
+                    for (x in startX..endX) {
+                        val index = y * width + x
+                        val lum = getLuminance(pixels[index])
+                        totalLuminance += lum
+
+                        val left = getLuminance(pixels[index - 1])
+                        val right = getLuminance(pixels[index + 1])
+                        val top = getLuminance(pixels[index - width])
+                        val bottom = getLuminance(pixels[index + width])
+
+                        val laplacian = (left + right + top + bottom - 4 * lum)
+                        sumLap += laplacian
+                        sumSqLap += laplacian * laplacian
+                        sampleCount++
+                    }
                 }
+
+                tileVariances[ty * tileCols + tx] = if (sampleCount > 0) {
+                    ((sumSqLap / sampleCount) - (sumLap / sampleCount).pow(2.0)).toFloat()
+                } else 0f
             }
         }
         
@@ -384,10 +409,41 @@ class ImageCuratorImpl : ImageCurator {
             else -> 1.0f
         }.coerceIn(0f, 1f)
 
-        val variance = (sumSqLaplacian / count) - (sumLaplacian / count).pow(2.0)
-        val sharpnessScore = (variance.toFloat() * 300f).coerceIn(0f, 1f)
+        // Focal Sharpness: Use face region tiles if faces present, otherwise top 4 sharpest tiles
+        val focalVariance = if (faces.isNotEmpty()) {
+            var faceTileSum = 0f
+            var faceTileCount = 0
+            for (face in faces) {
+                val cx = (face.boundingBox.centerX().toFloat() / width * tileCols).toInt().coerceIn(0, tileCols - 1)
+                val cy = (face.boundingBox.centerY().toFloat() / height * tileRows).toInt().coerceIn(0, tileRows - 1)
+                faceTileSum += tileVariances[cy * tileCols + cx]
+                faceTileCount++
+            }
+            if (faceTileCount > 0) faceTileSum / faceTileCount else tileVariances.maxOrNull() ?: 0f
+        } else {
+            tileVariances.sortedDescending().take(4).average().toFloat()
+        }
 
+        val sharpnessScore = (focalVariance * 350f).coerceIn(0f, 1f)
         return sharpnessScore to lightingScore
+    }
+
+    /**
+     * Downsampled 8x8 luminance signature for perceptual similarity matching.
+     */
+    private fun computeVisualSignature(bitmap: Bitmap): FloatArray {
+        val sig = FloatArray(64)
+        val stepW = bitmap.width / 8
+        val stepH = bitmap.height / 8
+        if (stepW <= 0 || stepH <= 0) return sig
+
+        for (y in 0 until 8) {
+            for (x in 0 until 8) {
+                val px = bitmap.getPixel(x * stepW + stepW / 2, y * stepH + stepH / 2)
+                sig[y * 8 + x] = getLuminance(px)
+            }
+        }
+        return sig
     }
 
     private fun getLuminance(pixel: Int): Float {
@@ -449,9 +505,9 @@ class ImageCuratorImpl : ImageCurator {
             val prev = if (i > 0) sorted[i-1] else null
             
             val timeDiff = if (prev != null) abs(current.photo.dateTaken - prev.photo.dateTaken) else Long.MAX_VALUE
-            val isSemanticallySimilar = if (prev != null) checkSemanticSimilarity(current.photo.id, prev.photo.id) else false
+            val isVisuallySimilar = if (prev != null) checkSemanticSimilarity(current.photo.id, prev.photo.id) else false
 
-            if (prev != null && (timeDiff < 2000 || (timeDiff < 30000 && isSemanticallySimilar))) {
+            if (prev != null && (timeDiff < 3000 || (timeDiff < 45000 && isVisuallySimilar))) {
                 if (currentClusterId == null) {
                     currentClusterId = "cluster_${prev.photo.id}"
                     val lastIdx = clustered.size - 1
@@ -470,7 +526,7 @@ class ImageCuratorImpl : ImageCurator {
             val bestInCluster = items.maxByOrNull { it.score }
             items.map { item ->
                 if (item == bestInCluster) {
-                    item 
+                    item.copy(isBestTake = item.score >= 0.55f && item.rejectionReason == RejectionReason.NONE)
                 } else {
                     // Preserve original specific reason if it was already bad (e.g. BLURRY),
                     // only override to DUPLICATE if it was otherwise a good shot (NONE).
@@ -483,7 +539,7 @@ class ImageCuratorImpl : ImageCurator {
                     item.copy(
                         isBestTake = false, 
                         rejectionReason = updatedReason,
-                        aiDescription = "${item.aiDescription} (Similar to higher-scoring photo)."
+                        aiDescription = "${item.aiDescription} (Similar take to top scored photo)."
                     )
                 }
             }
@@ -499,8 +555,22 @@ class ImageCuratorImpl : ImageCurator {
 
         if (meta1.faceCount != meta2.faceCount) return false
 
-        val labels1 = meta1.labels.filter { it.confidence > 0.7f }.map { it.text }.toSet()
-        val labels2 = meta2.labels.filter { it.confidence > 0.7f }.map { it.text }.toSet()
+        // 1. Perceptual Visual Signature Hash Distance
+        val sig1 = meta1.visualSignature
+        val sig2 = meta2.visualSignature
+        if (sig1.size == 64 && sig2.size == 64) {
+            var mse = 0f
+            for (i in 0 until 64) {
+                val diff = sig1[i] - sig2[i]
+                mse += diff * diff
+            }
+            mse /= 64f
+            if (mse < 0.015f) return true // High visual scene similarity
+        }
+
+        // 2. Semantic ML Kit Label Jaccard Overlap
+        val labels1 = meta1.labels.filter { it.confidence > 0.65f }.map { it.text }.toSet()
+        val labels2 = meta2.labels.filter { it.confidence > 0.65f }.map { it.text }.toSet()
         
         if (labels1.isEmpty() || labels2.isEmpty()) return false
 
@@ -508,6 +578,7 @@ class ImageCuratorImpl : ImageCurator {
         val union = labels1.union(labels2).size
         val similarity = intersect.toFloat() / union
 
-        return similarity > 0.7f
+        return similarity > 0.60f
     }
 }
+
