@@ -2,11 +2,9 @@ package com.memorycurator.app.data.media
 
 import android.content.Context
 import android.net.Uri
-import android.provider.MediaStore
 import android.util.Log
 import androidx.exifinterface.media.ExifInterface
 import org.json.JSONObject
-import java.io.File
 import java.io.InputStream
 
 data class CurationExifData(
@@ -21,9 +19,9 @@ object ExifMetadataManager {
     private const val TAG = "ExifMetadataManager"
 
     /**
-     * Writes AI curation metadata to the photo's EXIF header using direct file path for reliability.
+     * Writes AI curation metadata to the photo's EXIF header using Scoped Storage compatible methods.
      */
-    fun writeExifMetadata(filePath: String, metadata: CurationExifData) {
+    fun writeExifMetadata(context: Context, uri: Uri, metadata: CurationExifData) {
         try {
             val json = JSONObject().apply {
                 put("aiScore", metadata.aiScore.toDouble())
@@ -33,24 +31,38 @@ object ExifMetadataManager {
                 put("originalFolder", metadata.originalFolder ?: JSONObject.NULL)
             }.toString()
 
-            val exif = ExifInterface(filePath)
-            exif.setAttribute(ExifInterface.TAG_USER_COMMENT, json)
-            exif.saveAttributes()
+            // For modern Android, we must use openFileDescriptor with "rw" mode
+            context.contentResolver.openFileDescriptor(uri, "rw")?.use { pfd ->
+                val exif = ExifInterface(pfd.fileDescriptor)
+                exif.setAttribute(ExifInterface.TAG_USER_COMMENT, json)
+                exif.saveAttributes()
+                Log.d(TAG, "Successfully wrote EXIF metadata to $uri")
+            }
         } catch (e: Exception) {
-            Log.e(TAG, "Error writing EXIF metadata to $filePath", e)
+            Log.e(TAG, "Error writing EXIF metadata to $uri", e)
+            // Fallback: If "rw" fails, it might be because it's not a local file or permission issue
         }
     }
 
     /**
-     * Reads AI curation metadata from the photo's EXIF header using an InputStream for reliability on scoped storage.
+     * Reads AI curation metadata from the photo's EXIF header using an InputStream.
      */
     fun readExifMetadata(inputStream: InputStream): CurationExifData? {
         try {
             val exif = ExifInterface(inputStream)
             val jsonString = exif.getAttribute(ExifInterface.TAG_USER_COMMENT) ?: return null
             
+            // Clean JSON string if some systems add prefixes (like ASCII)
+            val cleanedJson = if (jsonString.startsWith("ASCII")) {
+                jsonString.substring(8).trim() // ASCII prefix is usually 8 bytes in raw EXIF
+            } else if (jsonString.contains("{")) {
+                jsonString.substring(jsonString.indexOf("{")).trim()
+            } else jsonString.trim()
+
+            if (!cleanedJson.startsWith("{")) return null
+
             return try {
-                val json = JSONObject(jsonString)
+                val json = JSONObject(cleanedJson)
                 if (!json.has("aiScore")) return null
                 
                 CurationExifData(
@@ -70,52 +82,12 @@ object ExifMetadataManager {
     }
 
     /**
-     * Reads AI curation metadata from the photo's EXIF header using direct file path.
+     * Compatibility wrapper for Uri-based calls. Safe for Scoped Storage.
      */
-    fun readExifMetadata(filePath: String): CurationExifData? {
-        try {
-            val exif = ExifInterface(filePath)
-            val jsonString = exif.getAttribute(ExifInterface.TAG_USER_COMMENT) ?: return null
-            
-            return try {
-                val json = JSONObject(jsonString)
-                if (!json.has("aiScore")) return null
-                
-                CurationExifData(
-                    aiScore = json.optDouble("aiScore", -1.0).toFloat(),
-                    isBestTake = json.optBoolean("isBestTake", false),
-                    rejectionReason = if (json.isNull("rejectionReason")) null else json.optString("rejectionReason"),
-                    clusterId = if (json.isNull("clusterId")) null else json.optString("clusterId"),
-                    originalFolder = if (json.isNull("originalFolder")) null else json.optString("originalFolder")
-                )
-            } catch (e: Exception) {
-                null
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error reading EXIF metadata from $filePath", e)
-        }
-        return null
-    }
-
-    // Compatibility wrappers for Uri-based calls
     fun readExifMetadata(context: Context, uri: Uri): CurationExifData? {
         return try {
             context.contentResolver.openInputStream(uri)?.use { input ->
                 readExifMetadata(input)
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to open input stream for $uri", e)
-            null
-        }
-    }
-
-    private fun getFilePathFromUri(context: Context, uri: Uri): String? {
-        return try {
-            val projection = arrayOf(MediaStore.MediaColumns.DATA)
-            context.contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
-                if (cursor.moveToFirst()) {
-                    cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA))
-                } else null
             }
         } catch (e: Exception) {
             null

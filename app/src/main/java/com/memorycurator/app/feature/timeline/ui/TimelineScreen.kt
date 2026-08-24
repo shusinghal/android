@@ -13,9 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -35,6 +33,7 @@ import com.memorycurator.app.ui.theme.GlassTheme
 import java.text.SimpleDateFormat
 import java.util.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimelineScreen(
     groups: List<TimelineGroup>,
@@ -43,51 +42,58 @@ fun TimelineScreen(
     onRefresh: () -> Unit = {},
     state: LazyListState = rememberLazyListState(),
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        if (groups.isEmpty()) {
-            Box(
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        "Timeline",
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                actions = {
+                    IconButton(onClick = onRefresh) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "Refresh",
+                            tint = Color.White
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.Transparent
+                )
+            )
+        },
+        containerColor = Color.Transparent
+    ) { padding ->
+        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
+            if (groups.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No photos found.\nCheck permissions or add photos to your device.",
+                        color = Color.White.copy(alpha = 0.5f),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+            LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                state = state,
+                contentPadding = PaddingValues(bottom = 120.dp)
             ) {
-                Text(
-                    text = "No photos found.\nCheck permissions or add photos to your device.",
-                    color = Color.White.copy(alpha = 0.5f),
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
-
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            state = state,
-            contentPadding = PaddingValues(top = 80.dp, bottom = 120.dp)
-        ) {
-            items(groups) { group ->
-                TimelineCard(
-                    group = group,
-                    onClick = { onGroupClick(group) }
-                ) { onBestTakesClick(group) }
-            }
-        }
-
-        // Refresh Button (Top Right) - Floating above the list
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 12.dp, end = 16.dp),
-            contentAlignment = Alignment.CenterEnd
-        ) {
-            IconButton(
-                onClick = onRefresh,
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(Color.White.copy(alpha = 0.1f), CircleShape)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Refresh,
-                    contentDescription = "Refresh",
-                    tint = Color.White
-                )
+                items(groups) { group ->
+                    TimelineCard(
+                        group = group,
+                        onClick = { onGroupClick(group) }
+                    ) { onBestTakesClick(group) }
+                }
             }
         }
     }

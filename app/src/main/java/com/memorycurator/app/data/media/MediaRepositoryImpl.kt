@@ -55,9 +55,9 @@ class MediaRepositoryImpl(
         scope.launch {
             entities.forEach { entity ->
                 if (entity.mimeType?.startsWith("video") != true) {
-                    val path = getFilePathFromUri(Uri.parse(entity.uri)) ?: return@forEach
                     ExifMetadataManager.writeExifMetadata(
-                        path,
+                        context,
+                        Uri.parse(entity.uri),
                         CurationExifData(
                             aiScore = entity.aiScore,
                             isBestTake = entity.isBestTake,
@@ -87,10 +87,10 @@ class MediaRepositoryImpl(
         
         scope.launch {
             if (entity.mimeType?.startsWith("video") != true) {
-                val path = getFilePathFromUri(Uri.parse(entity.uri)) ?: return@launch
                 // 2. Write to physical file metadata
                 ExifMetadataManager.writeExifMetadata(
-                    path,
+                    context,
+                    Uri.parse(entity.uri),
                     CurationExifData(
                         aiScore = newScore,
                         isBestTake = isBest,

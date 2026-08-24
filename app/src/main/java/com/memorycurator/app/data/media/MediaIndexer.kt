@@ -120,44 +120,55 @@ class MediaIndexer(
                 else mediaDao.insertNewMedia(batchList)
                 batchList.clear()
             }
-            Log.d(TAG, "Fast indexing finished. Scanned ${scannedIds.size} items.")
+            Log.d(TAG, "Fast indexing pass finished. Scanned ${scannedIds.size} items.")
         } ?: Log.e(TAG, "Cursor was null during indexing")
 
         if (isFullScan && scannedIds.isNotEmpty()) {
             mediaDao.deleteMissingIds(scannedIds)
         }
 
-        // Lazy Pass: Restore AI scores from EXIF in background
+        // Pass 2: Restore AI results from EXIF in background
         if (isFullScan) {
             restoreAiMetadata()
         }
     }
 
     /**
-     * Lazy pass to restore scores from EXIF for all photos that don't have them in DB yet.
+     * Lazy background pass to read EXIF from files and restore AI state.
      */
     private suspend fun restoreAiMetadata() = withContext(Dispatchers.IO) {
-        Log.d(TAG, "Starting background AI metadata restoration...")
-        val pending = mediaDao.getAllMediaSync().filter { it.aiScore == -1f }
-        
-        pending.chunked(10).forEach { batch ->
+        Log.d(TAG, "Starting background AI metadata restoration pass...")
+        // Get all photos that haven't been "restored" yet
+        val allMedia = mediaDao.getAllMediaSync().filter { it.aiScore == -1f }
+        var restoredCount = 0
+
+        allMedia.chunked(20).forEach { batch ->
             ensureActive()
             batch.forEach { entity ->
                 try {
+                    // Important: Use context.contentResolver.openInputStream(Uri.parse(entity.uri))
+                    // inside the helper method to handle Scoped Storage correctly.
                     val exifData = ExifMetadataManager.readExifMetadata(context, Uri.parse(entity.uri))
-                    if (exifData != null) {
-                        mediaDao.updateMetadata(
+                    
+                    if (exifData != null && exifData.aiScore != -1f) {
+                        mediaDao.updateFullMetadata(
                             id = entity.id,
                             isBest = exifData.isBestTake,
                             score = exifData.aiScore,
-                            reason = exifData.rejectionReason
+                            reason = exifData.rejectionReason,
+                            clusterId = exifData.clusterId,
+                            originalFolder = exifData.originalFolder
                         )
+                        restoredCount++
                     }
-                } catch (e: Exception) { }
+                } catch (e: Exception) {
+                    // Skip failures
+                }
             }
+            // Give time for UI and other background tasks
             kotlinx.coroutines.yield()
         }
-        Log.d(TAG, "AI metadata restoration finished.")
+        Log.d(TAG, "AI metadata restoration finished. Restored $restoredCount photos.")
     }
 
     /**

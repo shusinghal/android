@@ -113,19 +113,6 @@ fun TimelineDetailScreen(
         }
     }
 
-    // Map photos into CuratedResult so all view modes can use the viewer
-    val fallbackCuratedResults = remember(activePhotos, analysisResults) {
-        val analysisMap = analysisResults.associateBy { it.photo.id }
-        activePhotos.map { photo ->
-            analysisMap[photo.id] ?: CuratedResult(
-                photo = photo,
-                score = -1f,
-                isBestTake = false,
-                clusterId = null
-            )
-        }
-    }
-
     val gridState = rememberLazyGridState()
 
     val deleteLauncher = rememberLauncherForActivityResult(
@@ -459,26 +446,26 @@ fun TimelineDetailScreen(
                             }
                         } else {
                             // Default Grid View (Standard non-curated view)
-                            itemsIndexed(activePhotos, key = { _, photo -> photo.id }) { index, photo ->
-                                val curatedResult = fallbackCuratedResults.getOrNull(index)
+                            // Optimization: Use the reactive analysisResults to ensure Pass 2 updates appear
+                            itemsIndexed(analysisResults, key = { _, result -> result.photo.id }) { index, result ->
                                 PhotoGridItem(
-                                    photo = photo,
-                                    score = curatedResult?.score ?: -1f,
-                                    rejectionReason = curatedResult?.rejectionReason,
-                                    isBestTake = curatedResult?.isBestTake ?: false,
-                                    isSelected = selectedIds.contains(photo.id),
+                                    photo = result.photo,
+                                    score = result.score,
+                                    rejectionReason = result.rejectionReason,
+                                    isBestTake = result.isBestTake,
+                                    isSelected = selectedIds.contains(result.photo.id),
                                     isSelectionMode = isSelectionMode,
                                     modifier = Modifier.animateItem(),
                                     onClick = {
                                         if (isSelectionMode) {
-                                            viewModel?.togglePhotoSelection(photo.id)
+                                            viewModel?.togglePhotoSelection(result.photo.id)
                                         } else {
-                                            viewerSourceList = fallbackCuratedResults
+                                            viewerSourceList = analysisResults
                                             selectedIndex = index
                                         }
                                     },
                                     onLongClick = {
-                                        viewModel?.togglePhotoSelection(photo.id)
+                                        viewModel?.togglePhotoSelection(result.photo.id)
                                     }
                                 )
                             }
@@ -567,6 +554,25 @@ fun PhotoGridItem(
                     color = Color.White,
                     fontSize = 9.sp,
                     fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
+        // Best Take Badge (Top Left)
+        if (isBestTake) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(6.dp)
+                    .size(20.dp)
+                    .background(Color.Black.copy(alpha = 0.5f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.AutoAwesome,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(12.dp)
                 )
             }
         }

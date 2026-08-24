@@ -47,7 +47,7 @@ import com.memorycurator.app.ui.screens.CurationViewerScreen
 import com.memorycurator.app.ui.theme.MemoryCuratorTheme
 import kotlinx.coroutines.flow.flowOf
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun GalleryScreen(
     viewModel: GalleryViewModel,
@@ -72,96 +72,79 @@ fun GalleryScreen(
     // Local state to track manual curation changes before Paging refresh
     val manualToggles = remember { mutableStateMapOf<Long, Boolean>() }
 
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-
-        if (uiState.isLoading) {
-
-            Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
-
-                Text("Indexing photos...")
-            }
-
-            return
-        }
-
-        Column(modifier = Modifier.fillMaxSize()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 48.dp, start = 20.dp, end = 20.dp, bottom = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Gallery",
-                    color = Color.White,
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(
-                        onClick = { viewModel.indexMedia() },
-                        modifier = Modifier.size(32.dp)
-                    ) {
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        "Gallery",
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                actions = {
+                    IconButton(onClick = { viewModel.indexMedia() }) {
                         Icon(
                             imageVector = Icons.Default.Refresh,
                             contentDescription = "Refresh",
-                            tint = Color.White.copy(alpha = 0.7f),
-                            modifier = Modifier.size(20.dp)
+                            tint = Color.White
                         )
                     }
                     
-                    Spacer(Modifier.width(8.dp))
-
                     FilterChip(
-                    selected = isBestTakesOnly,
-                    onClick = { viewModel.toggleBestTakesOnly() },
-                    label = {
-                        Text(
-                            text = if (isBestTakesOnly) "Best Takes" else "All Photos",
-                            fontSize = 12.sp
-                        )
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = if (isBestTakesOnly) Icons.Default.AutoAwesome else Icons.Default.FilterList,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    },
-                    colors = FilterChipDefaults.filterChipColors(
-                        containerColor = Color.White.copy(alpha = 0.05f),
-                        labelColor = Color.LightGray,
-                        selectedContainerColor = Color.White.copy(alpha = 0.2f),
-                        selectedLabelColor = Color.White,
-                        selectedLeadingIconColor = Color.White
-                    ),
-                    border = null,
-                    shape = RoundedCornerShape(12.dp)
+                        selected = isBestTakesOnly,
+                        onClick = { viewModel.toggleBestTakesOnly() },
+                        label = {
+                            Text(
+                                text = if (isBestTakesOnly) "Best" else "All",
+                                fontSize = 11.sp
+                            )
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = Color.White.copy(alpha = 0.05f),
+                            labelColor = Color.LightGray,
+                            selectedContainerColor = Color.White.copy(alpha = 0.2f),
+                            selectedLabelColor = Color.White
+                        ),
+                        border = null,
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.Transparent
                 )
+            )
+        },
+        containerColor = Color.Transparent
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+
+            if (uiState.isLoading && photos.itemCount == 0) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Color.White)
+                }
             }
 
             if (photos.itemCount == 0 && !uiState.isLoading) {
                 Box(
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = if (isBestTakesOnly) "No analyzed Best Takes found." else "No photos found.",
+                            text = if (isBestTakesOnly) "No Best Takes found." else "No photos found.",
                             color = Color.Gray,
                             fontSize = 14.sp
                         )
-                        if (isBestTakesOnly) {
-                            TextButton(onClick = { viewModel.toggleBestTakesOnly() }) {
-                                Text("Show all photos", color = Color.White)
-                            }
-                        }
                     }
                 }
             } else {
@@ -170,7 +153,7 @@ fun GalleryScreen(
                     columns = GridCells.Adaptive(
                         minSize = 120.dp
                     ),
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(
                         start = 6.dp,
                         end = 6.dp,
@@ -215,38 +198,38 @@ fun GalleryScreen(
                     }
                 }
             }
-        }
 
-        if (
-            selectedIndex >= 0 &&
-            selectedIndex < photos.itemCount
-        ) {
-            // Map the paged photos to CuratedResults for the viewer
-            val curatedResults = List(photos.itemCount) { i ->
-                val photo = photos[i] ?: MediaPhoto(0, Uri.EMPTY, 0, 0)
-                val isManualKeeper = manualToggles[photo.id] ?: false
-                CuratedResult(
-                    photo = photo,
-                    score = if (isManualKeeper) 1.0f else -1f,
-                    isBestTake = isManualKeeper,
-                    clusterId = null
+            if (
+                selectedIndex >= 0 &&
+                selectedIndex < photos.itemCount
+            ) {
+                // Map the paged photos to CuratedResults for the viewer
+                val curatedResults = List(photos.itemCount) { i ->
+                    val photo = photos[i] ?: MediaPhoto(0, Uri.EMPTY, 0, 0)
+                    val isManualKeeper = manualToggles[photo.id] ?: false
+                    CuratedResult(
+                        photo = photo,
+                        score = if (isManualKeeper) 1.0f else -1f,
+                        isBestTake = isManualKeeper,
+                        clusterId = null
+                    )
+                }
+
+                CurationViewerScreen(
+                    results = curatedResults,
+                    allResults = curatedResults,
+                    initialIndex = selectedIndex,
+                    onToggleAction = { id ->
+                        val current = manualToggles[id] ?: false
+                        val next = !current
+                        manualToggles[id] = next
+                        viewModel.toggleBestTake(id, next)
+                    },
+                    onDismiss = {
+                        selectedIndex = -1
+                    }
                 )
             }
-
-            CurationViewerScreen(
-                results = curatedResults,
-                allResults = curatedResults,
-                initialIndex = selectedIndex,
-                onToggleAction = { id ->
-                    val current = manualToggles[id] ?: false
-                    val next = !current
-                    manualToggles[id] = next
-                    viewModel.toggleBestTake(id, next)
-                },
-                onDismiss = {
-                    selectedIndex = -1
-                }
-            )
         }
     }
 }
@@ -305,5 +288,4 @@ fun GalleryScreenPreview() {
     MemoryCuratorTheme {
         GalleryGridPreview(photos = PreviewStockPhotos.getPhotos(10))
     }
-}
 }
