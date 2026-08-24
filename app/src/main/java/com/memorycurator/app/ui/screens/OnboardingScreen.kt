@@ -1,5 +1,13 @@
 package com.memorycurator.app.ui.screens
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -10,24 +18,65 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.BatteryAlert
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.window.Dialog
+import androidx.core.content.ContextCompat
 import com.memorycurator.app.ui.components.BlurBackground
 import com.memorycurator.app.ui.theme.MemoryCuratorTheme
 
 @Composable
 fun OnboardingScreen(onContinue: () -> Unit) {
+    val context = LocalContext.current
+    var showPermissionDialog by remember { mutableStateOf(false) }
+
+    val permissions = if (Build.VERSION.SDK_INT >= 33) {
+        val list = mutableListOf(Manifest.permission.READ_MEDIA_IMAGES)
+        if (Build.VERSION.SDK_INT >= 34) {
+            list.add("android.permission.READ_MEDIA_VISUAL_USER_SELECTED")
+        }
+        list.toTypedArray()
+    } else {
+        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { granted ->
+        showPermissionDialog = false
+        if (granted.values.any { it }) {
+            onContinue()
+        }
+    }
+
+    if (showPermissionDialog) {
+        MediaPermissionDialog(
+            onDismiss = { showPermissionDialog = false },
+            onGrant = {
+                permissionLauncher.launch(permissions)
+            },
+            onOpenSettings = {
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.fromParts("package", context.packageName, null)
+                }
+                context.startActivity(intent)
+            }
+        )
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         BlurBackground()
 
@@ -89,7 +138,16 @@ fun OnboardingScreen(onContinue: () -> Unit) {
 
             // The main action button
             Button(
-                onClick = onContinue,
+                onClick = {
+                    val allGranted = permissions.all {
+                        ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+                    }
+                    if (allGranted) {
+                        onContinue()
+                    } else {
+                        showPermissionDialog = true
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
@@ -105,6 +163,69 @@ fun OnboardingScreen(onContinue: () -> Unit) {
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 1.sp
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun MediaPermissionDialog(
+    onDismiss: () -> Unit,
+    onGrant: () -> Unit,
+    onOpenSettings: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(28.dp),
+            color = Color(0xFF1C1C1E),
+            tonalElevation = 8.dp
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    imageVector = Icons.Default.PhotoLibrary,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(48.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Access Your Gallery",
+                    color = Color.White,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = "MemoryCurator needs access to your photos to help you find your best memories using on-device AI. Your photos never leave your device.",
+                    color = Color.White.copy(alpha = 0.7f),
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 20.sp
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                Button(
+                    onClick = onGrant,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp)
+                ) {
+                    Text("Enable Access")
+                }
+                TextButton(
+                    onClick = onOpenSettings,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Go to Settings", color = Color.White.copy(alpha = 0.5f))
+                }
+                TextButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Maybe Later", color = Color.White.copy(alpha = 0.3f))
+                }
             }
         }
     }

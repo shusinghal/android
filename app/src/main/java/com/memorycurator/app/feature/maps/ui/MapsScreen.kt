@@ -57,6 +57,7 @@ fun MapsScreen(
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
+        showPermissionDialog = false
         if (isGranted) {
             viewModel.performLocationIndexing()
         }
