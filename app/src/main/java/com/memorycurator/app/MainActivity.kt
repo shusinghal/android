@@ -58,8 +58,7 @@ class MainActivity : ComponentActivity() {
         )
         galleryViewModel = ViewModelProvider(this, factory)[GalleryViewModel::class.java]
 
-        checkAndRequestPermissions()
-        // checkAndRequestStorageManagerPermission()
+        // Removed automatic checkAndRequestPermissions() to defer it to OnboardingScreen
 
         setContent {
             GlassTheme {
