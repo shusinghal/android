@@ -36,7 +36,7 @@ class GalleryViewModel(
     val uiState: StateFlow<GalleryUiState> =
         _uiState.asStateFlow()
 
-    private val _isBestTakesOnly = MutableStateFlow(prefs.getBoolean("best_takes_only", true))
+    private val _isBestTakesOnly = MutableStateFlow(prefs.getBoolean("best_takes_only", false))
     val isBestTakesOnly: StateFlow<Boolean> = _isBestTakesOnly.asStateFlow()
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -50,13 +50,20 @@ class GalleryViewModel(
 
     private val observer = object : android.database.ContentObserver(android.os.Handler(android.os.Looper.getMainLooper())) {
         override fun onChange(selfChange: Boolean, uri: Uri?) {
-            uri?.let { targetUri ->
-                // Only trigger indexUri if targetUri contains a specific item ID (e.g., .../media/1234)
-                val hasItemId = runCatching { ContentUris.parseId(targetUri) }.isSuccess
-                if (hasItemId) {
-                    viewModelScope.launch {
-                        mediaIndexer.indexUri(targetUri)
+            viewModelScope.launch {
+                // Add a small delay to let MediaStore finish its indexing
+                kotlinx.coroutines.delay(800)
+                
+                if (uri != null) {
+                    val hasItemId = runCatching { ContentUris.parseId(uri) }.isSuccess
+                    if (hasItemId) {
+                        mediaIndexer.indexUri(uri)
+                    } else {
+                        // Folder level change, re-index to find new items
+                        mediaIndexer.indexMedia()
                     }
+                } else {
+                    mediaIndexer.indexMedia()
                 }
             }
         }

@@ -2,20 +2,27 @@ package com.memorycurator.app.data.media
 
 import android.content.ContentUris
 import android.content.Context
+import android.location.Geocoder
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
+import android.util.Log
+import androidx.exifinterface.media.ExifInterface
 import com.memorycurator.app.data.local.MediaDao
 import com.memorycurator.app.data.local.MediaEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import java.util.Locale
 
 class MediaIndexer(
     private val context: Context,
     private val mediaDao: MediaDao
 ) {
+    private val TAG = "MediaIndexer"
 
     suspend fun indexMedia() = withContext(Dispatchers.IO) {
+        Log.d(TAG, "Starting media indexing...")
         val scannedIds = HashSet<Long>()
         val batchList = ArrayList<MediaEntity>(CHUNK_SIZE)
 
@@ -33,10 +40,9 @@ class MediaIndexer(
             MediaStore.Files.FileColumns.MEDIA_TYPE
         )
 
-        val selection = "${MediaStore.Files.FileColumns.MEDIA_TYPE} = ? OR ${MediaStore.Files.FileColumns.MEDIA_TYPE} = ?"
+        val selection = "${MediaStore.Files.FileColumns.MEDIA_TYPE} = ?"
         val selectionArgs = arrayOf(
-            MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE.toString(),
-            MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO.toString()
+            MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE.toString()
         )
 
         val queryUri = MediaStore.Files.getContentUri("external")
@@ -107,11 +113,74 @@ class MediaIndexer(
                 mediaDao.insertOrIgnorePreservingAI(batchList)
                 batchList.clear()
             }
-        }
+            Log.d(TAG, "Media indexing finished. Scanned ${scannedIds.size} items.")
+        } ?: Log.e(TAG, "Cursor was null during indexing")
 
         // Clean up deleted/trashed media
         if (scannedIds.isNotEmpty()) {
             mediaDao.deleteMissingIds(scannedIds)
+        }
+    }
+
+    /**
+     * Safely enriches media with location metadata from EXIF.
+     * Runs as a lazy background task in small batches to keep UI reactive.
+     */
+    suspend fun enrichLocationMetadata(onProgress: (Int) -> Unit = {}) = withContext(Dispatchers.IO) {
+        val prefs = context.getSharedPreferences("gallery_prefs", Context.MODE_PRIVATE)
+        if (!prefs.getBoolean("location_indexing_enabled", true)) return@withContext
+
+        val missing = mediaDao.getMediaMissingLocation()
+        if (missing.isEmpty()) {
+            onProgress(0)
+            return@withContext
+        }
+
+        val total = missing.size
+        var processed = 0
+
+        missing.chunked(BATCH_SIZE_LOCATION).forEach { batch ->
+            ensureActive()
+            batch.forEach { entity ->
+                try {
+                    val uri = Uri.parse(entity.uri)
+                    val photoUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        MediaStore.setRequireOriginal(uri)
+                    } else {
+                        uri
+                    }
+
+                    context.contentResolver.openInputStream(photoUri)?.use { input ->
+                        val exif = ExifInterface(input)
+                        val latLong = exif.latLong
+                        if (latLong != null) {
+                            val name = getLocationName(latLong[0], latLong[1])
+                            mediaDao.updateLocation(entity.id, latLong[0], latLong[1], name)
+                        } else {
+                            // Mark as processed with a sentinel to avoid re-scanning
+                            mediaDao.updateLocation(entity.id, 0.0, 0.0, null)
+                        }
+                    }
+                } catch (e: Exception) {
+                    // Skip errors
+                }
+                processed++
+            }
+            onProgress(total - processed)
+        }
+        onProgress(0)
+    }
+
+    private fun getLocationName(lat: Double, lon: Double): String? {
+        return try {
+            val geocoder = Geocoder(context, Locale.getDefault())
+            val addresses = geocoder.getFromLocation(lat, lon, 1)
+            if (!addresses.isNullOrEmpty()) {
+                val address = addresses[0]
+                address.locality ?: address.subAdminArea ?: address.adminArea ?: address.countryName
+            } else null
+        } catch (e: Exception) {
+            null
         }
     }
 
@@ -161,5 +230,6 @@ class MediaIndexer(
 
     companion object {
         private const val CHUNK_SIZE = 500
+        private const val BATCH_SIZE_LOCATION = 50
     }
 }

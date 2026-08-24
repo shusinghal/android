@@ -18,14 +18,17 @@ import com.memorycurator.app.feature.albums.data.AlbumsRepository
 import com.memorycurator.app.feature.albums.model.Album
 import com.memorycurator.app.ui.theme.MemoryCuratorTheme
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class AlbumsViewModel(
     private val repository: AlbumsRepository,
-    private val mediaRepository: MediaRepository
+    private val mediaRepository: MediaRepository,
+    private val mediaIndexer: com.memorycurator.app.data.media.MediaIndexer
 ) : ViewModel() {
 
     val albums: StateFlow<List<Album>> =
@@ -46,22 +49,37 @@ class AlbumsViewModel(
                 initialValue = emptyList()
             )
 
+    private val _indexingRemaining = MutableStateFlow(0)
+    val indexingRemaining: StateFlow<Int> = _indexingRemaining.asStateFlow()
+
     suspend fun getPhotosInAlbum(album: Album): List<MediaPhoto> {
         return repository.getPhotosInAlbum(album.folderName)
     }
 
     suspend fun getPhotosAtLocation(album: Album): List<MediaPhoto> {
-        // album.folderName is "Location lat, lon"
-        val coords = album.folderName.replace("Location ", "").split(", ")
-        val lat = coords[0].toDoubleOrNull() ?: 0.0
-        val lon = coords[1].toDoubleOrNull() ?: 0.0
-        return repository.getPhotosAtLocation(lat, lon)
+        return if (album.folderName.startsWith("Location ")) {
+            val coords = album.folderName.replace("Location ", "").split(", ")
+            val lat = coords[0].toDoubleOrNull() ?: 0.0
+            val lon = coords[1].toDoubleOrNull() ?: 0.0
+            repository.getPhotosAtLocation(lat, lon)
+        } else {
+            repository.getPhotosByName(album.folderName)
+        }
+    }
+
+    fun performLocationIndexing() {
+        viewModelScope.launch {
+            mediaIndexer.enrichLocationMetadata { remaining ->
+                _indexingRemaining.value = remaining
+            }
+        }
     }
 }
 
 class AlbumsViewModelFactory(
     private val repository: AlbumsRepository,
-    private val mediaRepository: MediaRepository
+    private val mediaRepository: MediaRepository,
+    private val mediaIndexer: com.memorycurator.app.data.media.MediaIndexer
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(
@@ -70,7 +88,8 @@ class AlbumsViewModelFactory(
 
         return AlbumsViewModel(
             repository,
-            mediaRepository
+            mediaRepository,
+            mediaIndexer
         ) as T
     }
 }

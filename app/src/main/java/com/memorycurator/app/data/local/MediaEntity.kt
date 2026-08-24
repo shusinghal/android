@@ -29,6 +29,7 @@ data class MediaEntity(
 
     val latitude: Double? = null,
     val longitude: Double? = null,
+    val locationName: String? = null,
 
     // AI Metadata
     val aiScore: Float = -1f,

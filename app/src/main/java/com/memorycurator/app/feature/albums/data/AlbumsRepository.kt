@@ -27,18 +27,22 @@ class AlbumsRepository(
 
     fun getLocationAlbums(): Flow<List<Album>> {
         return mediaDao.getMediaWithLocation().map { mediaList ->
-            mediaList.groupBy { 
-                // Group by rounded coordinates (~11km precision)
-                val lat = ((it.latitude ?: 0.0) * 10).roundToInt() / 10.0
-                val lon = ((it.longitude ?: 0.0) * 10).roundToInt() / 10.0
-                "$lat, $lon"
-            }.map { (location, photos) ->
-                Album(
-                    folderName = "Location $location", 
-                    thumbnailUri = photos.first().uri,
-                    photoCount = photos.size
-                )
-            }.sortedByDescending { it.photoCount }
+            mediaList
+                .filter { (it.latitude ?: 0.0) != 0.0 && (it.longitude ?: 0.0) != 0.0 }
+                .groupBy { 
+                    it.locationName ?: run {
+                        // Fallback to rounded coordinates (~11km precision)
+                        val lat = ((it.latitude ?: 0.0) * 10).roundToInt() / 10.0
+                        val lon = ((it.longitude ?: 0.0) * 10).roundToInt() / 10.0
+                        "$lat, $lon"
+                    }
+                }.map { (location, photos) ->
+                    Album(
+                        folderName = if (location.contains(",")) "Location $location" else location, 
+                        thumbnailUri = photos.first().uri,
+                        photoCount = photos.size
+                    )
+                }.sortedByDescending { it.photoCount }
         }
     }
 
@@ -51,6 +55,12 @@ class AlbumsRepository(
             val photoLat = ((it.latitude ?: 0.0) * 10).roundToInt() / 10.0
             val photoLon = ((it.longitude ?: 0.0) * 10).roundToInt() / 10.0
             photoLat == lat && photoLon == lon
+        }.map { it.toMediaPhoto() }
+    }
+
+    suspend fun getPhotosByName(name: String): List<MediaPhoto> {
+        return mediaDao.getMediaWithLocationSync().filter {
+            it.locationName == name
         }.map { it.toMediaPhoto() }
     }
 }

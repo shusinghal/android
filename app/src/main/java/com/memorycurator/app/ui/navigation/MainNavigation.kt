@@ -71,7 +71,8 @@ fun MainNavigation(
         viewModel(
             factory = AlbumsViewModelFactory(
                 albumsRepository,
-                mediaRepository
+                mediaRepository,
+                mediaIndexer
             )
         )
 

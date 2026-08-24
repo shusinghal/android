@@ -537,6 +537,8 @@ fun AICurationScreenPreview() {
                 override suspend fun getPhotosInAlbumSync(folderName: String) = error("Not implemented")
                 override fun getMediaWithLocation() = error("Not implemented")
                 override suspend fun getMediaWithLocationSync() = error("Not implemented")
+                override suspend fun getMediaMissingLocation() = error("Not implemented")
+                override suspend fun updateLocation(id: Long, lat: Double?, lon: Double?, name: String?) {}
                 override suspend fun getMediaById(id: Long) = error("Not implemented")
                 override suspend fun getMediaByIds(ids: List<Long>) = error("Not implemented")
                 override suspend fun updateMetadata(id: Long, isBest: Boolean, score: Float, reason: String?) {}

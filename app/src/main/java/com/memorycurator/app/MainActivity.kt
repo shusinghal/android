@@ -57,9 +57,9 @@ class MainActivity : ComponentActivity() {
             context = applicationContext
         )
         galleryViewModel = ViewModelProvider(this, factory)[GalleryViewModel::class.java]
-        
-       // checkAndRequestPermissions()
-      //  checkAndRequestStorageManagerPermission()
+
+        checkAndRequestPermissions()
+        // checkAndRequestStorageManagerPermission()
 
         setContent {
             GlassTheme {
@@ -67,6 +67,13 @@ class MainActivity : ComponentActivity() {
                     viewModel = galleryViewModel
                 )
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (::galleryViewModel.isInitialized) {
+            galleryViewModel.indexMedia()
         }
     }
 
@@ -93,6 +100,11 @@ class MainActivity : ComponentActivity() {
 
         if (missingPermissions.isNotEmpty()) {
             requestPermissionLauncher.launch(missingPermissions.toTypedArray())
+        } else {
+            // Already have permissions, trigger indexing
+            if (::galleryViewModel.isInitialized) {
+                galleryViewModel.indexMedia()
+            }
         }
     }
 

@@ -45,6 +45,12 @@ interface MediaDao {
     @Query("SELECT * FROM media WHERE latitude IS NOT NULL AND longitude IS NOT NULL")
     suspend fun getMediaWithLocationSync(): List<MediaEntity>
 
+    @Query("SELECT * FROM media WHERE latitude IS NULL AND longitude IS NULL AND isArchived = 0")
+    suspend fun getMediaMissingLocation(): List<MediaEntity>
+
+    @Query("UPDATE media SET latitude = :lat, longitude = :lon, locationName = :name WHERE id = :id")
+    suspend fun updateLocation(id: Long, lat: Double?, lon: Double?, name: String?)
+
     @Query("SELECT * FROM media WHERE id = :id")
     suspend fun getMediaById(id: Long): MediaEntity?
 
