@@ -12,7 +12,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -38,6 +40,7 @@ fun TimelineScreen(
     groups: List<TimelineGroup>,
     onGroupClick: (TimelineGroup) -> Unit,
     onBestTakesClick: (TimelineGroup) -> Unit,
+    onRefresh: () -> Unit = {},
     state: LazyListState = rememberLazyListState(),
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -64,6 +67,27 @@ fun TimelineScreen(
                     group = group,
                     onClick = { onGroupClick(group) }
                 ) { onBestTakesClick(group) }
+            }
+        }
+
+        // Refresh Button (Top Right) - Floating above the list
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 12.dp, end = 16.dp),
+            contentAlignment = Alignment.CenterEnd
+        ) {
+            IconButton(
+                onClick = onRefresh,
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(Color.White.copy(alpha = 0.1f), CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = "Refresh",
+                    tint = Color.White
+                )
             }
         }
     }

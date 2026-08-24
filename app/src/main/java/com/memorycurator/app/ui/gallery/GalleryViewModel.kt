@@ -51,19 +51,19 @@ class GalleryViewModel(
     private val observer = object : android.database.ContentObserver(android.os.Handler(android.os.Looper.getMainLooper())) {
         override fun onChange(selfChange: Boolean, uri: Uri?) {
             viewModelScope.launch {
-                // Add a small delay to let MediaStore finish its indexing
-                kotlinx.coroutines.delay(800)
+                // Wait for system to finish indexing (1s is standard for stability)
+                kotlinx.coroutines.delay(1000)
                 
                 if (uri != null) {
                     val hasItemId = runCatching { ContentUris.parseId(uri) }.isSuccess
                     if (hasItemId) {
                         mediaIndexer.indexUri(uri)
                     } else {
-                        // Folder level change, re-index to find new items
-                        mediaIndexer.indexMedia()
+                        // Quick sync of latest 50 items
+                        mediaIndexer.indexMedia(limit = 50)
                     }
                 } else {
-                    mediaIndexer.indexMedia()
+                    mediaIndexer.indexMedia(limit = 50)
                 }
             }
         }
@@ -100,11 +100,11 @@ class GalleryViewModel(
         }
     }
 
-    fun indexMedia() {
+    fun indexMedia(limit: Int? = null) {
         viewModelScope.launch {
             try {
                 _uiState.value = GalleryUiState(isLoading = true)
-                mediaIndexer.indexMedia()
+                mediaIndexer.indexMedia(limit)
                 _uiState.value = GalleryUiState(isLoading = false)
             } catch (e: Exception) {
                 _uiState.value = GalleryUiState(isLoading = false, error = e.message)

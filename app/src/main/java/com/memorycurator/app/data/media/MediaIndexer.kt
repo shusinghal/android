@@ -21,18 +21,20 @@ class MediaIndexer(
 ) {
     private val TAG = "MediaIndexer"
 
-    suspend fun indexMedia() = withContext(Dispatchers.IO) {
-        Log.d(TAG, "Starting media indexing...")
+    suspend fun indexMedia(limit: Int? = null) = withContext(Dispatchers.IO) {
+        val isFullScan = limit == null
+        Log.d(TAG, "Starting media indexing (isFullScan=$isFullScan, limit=$limit)...")
         val scannedIds = HashSet<Long>()
         val batchList = ArrayList<MediaEntity>(CHUNK_SIZE)
-
-        // Optimized projection without problematic raw lat/lon columns
+        
+        // Optimized projection
         val projection = arrayOf(
             MediaStore.Files.FileColumns._ID,
             MediaStore.Files.FileColumns.BUCKET_ID,
             MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME,
             MediaStore.Files.FileColumns.DATE_TAKEN,
             MediaStore.Files.FileColumns.DATE_MODIFIED,
+            MediaStore.Files.FileColumns.DATE_ADDED,
             MediaStore.Files.FileColumns.MIME_TYPE,
             MediaStore.Files.FileColumns.WIDTH,
             MediaStore.Files.FileColumns.HEIGHT,
@@ -46,27 +48,32 @@ class MediaIndexer(
         )
 
         val queryUri = MediaStore.Files.getContentUri("external")
+        val sortOrder = "${MediaStore.Files.FileColumns._ID} DESC"
 
         context.contentResolver.query(
             queryUri,
             projection,
             selection,
             selectionArgs,
-            "${MediaStore.Files.FileColumns.DATE_TAKEN} DESC"
+            sortOrder
         )?.use { cursor ->
             val idCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID)
             val bucketIdCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.BUCKET_ID)
             val folderCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME)
             val dateCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_TAKEN)
             val modCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED)
+            val addedCol = cursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_ADDED)
             val mimeCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE)
             val widthCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.WIDTH)
             val heightCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.HEIGHT)
             val sizeCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE)
             val typeCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE)
 
+            var count = 0
             while (cursor.moveToNext()) {
-                ensureActive() // Cooperatively cancel if coroutine is stopped
+                ensureActive()
+                
+                if (limit != null && count >= limit) break
 
                 val id = cursor.getLong(idCol)
                 scannedIds.add(id)
@@ -77,49 +84,80 @@ class MediaIndexer(
                              else MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                 val contentUri = ContentUris.withAppendedId(baseUri, id).toString()
 
-                batchList.add(
-                    MediaEntity(
-                        id = id,
-                        uri = contentUri,
-                        bucketId = cursor.getString(bucketIdCol) ?: "",
-                        folderName = cursor.getString(folderCol) ?: "",
-                        dateTaken = cursor.getLong(dateCol),
-                        dateModified = cursor.getLong(modCol),
-                        //mimeType = cursor.getString(mimeCol) ?: if (isVideo) "video/*" else "image/*",
-                        mimeType = cursor.getString(mimeCol) ?: "image/*",
-                        width = cursor.getInt(widthCol),
-                        height = cursor.getInt(heightCol),
-                        size = cursor.getLong(sizeCol),
-                        latitude = null,
-                        longitude = null,
-                        aiScore = -1f,
-                        isBestTake = false,
-                        rejectionReason = null,
-                        clusterId = null,
-                        isManuallyModified = false,
-                        isArchived = false
-                    )
+                val entity = MediaEntity(
+                    id = id,
+                    uri = contentUri,
+                    bucketId = cursor.getString(bucketIdCol) ?: "",
+                    folderName = cursor.getString(folderCol) ?: "",
+                    dateTaken = cursor.getLong(dateCol).let { if (it == 0L && addedCol != -1) cursor.getLong(addedCol) * 1000 else it },
+                    dateModified = cursor.getLong(modCol),
+                    mimeType = cursor.getString(mimeCol) ?: "image/*",
+                    width = cursor.getInt(widthCol),
+                    height = cursor.getInt(heightCol),
+                    size = cursor.getLong(sizeCol),
+                    latitude = null,
+                    longitude = null,
+                    aiScore = -1f,
+                    isBestTake = false,
+                    rejectionReason = null,
+                    clusterId = null,
+                    isManuallyModified = false,
+                    isArchived = false
                 )
 
-                // Batch insert every 500 items to keep RAM usage minimal
+                batchList.add(entity)
+                count++
+
                 if (batchList.size >= CHUNK_SIZE) {
-                    mediaDao.insertOrIgnorePreservingAI(batchList)
+                    if (isFullScan) mediaDao.insertOrIgnorePreservingAI(batchList)
+                    else mediaDao.insertNewMedia(batchList)
                     batchList.clear()
                 }
             }
 
-            // Flush remaining items
             if (batchList.isNotEmpty()) {
-                mediaDao.insertOrIgnorePreservingAI(batchList)
+                if (isFullScan) mediaDao.insertOrIgnorePreservingAI(batchList)
+                else mediaDao.insertNewMedia(batchList)
                 batchList.clear()
             }
-            Log.d(TAG, "Media indexing finished. Scanned ${scannedIds.size} items.")
+            Log.d(TAG, "Fast indexing finished. Scanned ${scannedIds.size} items.")
         } ?: Log.e(TAG, "Cursor was null during indexing")
 
-        // Clean up deleted/trashed media
-        if (scannedIds.isNotEmpty()) {
+        if (isFullScan && scannedIds.isNotEmpty()) {
             mediaDao.deleteMissingIds(scannedIds)
         }
+
+        // Lazy Pass: Restore AI scores from EXIF in background
+        if (isFullScan) {
+            restoreAiMetadata()
+        }
+    }
+
+    /**
+     * Lazy pass to restore scores from EXIF for all photos that don't have them in DB yet.
+     */
+    private suspend fun restoreAiMetadata() = withContext(Dispatchers.IO) {
+        Log.d(TAG, "Starting background AI metadata restoration...")
+        val pending = mediaDao.getAllMediaSync().filter { it.aiScore == -1f }
+        
+        pending.chunked(10).forEach { batch ->
+            ensureActive()
+            batch.forEach { entity ->
+                try {
+                    val exifData = ExifMetadataManager.readExifMetadata(context, Uri.parse(entity.uri))
+                    if (exifData != null) {
+                        mediaDao.updateMetadata(
+                            id = entity.id,
+                            isBest = exifData.isBestTake,
+                            score = exifData.aiScore,
+                            reason = exifData.rejectionReason
+                        )
+                    }
+                } catch (e: Exception) { }
+            }
+            kotlinx.coroutines.yield()
+        }
+        Log.d(TAG, "AI metadata restoration finished.")
     }
 
     /**
@@ -193,6 +231,7 @@ class MediaIndexer(
             MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME,
             MediaStore.Files.FileColumns.DATE_TAKEN,
             MediaStore.Files.FileColumns.DATE_MODIFIED,
+            MediaStore.Files.FileColumns.DATE_ADDED,
             MediaStore.Files.FileColumns.MIME_TYPE,
             MediaStore.Files.FileColumns.WIDTH,
             MediaStore.Files.FileColumns.HEIGHT,
@@ -203,12 +242,15 @@ class MediaIndexer(
         try {
             context.contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
                 if (cursor.moveToFirst()) {
+                    val dateCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_TAKEN)
+                    val addedCol = cursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_ADDED)
+                    
                     val entity = MediaEntity(
                         id = id,
                         uri = uri.toString(),
                         bucketId = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.BUCKET_ID)) ?: "",
                         folderName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME)) ?: "",
-                        dateTaken = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_TAKEN)),
+                        dateTaken = cursor.getLong(dateCol).let { if (it == 0L && addedCol != -1) cursor.getLong(addedCol) * 1000 else it },
                         dateModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED)),
                         mimeType = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE)) ?: "",
                         width = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.WIDTH)),
@@ -218,11 +260,9 @@ class MediaIndexer(
                         longitude = null
                     )
                     
-                    mediaDao.insertOrUpdateSingle(entity)
-                } else {
-                    mediaDao.deleteById(id)
+                mediaDao.insertOrUpdateSingle(entity)
                 }
-            } ?: mediaDao.deleteById(id)
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }

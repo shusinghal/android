@@ -25,6 +25,12 @@ sealed class BottomNavItem(
         Icons.Rounded.AutoAwesomeMotion
     )
 
+    data object Gallery : BottomNavItem(
+        "gallery",
+        "Gallery",
+        Icons.Rounded.PhotoLibrary
+    )
+
     data object Maps : BottomNavItem(
         "maps",
         "Maps",

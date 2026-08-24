@@ -23,6 +23,7 @@ fun AppBottomBar(
 ) {
     val items = listOf(
         BottomNavItem.Timeline,
+        BottomNavItem.Gallery,
         BottomNavItem.Maps,
         BottomNavItem.Albums,
         BottomNavItem.Profile

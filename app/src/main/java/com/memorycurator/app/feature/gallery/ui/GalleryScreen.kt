@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -102,7 +103,22 @@ fun GalleryScreen(
                     fontWeight = FontWeight.Bold
                 )
 
-                FilterChip(
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(
+                        onClick = { viewModel.indexMedia() },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "Refresh",
+                            tint = Color.White.copy(alpha = 0.7f),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    
+                    Spacer(Modifier.width(8.dp))
+
+                    FilterChip(
                     selected = isBestTakesOnly,
                     onClick = { viewModel.toggleBestTakesOnly() },
                     label = {
@@ -289,4 +305,5 @@ fun GalleryScreenPreview() {
     MemoryCuratorTheme {
         GalleryGridPreview(photos = PreviewStockPhotos.getPhotos(10))
     }
+}
 }

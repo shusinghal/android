@@ -232,6 +232,7 @@ fun MainNavigationContent(
                                 groups = timelineGroups,
                                 onGroupClick = { onTimelineGroupSelected(it) },
                                 onBestTakesClick = { onCurationPhotosSelected(it.photos) },
+                                onRefresh = { galleryViewModel?.indexMedia() },
                                 state = timelineListState
                             )
                         }

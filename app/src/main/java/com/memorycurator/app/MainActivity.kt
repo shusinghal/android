@@ -72,7 +72,8 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         if (::galleryViewModel.isInitialized) {
-            galleryViewModel.indexMedia()
+            // Comprehensive quick scan of the latest 100 items on return
+            galleryViewModel.indexMedia(limit = 100)
         }
     }
 

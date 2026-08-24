@@ -116,6 +116,9 @@ interface MediaDao {
     @Query("DELETE FROM media WHERE uri = :uri")
     suspend fun deleteByUri(uri: String)
 
+    @Query("SELECT id FROM media")
+    suspend fun getAllIds(): List<Long>
+
     @Transaction
     suspend fun insertOrIgnorePreservingAI(media: List<MediaEntity>) {
         media.forEach { item ->

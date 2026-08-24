@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.exifinterface.media.ExifInterface
 import org.json.JSONObject
 import java.io.File
+import java.io.InputStream
 
 data class CurationExifData(
     val aiScore: Float,
@@ -41,6 +42,34 @@ object ExifMetadataManager {
     }
 
     /**
+     * Reads AI curation metadata from the photo's EXIF header using an InputStream for reliability on scoped storage.
+     */
+    fun readExifMetadata(inputStream: InputStream): CurationExifData? {
+        try {
+            val exif = ExifInterface(inputStream)
+            val jsonString = exif.getAttribute(ExifInterface.TAG_USER_COMMENT) ?: return null
+            
+            return try {
+                val json = JSONObject(jsonString)
+                if (!json.has("aiScore")) return null
+                
+                CurationExifData(
+                    aiScore = json.optDouble("aiScore", -1.0).toFloat(),
+                    isBestTake = json.optBoolean("isBestTake", false),
+                    rejectionReason = if (json.isNull("rejectionReason")) null else json.optString("rejectionReason"),
+                    clusterId = if (json.isNull("clusterId")) null else json.optString("clusterId"),
+                    originalFolder = if (json.isNull("originalFolder")) null else json.optString("originalFolder")
+                )
+            } catch (e: Exception) {
+                null
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error reading EXIF metadata from stream", e)
+        }
+        return null
+    }
+
+    /**
      * Reads AI curation metadata from the photo's EXIF header using direct file path.
      */
     fun readExifMetadata(filePath: String): CurationExifData? {
@@ -70,8 +99,14 @@ object ExifMetadataManager {
 
     // Compatibility wrappers for Uri-based calls
     fun readExifMetadata(context: Context, uri: Uri): CurationExifData? {
-        val path = getFilePathFromUri(context, uri) ?: return null
-        return readExifMetadata(path)
+        return try {
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                readExifMetadata(input)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to open input stream for $uri", e)
+            null
+        }
     }
 
     private fun getFilePathFromUri(context: Context, uri: Uri): String? {
