@@ -50,6 +50,10 @@ class MediaRepositoryImpl(
         return mediaDao.getMediaByIds(ids)
     }
 
+    override fun getMediaEntitiesFlow(ids: List<Long>): Flow<List<MediaEntity>> {
+        return mediaDao.getMediaByIdsFlow(ids)
+    }
+
     override suspend fun saveAiResults(entities: List<MediaEntity>) {
         mediaDao.insertAll(entities)
         scope.launch {
@@ -82,8 +86,8 @@ class MediaRepositoryImpl(
             entity.rejectionReason
         }
 
-        // 1. Update Database with new score and reason
-        mediaDao.updateMetadata(id, isBest, newScore, newReason)
+        // 1. Update Database with new score and reason, and update timestamp for recency
+        mediaDao.updateMetadata(id, isBest, newScore, newReason, System.currentTimeMillis())
         
         scope.launch {
             if (entity.mimeType?.startsWith("video") != true) {

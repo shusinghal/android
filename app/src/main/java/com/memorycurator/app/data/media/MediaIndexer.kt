@@ -10,9 +10,7 @@ import android.util.Log
 import androidx.exifinterface.media.ExifInterface
 import com.memorycurator.app.data.local.MediaDao
 import com.memorycurator.app.data.local.MediaEntity
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.util.Locale
 
 class MediaIndexer(
@@ -256,6 +254,9 @@ class MediaIndexer(
                     val dateCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_TAKEN)
                     val addedCol = cursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_ADDED)
                     
+                    // Priority restore EXIF for just-indexed item
+                    val exifData = ExifMetadataManager.readExifMetadata(context, uri)
+
                     val entity = MediaEntity(
                         id = id,
                         uri = uri.toString(),
@@ -268,15 +269,60 @@ class MediaIndexer(
                         height = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.HEIGHT)),
                         size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE)),
                         latitude = null,
-                        longitude = null
+                        longitude = null,
+                        aiScore = exifData?.aiScore ?: -1f,
+                        isBestTake = exifData?.isBestTake ?: false,
+                        rejectionReason = exifData?.rejectionReason,
+                        clusterId = exifData?.clusterId,
+                        originalFolderName = exifData?.originalFolder
                     )
                     
-                mediaDao.insertOrUpdateSingle(entity)
+                    mediaDao.insertOrUpdateSingle(entity)
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    suspend fun restoreMetadataForIds(ids: List<Long>): Boolean = withContext(Dispatchers.IO) {
+        val entities = mediaDao.getMediaByIds(ids)
+        if (entities.isEmpty()) return@withContext false
+        
+        var anyChanged = false
+        
+        coroutineScope {
+            val deferreds = entities.map { entity ->
+                async {
+                    try {
+                        val exifData = ExifMetadataManager.readExifMetadata(context, Uri.parse(entity.uri))
+                        if (exifData != null) {
+                            val isDifferent = entity.aiScore != exifData.aiScore || 
+                                             entity.isBestTake != exifData.isBestTake ||
+                                             entity.rejectionReason != exifData.rejectionReason
+                                             
+                            if (isDifferent) {
+                                mediaDao.updateFullMetadata(
+                                    id = entity.id,
+                                    isBest = exifData.isBestTake,
+                                    score = exifData.aiScore,
+                                    reason = exifData.rejectionReason,
+                                    clusterId = exifData.clusterId,
+                                    originalFolder = exifData.originalFolder
+                                )
+                                true
+                            } else false
+                        } else false
+                    } catch (e: Exception) {
+                        false
+                    }
+                }
+            }
+            if (deferreds.awaitAll().any { it }) {
+                anyChanged = true
+            }
+        }
+        anyChanged
     }
 
     companion object {

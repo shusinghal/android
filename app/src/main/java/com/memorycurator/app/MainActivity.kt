@@ -72,6 +72,15 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         if (::galleryViewModel.isInitialized) {
+            // Check for storage manager permission if not granted
+            if (Build.VERSION.SDK_INT >= 30 && !Environment.isExternalStorageManager()) {
+                val prefs = getSharedPreferences("prefs", MODE_PRIVATE)
+                val onboardingDone = !prefs.getBoolean("first_run", true)
+                if (onboardingDone) {
+                    checkAndRequestStorageManagerPermission()
+                }
+            }
+            
             // Comprehensive quick scan of the latest 100 items on return
             galleryViewModel.indexMedia(limit = 100)
         }

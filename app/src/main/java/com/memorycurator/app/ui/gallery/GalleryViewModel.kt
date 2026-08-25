@@ -51,8 +51,8 @@ class GalleryViewModel(
     private val observer = object : android.database.ContentObserver(android.os.Handler(android.os.Looper.getMainLooper())) {
         override fun onChange(selfChange: Boolean, uri: Uri?) {
             viewModelScope.launch {
-                // Wait for system to finish indexing (1s is standard for stability)
-                kotlinx.coroutines.delay(1000)
+                // Reduced delay for "instant" appearance (from 1000ms to 300ms)
+                kotlinx.coroutines.delay(300)
                 
                 if (uri != null) {
                     val hasItemId = runCatching { ContentUris.parseId(uri) }.isSuccess

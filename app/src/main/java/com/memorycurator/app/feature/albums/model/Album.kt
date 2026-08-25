@@ -6,5 +6,7 @@ data class Album(
 
     val thumbnailUri: String,
 
-    val photoCount: Int
+    val photoCount: Int,
+    
+    val lastModified: Long = 0
 )

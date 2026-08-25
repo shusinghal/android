@@ -19,7 +19,8 @@ class AlbumsRepository(
                 Album(
                     folderName = it.folderName,
                     thumbnailUri = it.thumbnailUri,
-                    photoCount = it.photoCount
+                    photoCount = it.photoCount,
+                    lastModified = it.lastModified
                 )
             }
         }
@@ -40,9 +41,10 @@ class AlbumsRepository(
                     Album(
                         folderName = if (location.contains(",")) "Location $location" else location, 
                         thumbnailUri = photos.first().uri,
-                        photoCount = photos.size
+                        photoCount = photos.size,
+                        lastModified = photos.maxOfOrNull { it.dateModified } ?: 0L
                     )
-                }.sortedByDescending { it.photoCount }
+                }.sortedByDescending { it.lastModified }
         }
     }
 

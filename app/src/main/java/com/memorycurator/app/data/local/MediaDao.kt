@@ -26,10 +26,12 @@ interface MediaDao {
         SELECT 
             folderName,
             uri AS thumbnailUri,
-            COUNT(*) AS photoCount
+            COUNT(*) AS photoCount,
+            MAX(dateModified) AS lastModified
         FROM media
+        WHERE isArchived = 0
         GROUP BY folderName
-        ORDER BY photoCount DESC
+        ORDER BY lastModified DESC
     """)
     fun getAlbums(): Flow<List<AlbumProjection>>
 
@@ -57,8 +59,11 @@ interface MediaDao {
     @Query("SELECT * FROM media WHERE id IN (:ids)")
     suspend fun getMediaByIds(ids: List<Long>): List<MediaEntity>
 
-    @Query("UPDATE media SET isBestTake = :isBest, aiScore = :score, rejectionReason = :reason, isManuallyModified = 1 WHERE id = :id")
-    suspend fun updateMetadata(id: Long, isBest: Boolean, score: Float, reason: String?)
+    @Query("SELECT * FROM media WHERE id IN (:ids)")
+    fun getMediaByIdsFlow(ids: List<Long>): Flow<List<MediaEntity>>
+
+    @Query("UPDATE media SET isBestTake = :isBest, aiScore = :score, rejectionReason = :reason, isManuallyModified = 1, dateModified = :dateModified WHERE id = :id")
+    suspend fun updateMetadata(id: Long, isBest: Boolean, score: Float, reason: String?, dateModified: Long)
 
     @Query("UPDATE media SET isBestTake = :isBest, aiScore = :score, rejectionReason = :reason, clusterId = :clusterId, originalFolderName = :originalFolder, isManuallyModified = 1 WHERE id = :id")
     suspend fun updateFullMetadata(id: Long, isBest: Boolean, score: Float, reason: String?, clusterId: String?, originalFolder: String?)
@@ -101,7 +106,7 @@ interface MediaDao {
     @Query("UPDATE media SET isArchived = 0 WHERE id IN (:ids)")
     suspend fun restoreMedia(ids: List<Long>)
 
-    @Query("SELECT * FROM media")
+    @Query("SELECT * FROM media ORDER BY dateTaken DESC")
     suspend fun getAllMediaSync(): List<MediaEntity>
 
     @Query("SELECT MAX(dateModified) FROM media")

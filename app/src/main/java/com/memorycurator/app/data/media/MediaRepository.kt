@@ -11,6 +11,8 @@ interface MediaRepository {
     fun getAllPhotos(): Flow<List<MediaPhoto>>
     
     suspend fun getMediaEntities(ids: List<Long>): List<MediaEntity>
+
+    fun getMediaEntitiesFlow(ids: List<Long>): Flow<List<MediaEntity>>
     
     suspend fun saveAiResults(entities: List<MediaEntity>)
     
