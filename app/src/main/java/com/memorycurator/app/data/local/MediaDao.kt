@@ -41,10 +41,10 @@ interface MediaDao {
     @Query("SELECT * FROM media WHERE folderName = :folderName ORDER BY dateTaken DESC")
     suspend fun getPhotosInAlbumSync(folderName: String): List<MediaEntity>
 
-    @Query("SELECT * FROM media WHERE latitude IS NOT NULL AND longitude IS NOT NULL")
+    @Query("SELECT * FROM media WHERE latitude IS NOT NULL AND longitude IS NOT NULL ORDER BY dateTaken DESC")
     fun getMediaWithLocation(): Flow<List<MediaEntity>>
 
-    @Query("SELECT * FROM media WHERE latitude IS NOT NULL AND longitude IS NOT NULL")
+    @Query("SELECT * FROM media WHERE latitude IS NOT NULL AND longitude IS NOT NULL ORDER BY dateTaken DESC")
     suspend fun getMediaWithLocationSync(): List<MediaEntity>
 
     @Query("SELECT * FROM media WHERE latitude IS NULL AND longitude IS NULL AND isArchived = 0")
@@ -56,10 +56,10 @@ interface MediaDao {
     @Query("SELECT * FROM media WHERE id = :id")
     suspend fun getMediaById(id: Long): MediaEntity?
 
-    @Query("SELECT * FROM media WHERE id IN (:ids)")
+    @Query("SELECT * FROM media WHERE id IN (:ids) ORDER BY dateTaken DESC")
     suspend fun getMediaByIds(ids: List<Long>): List<MediaEntity>
 
-    @Query("SELECT * FROM media WHERE id IN (:ids)")
+    @Query("SELECT * FROM media WHERE id IN (:ids) ORDER BY dateTaken DESC")
     fun getMediaByIdsFlow(ids: List<Long>): Flow<List<MediaEntity>>
 
     @Query("UPDATE media SET isBestTake = :isBest, aiScore = :score, rejectionReason = :reason, isManuallyModified = 1, dateModified = :dateModified WHERE id = :id")

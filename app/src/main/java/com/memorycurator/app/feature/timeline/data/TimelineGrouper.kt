@@ -9,33 +9,27 @@ import java.util.Locale
 object TimelineGrouper {
 
     fun groupByDate(
-
         photos: List<MediaPhoto>
-
     ): List<TimelineGroup> {
-
         val formatter = SimpleDateFormat(
             "dd MMMM yyyy",
             Locale.getDefault()
         )
 
         return photos
-
             .groupBy {
-
                 formatter.format(
                     Date(it.dateTaken)
                 )
             }
-
             .map {
-
                 TimelineGroup(
-
                     title = it.key,
-
-                    photos = it.value
+                    photos = it.value.sortedByDescending { it.dateTaken }
                 )
+            }
+            .sortedByDescending { group -> 
+                group.photos.firstOrNull()?.dateTaken ?: 0L 
             }
     }
 }
