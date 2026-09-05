@@ -27,6 +27,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.memorycurator.app.feature.albums.model.Album
+import com.memorycurator.app.feature.albums.ui.components.GlassAlbumCard
 import com.memorycurator.app.ui.preview.PreviewStockPhotos
 import com.memorycurator.app.feature.timeline.model.TimelineGroup
 import com.memorycurator.app.ui.theme.GlassTheme
@@ -114,119 +116,77 @@ fun TimelineCard(
     val monthFormat = remember { SimpleDateFormat("MMM", Locale.getDefault()) }
     val dayFormat = remember { SimpleDateFormat("dd", Locale.getDefault()) }
     val yearFormat = remember { SimpleDateFormat("yyyy", Locale.getDefault()) }
+    val dayOfWeekFormat = remember { SimpleDateFormat("EEEE", Locale.getDefault()) }
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
-            .clickable(onClick = onClick)
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // 1. Date Text Column
+        // 1. Date Text Column (The Timeline Anchor)
         Column(
             modifier = Modifier.width(45.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "${monthFormat.format(date).uppercase()} ${dayFormat.format(date)}, ${yearFormat.format(date)}",
-                color = Color.White,
-                fontSize = 12.sp,
+                text = monthFormat.format(date).uppercase(),
+                color = Color.White.copy(alpha = 0.6f),
+                fontSize = 11.sp,
                 fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = dayFormat.format(date),
+                color = Color.White,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Black
+            )
+            Text(
+                text = yearFormat.format(date),
+                color = Color.White.copy(alpha = 0.4f),
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Medium
             )
         }
 
-        Spacer(modifier = Modifier.width(20.dp))
+        Spacer(modifier = Modifier.width(16.dp))
 
         // 2. Timeline Line and Dot
         Box(
             modifier = Modifier
                 .fillMaxHeight()
                 .width(2.dp)
-                .background(Color(0x66FFFFFF)),
+                .background(Color.White.copy(alpha = 0.15f)),
             contentAlignment = Alignment.Center
         ) {
             // The Dot
             Box(
                 modifier = Modifier
                     .size(10.dp)
-                    .background(Color.White.copy(alpha = 0.3f), shape = CircleShape)
-                    .border(1.dp, Color.White, CircleShape)
+                    .background(Color.White.copy(alpha = 0.2f), shape = CircleShape)
+                    .border(1.dp, Color.White.copy(alpha = 0.5f), CircleShape)
             )
         }
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        // 3. The Glass Card Container
-        Box(
-            modifier = Modifier
-                .padding(vertical = 12.dp)
-                .weight(1f)
-                .height(120.dp)
-                .clip(RoundedCornerShape(20.dp))
-        ) {
-            // Background Image
-            AsyncImage(
-                model = representativePhoto?.contentUri,
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
+        // 3. The Glass Card (Consistent with Albums/Maps)
+        val album = remember(group, representativePhoto) {
+            Album(
+                folderName = group.title,
+                thumbnailUri = representativePhoto?.contentUri?.toString() ?: "",
+                photoCount = group.photos.size
             )
+        }
 
-            // Dark Overlay for readability
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.4f))
+        Box(modifier = Modifier.padding(vertical = 8.dp).weight(1f)) {
+            GlassAlbumCard(
+                album = album,
+                title = dayOfWeekFormat.format(date),
+                onClick = onClick,
+                onBestTakesClick = onBestTakesClick
             )
-
-            // Text Content
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Bottom
-            ) {
-                Text(
-                    text = "${group.photos.size} ${if (group.photos.size == 1) "item" else "items"}",
-                    color = Color.White.copy(alpha = 0.9f),
-                    fontSize = 10.sp
-                )
-            }
-
-            if (representativePhoto?.isVideo == true) {
-                Icon(
-                    imageVector = Icons.Default.PlayCircle,
-                    contentDescription = "Video",
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(48.dp),
-                    tint = Color.White.copy(alpha = 0.8f)
-                )
-            }
-
-            // Best Takes Button
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(12.dp),
-                contentAlignment = Alignment.TopEnd
-            ) {
-                Box(
-                    modifier = Modifier
-                        .background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
-                        .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
-                        .clickable { onBestTakesClick() }
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
-                ) {
-                    Text(
-                        text = "BEST TAKES",
-                        color = Color.White,
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
         }
     }
 }

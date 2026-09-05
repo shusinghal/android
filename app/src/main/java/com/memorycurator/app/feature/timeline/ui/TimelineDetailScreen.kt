@@ -41,6 +41,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -530,6 +531,8 @@ fun PhotoGridItem(
             RejectionReason.POOR_COMPOSITION -> "Framing"
             RejectionReason.LOW_QUALITY -> "Subpar"
             RejectionReason.MANUAL -> "Your choice"
+            RejectionReason.UTILITY -> "Utility"
+            RejectionReason.NO_SUBJECT -> "Unclear"
             RejectionReason.NONE -> null
         }
     }
@@ -550,21 +553,54 @@ fun PhotoGridItem(
             error = ColorPainter(Color.DarkGray)
         )
 
-        // Reason Badge (Bottom Left)
-        if (label != null) {
-            Box(
+        // Footer Info Bar (AI Score & Reason)
+        if (score != -1f || label != null) {
+            val isHigh = score >= 0.7f
+            val softGreen = Color(0xFFA5D6A7)
+            
+            Surface(
                 modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(6.dp)
-                    .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(4.dp))
-                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 4.dp),
+                color = Color.Black.copy(alpha = 0.6f),
+                shape = RoundedCornerShape(12.dp)
             ) {
-                Text(
-                    text = label,
-                    color = Color.White,
-                    fontSize = 9.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (label != null) {
+                        Text(
+                            text = label.uppercase(java.util.Locale.getDefault()),
+                            color = Color.White,
+                            fontSize = 7.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 0.5.sp
+                        )
+                        if (score != -1f) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+                    }
+
+                    if (score != -1f) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.AutoAwesome,
+                                contentDescription = null,
+                                tint = if (isHigh) softGreen else Color.White.copy(alpha = 0.5f),
+                                modifier = Modifier.size(8.dp)
+                            )
+                            Spacer(modifier = Modifier.width(2.dp))
+                            Text(
+                                text = "${(score * 100).toInt()}",
+                                color = if (isHigh) softGreen else Color.White,
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Black
+                            )
+                        }
+                    }
+                }
             }
         }
 
@@ -593,9 +629,10 @@ fun PhotoGridItem(
                     .fillMaxSize()
                     .background(if (isSelected) Color.White.copy(alpha = 0.2f) else Color.Transparent)
             )
+            // Move selection checkmark to Top End to avoid collision with score in Bottom End
             Box(
                 modifier = Modifier
-                    .align(Alignment.BottomEnd)
+                    .align(Alignment.TopEnd)
                     .padding(8.dp)
                     .size(24.dp)
                     .background(if (isSelected) Color.White else Color.Black.copy(alpha = 0.3f), CircleShape)

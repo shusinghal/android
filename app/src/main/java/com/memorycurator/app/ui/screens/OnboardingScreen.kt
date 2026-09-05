@@ -289,7 +289,7 @@ fun StorageManagerPermissionDialog(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "To keep your 'Best Takes' even if you reinstall the app, MemoryCurator needs permission to save AI scores directly into your photo files. This requires 'All Files Access' on this device.",
+                    text = "To keep AI scores even if you delete the app, MemoryCurator needs permission to save AI scores directly into your photo properties. This requires 'All Files Access' on this device.",
                     color = Color.White.copy(alpha = 0.7f),
                     fontSize = 14.sp,
                     textAlign = TextAlign.Center,

@@ -2,6 +2,7 @@ package com.memorycurator.app.core.ai
 
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Rect
 import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.label.ImageLabel
 import kotlin.math.abs
@@ -14,13 +15,17 @@ class AestheticScorer {
         val isIntentionalClosedEyes: Boolean = false
     )
 
+    /**
+     * Scores an image based on color harmony, contrast, and brightness distribution.
+     * Uses pixel sampling for performance.
+     */
     fun calculateAestheticScore(
         bitmap: Bitmap,
         faces: List<Face>,
-        labels: List<ImageLabel>
+        labels: List<ImageLabel>,
+        subjectBounds: Rect? = null
     ): AestheticResult {
         // 1. Semantic Intent Check
-        // Certain scenes make "closed eyes" or "low lighting" a stylistic choice.
         val intentLabels = setOf(
             "Prayer", "Spirituality", "Worship", "Meditation", 
             "Sleep", "Baby", "Cradle", "Sunset", "Candle", "Concert"
@@ -31,7 +36,7 @@ class AestheticScorer {
         }
 
         // 2. Composition Score (Rule of Thirds + Visual Salience)
-        val compositionScore = calculateComposition(bitmap, faces)
+        val compositionScore = calculateComposition(bitmap, faces, subjectBounds)
 
         // 3. Color Harmony & Vibrancy
         val colorScore = calculateColorHarmony(bitmap)
@@ -39,13 +44,19 @@ class AestheticScorer {
         // 4. Contrast & Dynamic Range
         val contrastScore = calculateContrast(bitmap)
 
+        // 5. Brightness Distribution & Exposure Health
+        val brightnessScore = calculateBrightnessDistribution(bitmap)
+
         // Final weighting for the "Art Critic" logic
-        var finalScore = (compositionScore * 0.4f) + (colorScore * 0.3f) + (contrastScore * 0.3f)
+        val finalScore = (compositionScore * 0.35f) + 
+                         (colorScore * 0.25f) + 
+                         (contrastScore * 0.20f) + 
+                         (brightnessScore * 0.20f)
 
         // "Intentionality" Logic: 
         // If a photo is beautifully composed and has high semantic intent, 
         // we assume closed eyes are intentional.
-        val isIntentionalClosedEyes = hasHighIntent && finalScore > 0.65f
+        val isIntentionalClosedEyes = hasHighIntent && (finalScore > 0.65f)
 
         return AestheticResult(
             overallScore = finalScore.coerceIn(0f, 1f),
@@ -53,18 +64,21 @@ class AestheticScorer {
         )
     }
 
-    private fun calculateComposition(bitmap: Bitmap, faces: List<Face>): Float {
+    private fun calculateComposition(
+        bitmap: Bitmap, 
+        faces: List<Face>,
+        subjectBounds: Rect? = null
+    ): Float {
         val width = bitmap.width
         val height = bitmap.height
+        val thirdW = width / 3f
+        val thirdH = height / 3f
+        val idealPoints = listOf(
+            Pair(thirdW, thirdH), Pair(thirdW * 2, thirdH),
+            Pair(thirdW, thirdH * 2), Pair(thirdW * 2, thirdH * 2)
+        )
 
         if (faces.isNotEmpty()) {
-            val thirdW = width / 3f
-            val thirdH = height / 3f
-            val idealPoints = listOf(
-                Pair(thirdW, thirdH), Pair(thirdW * 2, thirdH),
-                Pair(thirdW, thirdH * 2), Pair(thirdW * 2, thirdH * 2)
-            )
-
             var bestMatch = 0f
             for (face in faces) {
                 val fx = face.boundingBox.centerX().toFloat()
@@ -79,8 +93,19 @@ class AestheticScorer {
                 }
             }
             return bestMatch
+        } else if (subjectBounds != null && !subjectBounds.isEmpty) {
+            val sx = subjectBounds.centerX().toFloat()
+            val sy = subjectBounds.centerY().toFloat()
+            var bestMatch = 0f
+            for ((ix, iy) in idealPoints) {
+                val normDx = abs(sx - ix) / (width / 2f)
+                val normDy = abs(sy - iy) / (height / 2f)
+                val dist = sqrt((normDx * normDx + normDy * normDy).toDouble()).toFloat()
+                val normalizedDist = (1f - dist / 1.2f).coerceIn(0f, 1f)
+                if (normalizedDist > bestMatch) bestMatch = normalizedDist
+            }
+            return bestMatch
         } else {
-            // Non-facial grid-salience composition (Rule of Thirds for landscapes/objects)
             return calculateNonFacialComposition(bitmap)
         }
     }
@@ -93,7 +118,6 @@ class AestheticScorer {
         val pixels = IntArray(width * height)
         bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
 
-        // Divide image into a 3x3 grid to evaluate visual weight distribution
         val gridEdges = FloatArray(9)
         val cellW = width / 3
         val cellH = height / 3
@@ -130,17 +154,12 @@ class AestheticScorer {
         val totalEnergy = gridEdges.sum()
         if (totalEnergy <= 0.0001f) return 0.5f
 
-        // Rule-of-Thirds power points in 3x3 grid correspond to cells (0,1), (1,0), (1,1), (1,2), (2,1), etc.
-        // Intersections and central horizon / leading lines boost the composition score.
         val centerEnergy = gridEdges[4]
         val powerPointEnergy = gridEdges[1] + gridEdges[3] + gridEdges[5] + gridEdges[7]
-        val cornerEnergy = gridEdges[0] + gridEdges[2] + gridEdges[6] + gridEdges[8]
-
         val powerRatio = (powerPointEnergy + centerEnergy * 0.8f) / totalEnergy
         val balance = 1f - abs(gridEdges[3] + gridEdges[0] + gridEdges[6] - (gridEdges[5] + gridEdges[2] + gridEdges[8])) / totalEnergy
 
-        val compositionScore = (powerRatio * 0.6f + balance * 0.4f).coerceIn(0.35f, 0.95f)
-        return compositionScore
+        return (powerRatio * 0.6f + balance * 0.4f).coerceIn(0.35f, 0.95f)
     }
 
     private fun calculateColorHarmony(bitmap: Bitmap): Float {
@@ -165,7 +184,6 @@ class AestheticScorer {
         val avgSaturation = if (sampleCount > 0) totalSaturation / sampleCount else 0.5f
         val satSpread = (maxSat - minSat).coerceIn(0f, 1f)
         
-        // Reward natural saturation (0.15 - 0.75) and healthy color dynamics
         val satScore = when {
             avgSaturation in 0.15f..0.75f -> 1.0f
             avgSaturation < 0.15f -> (avgSaturation / 0.15f).coerceIn(0.3f, 1.0f)
@@ -201,9 +219,47 @@ class AestheticScorer {
         val stdDev = sqrt(variance.coerceAtLeast(0.0)).toFloat()
         val dynamicRange = (maxLum - minLum).coerceIn(0f, 1f)
         
-        // Ideal contrast has high dynamic range and moderate luminance standard deviation (~0.15 - 0.35)
         val stdDevScore = (stdDev / 0.25f).coerceIn(0.3f, 1.0f)
         return (dynamicRange * 0.5f + stdDevScore * 0.5f).coerceIn(0f, 1f)
+    }
+
+    /**
+     * Scores brightness distribution based on histogram balance.
+     * Penalizes overexposure (clipping) and underexposure (crushing).
+     */
+    private fun calculateBrightnessDistribution(bitmap: Bitmap): Float {
+        val width = bitmap.width
+        val height = bitmap.height
+        val pixels = IntArray(width * height)
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+
+        var highlightClipped = 0
+        var shadowCrushed = 0
+        var totalLum = 0.0
+        val step = (pixels.size / 1000).coerceAtLeast(1)
+        var count = 0
+
+        for (i in pixels.indices step step) {
+            val lum = getLuminance(pixels[i])
+            if (lum > 0.98f) highlightClipped++
+            if (lum < 0.02f) shadowCrushed++
+            totalLum += lum
+            count++
+        }
+
+        if (count == 0) return 0.5f
+
+        val avgBrightness = (totalLum / count).toFloat()
+        val highlightRatio = highlightClipped.toFloat() / count
+        val shadowRatio = shadowCrushed.toFloat() / count
+
+        // Ideal average brightness is around 0.5 (middle gray)
+        val brightnessBalance = 1.0f - abs(avgBrightness - 0.5f)
+        
+        // Penalize heavy clipping or crushing
+        val exposureScore = (1.0f - (highlightRatio * 2f + shadowRatio * 1.5f)).coerceIn(0f, 1f)
+
+        return (brightnessBalance * 0.4f + exposureScore * 0.6f).coerceIn(0f, 1f)
     }
 
     private fun getLuminance(pixel: Int): Float {
@@ -212,6 +268,4 @@ class AestheticScorer {
         val b = pixel and 0xFF
         return (0.299f * r + 0.587f * g + 0.114f * b) / 255f
     }
-    
-    private fun Double.pow(n: Double) = Math.pow(this, n)
 }

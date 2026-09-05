@@ -12,5 +12,11 @@ data class MediaPhoto(
 
     val dateModified: Long,
 
-    val isVideo: Boolean = false
+    val isVideo: Boolean = false,
+
+    val aiScore: Float = -1f,
+
+    val isBestTake: Boolean = false,
+
+    val rejectionReason: String? = null
 )

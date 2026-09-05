@@ -9,6 +9,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -41,7 +42,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -81,6 +84,7 @@ fun AICurationScreen(
     
     var selectedPhotoIndex by remember { mutableIntStateOf(-1) }
     var viewerSourceIsKeepers by remember { mutableStateOf(true) }
+    val showAiLogic = true // Hardcoded for testing
 
     BackHandler(enabled = selectedPhotoIndex >= 0 || isSelectionMode) {
         if (selectedPhotoIndex >= 0) {
@@ -90,9 +94,6 @@ fun AICurationScreen(
         }
     }
 
-    // Remove the automatic trigger. Curation should only happen when manually requested.
-    // The filterBestTakes will be called via TimelineDetailScreen's "Best Takes" button.
-    
     val analysisResults by viewModel.analysisResults.collectAsState()
     val isAnalyzing by viewModel.isAnalyzing.collectAsState()
     val progress by viewModel.progress.collectAsState()
@@ -147,6 +148,7 @@ fun AICurationScreen(
             CurationResultsGrid(
                 keepers = keepers,
                 forReview = forReview,
+                showAiLogic = showAiLogic,
                 onToggleBestTake = { viewModel.toggleBestTake(it) },
                 onPhotoClick = { index, isKeeper ->
                     if (isSelectionMode) {
@@ -187,6 +189,7 @@ fun AICurationScreen(
 fun CurationResultsGrid(
     keepers: List<CuratedResult>,
     forReview: List<CuratedResult>,
+    showAiLogic: Boolean,
     onToggleBestTake: (Long) -> Unit,
     onPhotoClick: (Int, Boolean) -> Unit,
     onPhotoLongClick: (CuratedResult) -> Unit,
@@ -226,6 +229,7 @@ fun CurationResultsGrid(
                 CurationPhotoCard(
                     result = result, 
                     isKeeper = true, 
+                    showAiLogic = showAiLogic,
                     onToggleBestTake = onToggleBestTake,
                     onClick = { onPhotoClick(index, true) },
                     onLongClick = { onPhotoLongClick(result) },
@@ -262,6 +266,7 @@ fun CurationResultsGrid(
                 CurationPhotoCard(
                     result = result, 
                     isKeeper = false, 
+                    showAiLogic = showAiLogic,
                     onToggleBestTake = onToggleBestTake,
                     onClick = { onPhotoClick(index, false) },
                     onLongClick = { onPhotoLongClick(result) },
@@ -278,6 +283,7 @@ fun CurationResultsGrid(
 fun CurationPhotoCard(
     result: CuratedResult, 
     isKeeper: Boolean, 
+    showAiLogic: Boolean,
     onToggleBestTake: (Long) -> Unit,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
@@ -323,63 +329,127 @@ fun CurationPhotoCard(
                 }
             }
         } else {
+            // Overlaying selection toggle/dismiss buttons at the top
             Box(
                 modifier = Modifier
-                    .align(Alignment.TopEnd)
+                    .fillMaxSize()
                     .padding(4.dp)
-                    .size(28.dp)
-                    .background(Color.Black.copy(alpha = 0.5f), CircleShape)
-                    .clickable { onToggleBestTake(result.photo.id) },
-                contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = if (isKeeper) Icons.Default.Close else Icons.Default.Check,
-                    contentDescription = if (isKeeper) "Dismiss" else "Keep",
-                    tint = Color.White,
-                    modifier = Modifier.size(16.dp)
-                )
+                // Top Right Action Button (Keep/Dismiss)
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .size(28.dp)
+                        .clickable { onToggleBestTake(result.photo.id) },
+                    color = Color.Black.copy(alpha = 0.5f),
+                    shape = CircleShape
+                ) {
+                    Icon(
+                        imageVector = if (isKeeper) Icons.Default.Close else Icons.Default.Check,
+                        contentDescription = if (isKeeper) "Dismiss" else "Keep",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .padding(6.dp)
+                            .fillMaxSize()
+                    )
+                }
             }
 
-            if (!isKeeper) {
-                val reason = result.rejectionReason
-                val label = when (reason) {
-                    RejectionReason.DUPLICATE -> "Similar"
-                    RejectionReason.BLURRY -> "Hazy"
-                    RejectionReason.EYES_CLOSED -> "Blinked"
-                    RejectionReason.BAD_EXPRESSION -> "Awkward"
-                    RejectionReason.POOR_LIGHTING -> "Darkish"
-                    RejectionReason.POOR_COMPOSITION -> "Framing"
-                    RejectionReason.LOW_QUALITY -> "Subpar"
-                    RejectionReason.MANUAL -> "Your choice"
-                    RejectionReason.NONE -> "Subpar"
-                }
+            // Bottom Floating Bar (Rejection Reason & AI Score)
+            val hasDescription = result.aiDescription.isNotEmpty()
+            if (result.score != -1f || (!isKeeper && result.rejectionReason != RejectionReason.NONE) || (showAiLogic && hasDescription)) {
+                val isHigh = result.score >= 0.7f
+                val softGreen = Color(0xFFA5D6A7)
                 
-                Box(
+                Surface(
                     modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(4.dp)
-                        .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(4.dp))
-                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 6.dp, start = 6.dp, end = 6.dp)
+                        .fillMaxWidth(),
+                    color = Color.Black.copy(alpha = 0.7f),
+                    shape = RoundedCornerShape(8.dp)
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = when (reason) {
-                                RejectionReason.EYES_CLOSED -> Icons.Default.VisibilityOff
-                                RejectionReason.DUPLICATE -> Icons.Default.CopyAll
-                                RejectionReason.BLURRY -> Icons.Default.BlurOn
-                                else -> Icons.Default.ErrorOutline
-                            },
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(10.dp)
-                        )
-                        Spacer(Modifier.width(4.dp))
-                        Text(
-                            text = label,
-                            color = Color.White,
-                            fontSize = 8.sp,
-                            fontWeight = FontWeight.Medium
-                        )
+                    Column(
+                        modifier = Modifier.padding(4.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // Left side: Rejection Reason / "Keeper" label
+                            Box(modifier = Modifier.weight(1f)) {
+                                if (!isKeeper) {
+                                    val reason = result.rejectionReason
+                                    val label = when (reason) {
+                                        RejectionReason.DUPLICATE -> "Similar"
+                                        RejectionReason.BLURRY -> "Hazy"
+                                        RejectionReason.EYES_CLOSED -> "Blinked"
+                                        RejectionReason.BAD_EXPRESSION -> "Awkward"
+                                        RejectionReason.POOR_LIGHTING -> "Darkish"
+                                        RejectionReason.POOR_COMPOSITION -> "Framing"
+                                        RejectionReason.LOW_QUALITY -> "Subpar"
+                                        RejectionReason.MANUAL -> "Choice"
+                                        else -> null
+                                    }
+                                    if (label != null) {
+                                        Text(
+                                            text = label.uppercase(),
+                                            color = Color.White.copy(alpha = 0.9f),
+                                            fontSize = 7.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            letterSpacing = 0.5.sp
+                                        )
+                                    }
+                                } else {
+                                    Text(
+                                        text = "KEEPER",
+                                        color = softGreen,
+                                        fontSize = 7.sp,
+                                        fontWeight = FontWeight.Black,
+                                        letterSpacing = 0.5.sp
+                                    )
+                                }
+                            }
+
+                            // Right side: AI Score
+                            if (result.score != -1f) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Default.AutoAwesome,
+                                        contentDescription = null,
+                                        tint = if (isHigh) softGreen else Color.White.copy(alpha = 0.6f),
+                                        modifier = Modifier.size(8.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(2.dp))
+                                    Text(
+                                        text = "${(result.score * 100).toInt()}",
+                                        color = if (isHigh) softGreen else Color.White,
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Black
+                                    )
+                                }
+                            }
+                        }
+
+                        // Bottom: AI Description (full width if present)
+                        if (showAiLogic && hasDescription) {
+                            HorizontalDivider(
+                                color = Color.White.copy(alpha = 0.2f),
+                                thickness = 0.5.dp,
+                                modifier = Modifier.padding(vertical = 2.dp)
+                            )
+                            Text(
+                                text = result.aiDescription,
+                                color = Color.White,
+                                fontSize = 8.sp,
+                                lineHeight = 9.sp,
+                                fontWeight = FontWeight.Medium,
+                                maxLines = 2,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                     }
                 }
             }
@@ -518,6 +588,7 @@ fun AICurationScreenPreview() {
                 override fun getAllPhotos() = error("Not implemented")
                 override fun getArchivedPhotos() = kotlinx.coroutines.flow.flowOf(emptyList<MediaPhoto>())
                 override suspend fun getMediaEntities(ids: List<Long>) = emptyList<com.memorycurator.app.data.local.MediaEntity>()
+                override fun getMediaEntitiesFlow(ids: List<Long>) = kotlinx.coroutines.flow.flowOf(emptyList<com.memorycurator.app.data.local.MediaEntity>())
                 override suspend fun saveAiResults(entities: List<com.memorycurator.app.data.local.MediaEntity>) {}
                 override suspend fun updateBestTakeStatus(id: Long, isBest: Boolean) {}
                 override suspend fun resetAiMetadata(ids: List<Long>) {}
@@ -541,7 +612,9 @@ fun AICurationScreenPreview() {
                 override suspend fun updateLocation(id: Long, lat: Double?, lon: Double?, name: String?) {}
                 override suspend fun getMediaById(id: Long) = error("Not implemented")
                 override suspend fun getMediaByIds(ids: List<Long>) = error("Not implemented")
-                override suspend fun updateMetadata(id: Long, isBest: Boolean, score: Float, reason: String?) {}
+                override fun getMediaByIdsFlow(ids: List<Long>) = kotlinx.coroutines.flow.flowOf(emptyList<com.memorycurator.app.data.local.MediaEntity>())
+                override suspend fun updateMetadata(id: Long, isBest: Boolean, score: Float, reason: String?, dateModified: Long) {}
+                override suspend fun updateFullMetadata(id: Long, isBest: Boolean, score: Float, reason: String?, clusterId: String?, originalFolder: String?, description: String?, faceCount: Int) {}
                 override suspend fun resetAiMetadata(ids: List<Long>) {}
                 override suspend fun updateArchiveStatus(id: Long, isArchived: Boolean) {}
                 override suspend fun updateFolder(id: Long, folderName: String?, bucketId: String?) {}
@@ -551,6 +624,7 @@ fun AICurationScreenPreview() {
                 override suspend fun delete(entity: com.memorycurator.app.data.local.MediaEntity) {}
                 override suspend fun transferMetadata(oldId: Long, newId: Long, newUri: String, newFolder: String, originalFolder: String?) {}
                 override suspend fun getAllMediaSync(): List<com.memorycurator.app.data.local.MediaEntity> = emptyList()
+                override suspend fun getAllIds(): List<Long> = emptyList()
                 override suspend fun getLastModifiedTimestamp(): Long? = 0L
                 override suspend fun deleteById(id: Long) {}
                 override suspend fun deleteByIds(ids: List<Long>) {}

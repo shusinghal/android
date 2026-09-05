@@ -38,5 +38,9 @@ data class MediaEntity(
     val clusterId: String? = null,
     val isManuallyModified: Boolean = false,
     val originalFolderName: String? = null,
-    val isArchived: Boolean = false
+    val isArchived: Boolean = false,
+
+    // NEW: Detailed AI Metadata for debugging/testing
+    val aiDescription: String? = null,
+    val mainFaceCount: Int = 0
 )

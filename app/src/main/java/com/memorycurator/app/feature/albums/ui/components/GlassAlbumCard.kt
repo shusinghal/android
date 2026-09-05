@@ -31,6 +31,7 @@ import com.memorycurator.app.ui.theme.MemoryCuratorTheme
 @Composable
 fun GlassAlbumCard(
     album: Album,
+    title: String = album.folderName,
     onClick: () -> Unit,
     onBestTakesClick: () -> Unit
 ) {
@@ -79,13 +80,15 @@ fun GlassAlbumCard(
                     .padding(start = 16.dp, end = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Text(
-                    text = album.folderName,
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1
-                )
+                if (title.isNotEmpty()) {
+                    Text(
+                        text = title,
+                        color = Color.White,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1
+                    )
+                }
 
                 Text(
                     text = "${album.photoCount} items",

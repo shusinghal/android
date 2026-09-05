@@ -19,7 +19,10 @@ object PreviewStockPhotos {
             contentUri = mockUri,
             dateTaken = System.currentTimeMillis() - (index * 86400000L),
             dateModified = System.currentTimeMillis() - (index * 86400000L),
-            isVideo = false
+            isVideo = false,
+            aiScore = if (index % 3 == 0) 0.85f else 0.45f,
+            isBestTake = index % 3 == 0,
+            rejectionReason = if (index % 3 != 0) "BLURRY" else null
         )
     }
 

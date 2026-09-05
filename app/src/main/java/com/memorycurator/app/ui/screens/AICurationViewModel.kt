@@ -80,7 +80,9 @@ class AICurationViewModel(
                                 rejectionReason = runCatching { 
                                     RejectionReason.valueOf(entity.rejectionReason ?: "NONE")
                                 }.getOrDefault(RejectionReason.NONE),
-                                clusterId = entity.clusterId
+                                clusterId = entity.clusterId,
+                                aiDescription = entity.aiDescription ?: "",
+                                mainFaceCount = entity.mainFaceCount
                             )
                         } else null
                     }
@@ -182,6 +184,24 @@ class AICurationViewModel(
                 repository.getMediaEntities(photos.map { it.id })
             }
             
+            // Populate current state from DB so we don't start from an empty grid
+            _analysisResults.value = savedEntities.mapNotNull { entity ->
+                val photo = allPhotosFromSession.find { it.id == entity.id }
+                if (photo != null) {
+                    CuratedResult(
+                        photo = photo.copy(dateModified = entity.dateModified),
+                        score = entity.aiScore,
+                        isBestTake = entity.isBestTake,
+                        rejectionReason = runCatching { 
+                            RejectionReason.valueOf(entity.rejectionReason ?: "NONE")
+                        }.getOrDefault(RejectionReason.NONE),
+                        clusterId = entity.clusterId,
+                        aiDescription = entity.aiDescription ?: "",
+                        mainFaceCount = entity.mainFaceCount
+                    )
+                } else null
+            }
+            
             val needsAi = savedEntities.any { it.aiScore == -1f }
             
             if (!needsAi) {
@@ -189,11 +209,26 @@ class AICurationViewModel(
                 return@launch
             }
 
-            // 2. Run AI Analysis
+            // 2. Run AI Analysis with real-time updates
             val fullAnalysis = withContext(Dispatchers.Default) {
-                imageCurator.analyzePhotos(context, photos) { current, total ->
-                    _progress.value = CurationProgress(current, total, current.toFloat() / total)
-                }
+                imageCurator.analyzePhotos(
+                    context = context, 
+                    photos = photos,
+                    onProgress = { current, total ->
+                        _progress.value = CurationProgress(current, total, current.toFloat() / total)
+                    },
+                    onResult = { partialResult ->
+                        // Update UI immediately with the newly analyzed result
+                        val currentResults = _analysisResults.value.toMutableList()
+                        val existingIndex = currentResults.indexOfFirst { it.photo.id == partialResult.photo.id }
+                        if (existingIndex != -1) {
+                            currentResults[existingIndex] = partialResult
+                        } else {
+                            currentResults.add(partialResult)
+                        }
+                        _analysisResults.value = currentResults
+                    }
+                )
             }
             
             // 3. Save to DB
@@ -205,7 +240,9 @@ class AICurationViewModel(
                             aiScore = aiResult.score,
                             isBestTake = aiResult.isBestTake,
                             rejectionReason = aiResult.rejectionReason.name,
-                            clusterId = aiResult.clusterId
+                            clusterId = aiResult.clusterId,
+                            aiDescription = aiResult.aiDescription,
+                            mainFaceCount = aiResult.mainFaceCount
                         )
                     } else {
                         entity

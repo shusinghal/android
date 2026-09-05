@@ -67,7 +67,9 @@ class MediaRepositoryImpl(
                             isBestTake = entity.isBestTake,
                             rejectionReason = entity.rejectionReason,
                             clusterId = entity.clusterId,
-                            originalFolder = entity.originalFolderName ?: entity.folderName
+                            originalFolder = entity.originalFolderName ?: entity.folderName,
+                            aiDescription = entity.aiDescription,
+                            mainFaceCount = entity.mainFaceCount
                         )
                     )
                 }
@@ -100,7 +102,9 @@ class MediaRepositoryImpl(
                         isBestTake = isBest,
                         rejectionReason = newReason,
                         clusterId = entity.clusterId,
-                        originalFolder = entity.originalFolderName ?: entity.folderName
+                        originalFolder = entity.originalFolderName ?: entity.folderName,
+                        aiDescription = entity.aiDescription,
+                        mainFaceCount = entity.mainFaceCount
                     )
                 )
             }

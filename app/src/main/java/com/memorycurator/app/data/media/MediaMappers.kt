@@ -15,6 +15,12 @@ fun MediaEntity.toMediaPhoto(): MediaPhoto {
 
         dateModified = dateModified,
 
-        isVideo = mimeType?.startsWith("video/") == true
+        isVideo = mimeType?.startsWith("video/") == true,
+
+        aiScore = aiScore,
+
+        isBestTake = isBestTake,
+
+        rejectionReason = rejectionReason
     )
 }

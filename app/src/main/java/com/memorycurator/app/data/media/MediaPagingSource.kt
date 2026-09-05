@@ -100,7 +100,10 @@ class MediaPagingSource(
                                 contentUri = contentUri,
                                 dateTaken = dateTaken,
                                 dateModified = dateModified,
-                                isVideo = isVideo
+                                isVideo = isVideo,
+                                aiScore = -1f,
+                                isBestTake = false,
+                                rejectionReason = null
                             )
                         )
 

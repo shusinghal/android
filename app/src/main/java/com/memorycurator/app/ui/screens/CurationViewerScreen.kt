@@ -6,7 +6,6 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,6 +18,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -46,6 +46,8 @@ import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
@@ -178,8 +180,6 @@ fun CurationViewerScreen(
 ) {
     if (results.isEmpty()) return
 
-    val coroutineScope = rememberCoroutineScope()
-    val haptic = LocalHapticFeedback.current
     val density = LocalDensity.current
 
     val mainPagerState = rememberPagerState(
@@ -278,67 +278,57 @@ fun CurationViewerScreen(
                     }
                 }
         ) {
-            // LAYER 2: Text displayed under active card
+            // LAYER 2: Background Information (Revealed when card is lifted)
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .zIndex(2f) // Force text to stay on top of large photo cards
+                    .graphicsLayer {
+                        val horizontalOffset = mainPagerState.currentPageOffsetFraction.absoluteValue
+                        alpha = (1f - (horizontalOffset * 5f)).coerceIn(0f, 1f)
+                    }
                     .navigationBarsPadding()
-                    .padding(bottom = 110.dp),
-                contentAlignment = Alignment.BottomCenter
             ) {
-                // Optimized text trigger using derivedStateOf
                 val isActive by remember {
                     derivedStateOf {
                         swipeState.verticalOffset.value < -20f || swipeState.isLifted
                     }
                 }
 
-                // AI Reason Badge (Bottom Left)
-                if (!isBestTake && reviewReasonLabel != null) {
+                // Confirmation Hint: Moved 50dp higher (140dp + 50dp = 190dp from bottom)
+                if (isActive) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(start = 24.dp, bottom = 24.dp),
-                        contentAlignment = Alignment.BottomStart
+                            .padding(bottom = 190.dp),
+                        contentAlignment = Alignment.BottomCenter
                     ) {
-                        Surface(
-                            color = Color.Black.copy(alpha = 0.5f),
-                            shape = RoundedCornerShape(8.dp),
-                            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.15f))
-                        ) {
-                            Text(
-                                text = reviewReasonLabel,
-                                color = Color.White.copy(alpha = 0.9f),
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
-                            )
-                        }
-                    }
-                }
-                
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    if (isActive) {
                         val isManual = (activeItem?.score ?: 0f) == -1f
+                        val confirmText = if (isBestTake) "SWIPE UP AGAIN TO REMOVE" else if (isManual) "SWIPE UP AGAIN TO KEEP" else "SWIPE UP AGAIN TO INCLUDE"
                         Text(
-                            text = if (isBestTake) "SWIPE UP AGAIN TO REMOVE" else if (isManual) "SWIPE UP AGAIN TO KEEP" else "SWIPE UP AGAIN TO INCLUDE",
+                            text = confirmText,
                             color = actionColor.copy(alpha = 0.9f),
-                            fontSize = 17.sp,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Black
                         )
+                    }
+                }
+
+                // AI Description: Kept in its own layer as requested
+                if (activeItem?.aiDescription?.isNotEmpty() == true) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(bottom = 80.dp, start = 24.dp, end = 24.dp),
+                        contentAlignment = Alignment.BottomCenter
+                    ) {
                         Text(
-                            text = if (swipeState.isLifted) "Release at full swipe to confirm" else "Keep swiping up to stage",
-                            color = Color.White.copy(alpha = 0.6f),
-                            fontSize = 13.sp
-                        )
-                    } else {
-                        val isManual = (activeItem?.score ?: 0f) == -1f
-                        Text(
-                            text = if (isBestTake) "Swipe up to remove" else if (isManual) "Swipe up to keep" else "Swipe up to include",
-                            color = Color.White.copy(alpha = 0.35f),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium
+                            text = activeItem.aiDescription,
+                            color = Color.White.copy(alpha = 0.7f),
+                            fontSize = 11.sp,
+                            lineHeight = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
                 }
@@ -402,19 +392,94 @@ fun CurationViewerScreen(
                         ),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (result.photo.isVideo) {
-                        VideoPlayer(
-                            videoUri = result.photo.contentUri,
-                            modifier = Modifier.fillMaxSize(),
-                            active = isCurrentPage && focusedClusterPhoto == null
-                        )
-                    } else {
-                        ZoomableMediaView(
-                            uri = result.photo.contentUri,
-                            dateModified = result.photo.dateModified,
-                            isCurrentPage = isCurrentPage,
-                            onZoomStateChanged = { zoomed -> isZoomed = zoomed }
-                        )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        // Image/Video Area
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight()
+                                .weight(1f, fill = false),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (result.photo.isVideo) {
+                                VideoPlayer(
+                                    videoUri = result.photo.contentUri,
+                                    modifier = Modifier.wrapContentSize(),
+                                    active = isCurrentPage && focusedClusterPhoto == null
+                                )
+                            } else {
+                                ZoomableMediaView(
+                                    uri = result.photo.contentUri,
+                                    dateModified = result.photo.dateModified,
+                                    isCurrentPage = isCurrentPage,
+                                    modifier = Modifier.wrapContentSize(),
+                                    onZoomStateChanged = { zoomed -> isZoomed = zoomed }
+                                )
+                            }
+                        }
+
+                        // NEW FRAME: sit exactly below the pixels of image
+                        if (!isZoomed) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 12.dp, horizontal = 24.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // LEFT: Comment / Best Take
+                                val label = if (result.isBestTake) "BEST TAKE" else when (result.rejectionReason) {
+                                    RejectionReason.DUPLICATE -> "Similar"
+                                    RejectionReason.BLURRY -> "Hazy"
+                                    RejectionReason.EYES_CLOSED -> "Blinked"
+                                    RejectionReason.BAD_EXPRESSION -> "Awkward"
+                                    RejectionReason.POOR_LIGHTING -> "Darkish"
+                                    RejectionReason.POOR_COMPOSITION -> "Framing"
+                                    RejectionReason.LOW_QUALITY -> "Subpar"
+                                    RejectionReason.MANUAL -> "Choice"
+                                    else -> "Review"
+                                }
+                                Text(
+                                    text = label,
+                                    color = if (result.isBestTake) Color(0xFFA5D6A7) else Color.White.copy(alpha = 0.5f),
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.weight(1f)
+                                )
+
+                                // CENTER: Swipe Guidance
+                                val isManual = (result.score == -1f)
+                                val hintText = if (result.isBestTake) "Swipe up to remove" else if (isManual) "Swipe up to keep" else "Swipe up to include"
+                                Text(
+                                    text = hintText,
+                                    color = Color.White.copy(alpha = 0.35f),
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.weight(2.2f)
+                                )
+
+                                // RIGHT: AI Score
+                                if (result.score != -1f) {
+                                    Text(
+                                        text = "${(result.score * 100).toInt()}",
+                                        color = Color.White.copy(alpha = 0.5f),
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Black,
+                                        textAlign = TextAlign.End,
+                                        modifier = Modifier.weight(0.8f)
+                                    )
+                                } else {
+                                    Spacer(modifier = Modifier.weight(0.8f))
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -447,19 +512,78 @@ fun CurationViewerScreen(
                             ),
                         contentAlignment = Alignment.Center
                     ) {
-                        if (clusterItem.photo.isVideo) {
-                            VideoPlayer(
-                                videoUri = clusterItem.photo.contentUri,
-                                modifier = Modifier.fillMaxSize(),
-                                active = true
-                            )
-                        } else {
-                            ZoomableMediaView(
-                                uri = clusterItem.photo.contentUri,
-                                dateModified = clusterItem.photo.dateModified,
-                                isCurrentPage = true,
-                                onZoomStateChanged = { zoomed -> isZoomed = zoomed }
-                            )
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .wrapContentHeight()
+                                    .weight(1f, fill = false), 
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (clusterItem.photo.isVideo) {
+                                    VideoPlayer(
+                                        videoUri = clusterItem.photo.contentUri,
+                                        modifier = Modifier.wrapContentSize(),
+                                        active = true
+                                    )
+                                } else {
+                                    ZoomableMediaView(
+                                        uri = clusterItem.photo.contentUri,
+                                        dateModified = clusterItem.photo.dateModified,
+                                        isCurrentPage = true,
+                                        modifier = Modifier.wrapContentSize(),
+                                        onZoomStateChanged = { zoomed -> isZoomed = zoomed }
+                                    )
+                                }
+                            }
+                            
+                            if (!isZoomed) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 12.dp, horizontal = 24.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    val label = if (clusterItem.isBestTake) "BEST TAKE" else clusterItem.rejectionReason.name
+                                    Text(
+                                        text = label,
+                                        color = if (clusterItem.isBestTake) Color(0xFFA5D6A7) else Color.White.copy(alpha = 0.5f),
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.weight(1f)
+                                    )
+
+                                    val hintText = if (clusterItem.isBestTake) "Swipe up to remove" else "Swipe up to include"
+                                    Text(
+                                        text = hintText,
+                                        color = Color.White.copy(alpha = 0.35f),
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.weight(2.2f)
+                                    )
+
+                                    if (clusterItem.score != -1f) {
+                                        Text(
+                                            text = "${(clusterItem.score * 100).toInt()}",
+                                            color = Color.White.copy(alpha = 0.5f),
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Black,
+                                            textAlign = TextAlign.End,
+                                            modifier = Modifier.weight(0.8f)
+                                        )
+                                    } else {
+                                        Spacer(modifier = Modifier.weight(0.8f))
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -558,6 +682,9 @@ fun CurationViewerScreen(
                     Spacer(modifier = Modifier.size(48.dp))
                 }
             }
+
+            // LAYER 7: Floating Badges (Always on Top) - REMOVED TO PREVENT COLLISION
+            // Score and Reason moved to Header (Layer 6)
         }
     }
 }
@@ -599,19 +726,12 @@ fun ZoomableMediaView(
 
     Box(
         modifier = modifier
-            .fillMaxSize()
             .pointerInput(Unit) {
-                // Unified gesture detection: Taps and Transforms in a single scope
+                // Unified gesture detection
                 awaitEachGesture {
-                    val down = awaitFirstDown(requireUnconsumed = false)
-                    
-                    // We check for double tap manually to keep everything in one pass if needed, 
-                    // but for brevity and consistency we use detectTapGestures in a secondary block 
-                    // or combine here.
+                    awaitFirstDown(requireUnconsumed = false)
                 }
             }
-            // For stability, we use detectTapGestures and detectTransformGestures separately 
-            // but ensure they are optimized.
             .pointerInput(Unit) {
                 detectTapGestures(
                     onDoubleTap = { tapCenter ->
@@ -692,7 +812,8 @@ fun ZoomableMediaView(
             contentDescription = null,
             contentScale = ContentScale.Fit,
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
+                .wrapContentHeight() // Key: Hug the pixels
                 .graphicsLayer {
                     scaleX = scaleAnim.value
                     scaleY = scaleAnim.value

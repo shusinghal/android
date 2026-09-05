@@ -65,10 +65,10 @@ interface MediaDao {
     @Query("UPDATE media SET isBestTake = :isBest, aiScore = :score, rejectionReason = :reason, isManuallyModified = 1, dateModified = :dateModified WHERE id = :id")
     suspend fun updateMetadata(id: Long, isBest: Boolean, score: Float, reason: String?, dateModified: Long)
 
-    @Query("UPDATE media SET isBestTake = :isBest, aiScore = :score, rejectionReason = :reason, clusterId = :clusterId, originalFolderName = :originalFolder, isManuallyModified = 1 WHERE id = :id")
-    suspend fun updateFullMetadata(id: Long, isBest: Boolean, score: Float, reason: String?, clusterId: String?, originalFolder: String?)
+    @Query("UPDATE media SET isBestTake = :isBest, aiScore = :score, rejectionReason = :reason, clusterId = :clusterId, originalFolderName = :originalFolder, aiDescription = :description, mainFaceCount = :faceCount, isManuallyModified = 1 WHERE id = :id")
+    suspend fun updateFullMetadata(id: Long, isBest: Boolean, score: Float, reason: String?, clusterId: String?, originalFolder: String?, description: String?, faceCount: Int)
 
-    @Query("UPDATE media SET aiScore = -1, isBestTake = 0, rejectionReason = NULL, clusterId = NULL, isManuallyModified = 0 WHERE id IN (:ids)")
+    @Query("UPDATE media SET aiScore = -1, isBestTake = 0, rejectionReason = NULL, clusterId = NULL, aiDescription = NULL, mainFaceCount = 0, isManuallyModified = 0 WHERE id IN (:ids)")
     suspend fun resetAiMetadata(ids: List<Long>)
 
     @Query("UPDATE media SET folderName = :folderName, bucketId = :bucketId WHERE id = :id")

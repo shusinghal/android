@@ -12,7 +12,9 @@ data class CurationExifData(
     val isBestTake: Boolean,
     val rejectionReason: String?,
     val clusterId: String?,
-    val originalFolder: String? = null
+    val originalFolder: String? = null,
+    val aiDescription: String? = null,
+    val mainFaceCount: Int = 0
 )
 
 object ExifMetadataManager {
@@ -29,6 +31,8 @@ object ExifMetadataManager {
                 put("rejectionReason", metadata.rejectionReason ?: JSONObject.NULL)
                 put("clusterId", metadata.clusterId ?: JSONObject.NULL)
                 put("originalFolder", metadata.originalFolder ?: JSONObject.NULL)
+                put("aiDescription", metadata.aiDescription ?: JSONObject.NULL)
+                put("mainFaceCount", metadata.mainFaceCount)
             }.toString()
 
             // For modern Android, we must use openFileDescriptor with "rw" mode
@@ -70,7 +74,9 @@ object ExifMetadataManager {
                     isBestTake = json.optBoolean("isBestTake", false),
                     rejectionReason = if (json.isNull("rejectionReason")) null else json.optString("rejectionReason"),
                     clusterId = if (json.isNull("clusterId")) null else json.optString("clusterId"),
-                    originalFolder = if (json.isNull("originalFolder")) null else json.optString("originalFolder")
+                    originalFolder = if (json.isNull("originalFolder")) null else json.optString("originalFolder"),
+                    aiDescription = if (json.isNull("aiDescription")) null else json.optString("aiDescription"),
+                    mainFaceCount = json.optInt("mainFaceCount", 0)
                 )
             } catch (e: Exception) {
                 null

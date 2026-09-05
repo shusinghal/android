@@ -155,7 +155,9 @@ class MediaIndexer(
                             score = exifData.aiScore,
                             reason = exifData.rejectionReason,
                             clusterId = exifData.clusterId,
-                            originalFolder = exifData.originalFolder
+                            originalFolder = exifData.originalFolder,
+                            description = exifData.aiDescription,
+                            faceCount = exifData.mainFaceCount
                         )
                         restoredCount++
                     }
@@ -308,7 +310,9 @@ class MediaIndexer(
                                     score = exifData.aiScore,
                                     reason = exifData.rejectionReason,
                                     clusterId = exifData.clusterId,
-                                    originalFolder = exifData.originalFolder
+                                    originalFolder = exifData.originalFolder,
+                                    description = exifData.aiDescription,
+                                    faceCount = exifData.mainFaceCount
                                 )
                                 true
                             } else false
