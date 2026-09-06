@@ -1,6 +1,11 @@
 package com.memorycurator.app.ui.screens
 
+import android.app.RecoverableSecurityException
 import android.content.Context
+import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
+import androidx.activity.result.IntentSenderRequest
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -8,6 +13,7 @@ import com.memorycurator.app.core.ai.CuratedResult
 import com.memorycurator.app.core.ai.ImageCurator
 import com.memorycurator.app.core.ai.ImageCuratorImpl
 import com.memorycurator.app.core.ai.RejectionReason
+import com.memorycurator.app.data.local.UserPreferences
 import com.memorycurator.app.data.media.MediaIndexer
 import com.memorycurator.app.data.media.MediaPhoto
 import com.memorycurator.app.data.media.MediaRepository
@@ -52,6 +58,15 @@ class AICurationViewModel(
     private val _isSyncing = MutableStateFlow(false)
     val isSyncing: StateFlow<Boolean> = _isSyncing
 
+    private val _permissionRequest = MutableStateFlow<IntentSenderRequest?>(null)
+    val permissionRequest: StateFlow<IntentSenderRequest?> = _permissionRequest
+
+    private val _syncStatus = MutableStateFlow<String?>(null)
+    val syncStatus: StateFlow<String?> = _syncStatus
+
+    private val _isDirty = MutableStateFlow(false)
+    val isDirty: StateFlow<Boolean> = _isDirty
+
     private var allPhotosFromSession: List<MediaPhoto> = emptyList()
     private var observationJob: Job? = null
 
@@ -63,6 +78,8 @@ class AICurationViewModel(
             try {
                 _isSyncing.value = true
                 mediaIndexer.restoreMetadataForIds(photos.map { it.id })
+                // After restoration, what's in DB matches what's in EXIF
+                _isDirty.value = false
             } finally {
                 _isSyncing.value = false
             }
@@ -210,10 +227,12 @@ class AICurationViewModel(
             }
 
             // 2. Run AI Analysis with real-time updates
+            val isDeep = UserPreferences(context).isDeepAnalysisEnabled
             val fullAnalysis = withContext(Dispatchers.Default) {
                 imageCurator.analyzePhotos(
                     context = context, 
                     photos = photos,
+                    isDeepAnalysis = isDeep,
                     onProgress = { current, total ->
                         _progress.value = CurationProgress(current, total, current.toFloat() / total)
                     },
@@ -231,7 +250,7 @@ class AICurationViewModel(
                 )
             }
             
-            // 3. Save to DB
+            // 3. Save to DB and EXIF
             withContext(Dispatchers.IO) {
                 val updatedEntities = savedEntities.map { entity ->
                     val aiResult = fullAnalysis.find { it.photo.id == entity.id }
@@ -248,7 +267,13 @@ class AICurationViewModel(
                         entity
                     }
                 }
-                repository.saveAiResults(updatedEntities)
+                val errors = repository.saveAiResults(updatedEntities)
+                // We don't pass context here because filterBestTakes is often automatic.
+                // If it fails, users can use the "Save to Files" button to trigger batch permission.
+                handleSecurityExceptions(null, MediaRepository.SyncResult(0, emptyList(), errors))
+                
+                // If analysis finished, we are "dirty" until manual Save
+                _isDirty.value = true
             }
             
             _isAnalyzing.value = false
@@ -281,10 +306,68 @@ class AICurationViewModel(
                 _analysisResults.value = currentList
 
                 withContext(Dispatchers.IO) {
-                    repository.updateBestTakeStatus(photoId, newState)
+                    val error = repository.updateBestTakeStatus(photoId, newState)
+                    if (error != null) {
+                        handleSecurityExceptions(null, MediaRepository.SyncResult(0, listOf(item.photo.contentUri), listOf(error)))
+                    }
+                    // Mark as dirty when user manually changes a rating
+                    _isDirty.value = true
                 }
             }
         }
+    }
+
+    private fun handleSecurityExceptions(context: Context?, result: MediaRepository.SyncResult) {
+        val errors = result.securityExceptions
+        if (errors.isEmpty()) return
+
+        val securityExceptions = errors.filterIsInstance<RecoverableSecurityException>()
+        if (securityExceptions.isNotEmpty()) {
+            if (context != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && result.failedUris.size > 1) {
+                // Batch request for Android 11+
+                val pendingIntent = MediaStore.createWriteRequest(
+                    context.contentResolver, 
+                    result.failedUris
+                )
+                _permissionRequest.value = IntentSenderRequest.Builder(pendingIntent.intentSender).build()
+            } else {
+                // Fallback to individual request (Standard Android 10 or single file)
+                val first = securityExceptions.first()
+                _permissionRequest.value = IntentSenderRequest.Builder(first.userAction.actionIntent.intentSender).build()
+            }
+        }
+    }
+
+    fun consumePermissionRequest() {
+        _permissionRequest.value = null
+    }
+
+    fun syncAllToExif(context: Context) {
+        viewModelScope.launch {
+            val ids = _analysisResults.value.map { it.photo.id }
+            if (ids.isNotEmpty()) {
+                _isSyncing.value = true
+                withContext(Dispatchers.IO) {
+                    val result = repository.syncToExif(ids)
+                    handleSecurityExceptions(context, result)
+                    if (result.successCount > 0) {
+                        _syncStatus.value = "Saved ${result.successCount} photos to files"
+                    } else if (result.failedUris.isEmpty()) {
+                        _syncStatus.value = "All photos already synced"
+                    }
+                    
+                    // If no failures, we are no longer dirty
+                    if (result.failedUris.isEmpty()) {
+                        _isDirty.value = false
+                    }
+                }
+                _isSyncing.value = false
+            }
+        }
+    }
+
+    fun consumeSyncStatus() {
+        _syncStatus.value = null
     }
 
     fun resetCuration(photos: List<MediaPhoto>) {
@@ -293,6 +376,7 @@ class AICurationViewModel(
             withContext(Dispatchers.IO) {
                 repository.resetAiMetadata(photos.map { it.id })
             }
+            _isDirty.value = false
             _analysisResults.value = emptySet<CuratedResult>().toList() // Trigger empty
             _isAnalyzing.value = false
         }

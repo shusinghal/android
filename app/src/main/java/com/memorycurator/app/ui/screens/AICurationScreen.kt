@@ -97,6 +97,33 @@ fun AICurationScreen(
     val analysisResults by viewModel.analysisResults.collectAsState()
     val isAnalyzing by viewModel.isAnalyzing.collectAsState()
     val progress by viewModel.progress.collectAsState()
+    val permissionRequest by viewModel.permissionRequest.collectAsState()
+    val syncStatus by viewModel.syncStatus.collectAsState()
+    val isDirty by viewModel.isDirty.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(syncStatus) {
+        syncStatus?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.consumeSyncStatus()
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        viewModel.consumePermissionRequest()
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            // Permission granted! Auto-retry the save operation
+            viewModel.syncAllToExif(context)
+        }
+    }
+
+    LaunchedEffect(permissionRequest) {
+        permissionRequest?.let {
+            permissionLauncher.launch(it)
+        }
+    }
 
     val keepers = remember(analysisResults) { analysisResults.filter { it.isBestTake } }
     val forReview = remember(analysisResults) { analysisResults.filter { !it.isBestTake } }
@@ -115,12 +142,17 @@ fun AICurationScreen(
         trashLauncher.launch(IntentSenderRequest.Builder(pendingIntent.intentSender).build())
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black)
-    ) {
-        CurationHeader(
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = Color.Black
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .background(Color.Black)
+        ) {
+            CurationHeader(
             onBack = onBack,
             isAnalyzing = isAnalyzing,
             isSyncing = isSyncing,
@@ -139,7 +171,9 @@ fun AICurationScreen(
                 sharePhotos(context, uris)
             },
             onSelectAll = { viewModel.selectAll() },
-            onCancelSelection = { viewModel.toggleSelectionMode(false) }
+            onCancelSelection = { viewModel.toggleSelectionMode(false) },
+            onSyncAll = { viewModel.syncAllToExif(context) },
+            isDirty = isDirty
         )
 
         if (isAnalyzing && progress != null) {
@@ -183,6 +217,7 @@ fun AICurationScreen(
             }
         }
     }
+}
 }
 
 @Composable
@@ -467,8 +502,14 @@ fun CurationHeader(
     onDeleteSelected: () -> Unit,
     onShareSelected: () -> Unit,
     onSelectAll: () -> Unit,
-    onCancelSelection: () -> Unit
+    onCancelSelection: () -> Unit,
+    onSyncAll: () -> Unit,
+    isDirty: Boolean
 ) {
+    val context = LocalContext.current
+    // Read directly to ensure it updates when coming back from Profile settings
+    val isPhysicalEnabled = com.memorycurator.app.data.local.UserPreferences(context).isPhysicalStorageEnabled
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -515,6 +556,23 @@ fun CurationHeader(
                     color = if (isSyncing) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.6f),
                     fontSize = 12.sp
                 )
+            }
+
+            if (!isAnalyzing && !isSyncing && isPhysicalEnabled && isDirty) {
+                Button(
+                    onClick = onSyncAll,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                        contentColor = Color.White
+                    ),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                    modifier = Modifier.height(32.dp),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Icon(Icons.Default.CheckCircle, null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("Save", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                }
             }
         }
     }
@@ -589,8 +647,9 @@ fun AICurationScreenPreview() {
                 override fun getArchivedPhotos() = kotlinx.coroutines.flow.flowOf(emptyList<MediaPhoto>())
                 override suspend fun getMediaEntities(ids: List<Long>) = emptyList<com.memorycurator.app.data.local.MediaEntity>()
                 override fun getMediaEntitiesFlow(ids: List<Long>) = kotlinx.coroutines.flow.flowOf(emptyList<com.memorycurator.app.data.local.MediaEntity>())
-                override suspend fun saveAiResults(entities: List<com.memorycurator.app.data.local.MediaEntity>) {}
-                override suspend fun updateBestTakeStatus(id: Long, isBest: Boolean) {}
+                override suspend fun saveAiResults(entities: List<com.memorycurator.app.data.local.MediaEntity>) = emptyList<Throwable>()
+                override suspend fun updateBestTakeStatus(id: Long, isBest: Boolean): Throwable? = null
+                override suspend fun syncToExif(ids: List<Long>) = MediaRepository.SyncResult(0, emptyList(), emptyList())
                 override suspend fun resetAiMetadata(ids: List<Long>) {}
                 override suspend fun archiveMedia(ids: List<Long>) {}
                 override suspend fun restoreMedia(ids: List<Long>) {}

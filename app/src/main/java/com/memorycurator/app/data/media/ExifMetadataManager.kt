@@ -22,8 +22,9 @@ object ExifMetadataManager {
 
     /**
      * Writes AI curation metadata to the photo's EXIF header using Scoped Storage compatible methods.
+     * Returns null on success, or a Throwable (like RecoverableSecurityException) if permission is needed.
      */
-    fun writeExifMetadata(context: Context, uri: Uri, metadata: CurationExifData) {
+    fun writeExifMetadata(context: Context, uri: Uri, metadata: CurationExifData): Throwable? {
         try {
             val json = JSONObject().apply {
                 put("aiScore", metadata.aiScore.toDouble())
@@ -41,11 +42,13 @@ object ExifMetadataManager {
                 exif.setAttribute(ExifInterface.TAG_USER_COMMENT, json)
                 exif.saveAttributes()
                 Log.d(TAG, "Successfully wrote EXIF metadata to $uri")
+                return null
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error writing EXIF metadata to $uri", e)
-            // Fallback: If "rw" fails, it might be because it's not a local file or permission issue
+            return e
         }
+        return Exception("Failed to open file descriptor")
     }
 
     /**

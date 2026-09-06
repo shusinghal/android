@@ -95,8 +95,36 @@ fun TimelineDetailScreen(
 
     val isSelectionMode by viewModel?.isSelectionMode?.collectAsState() ?: remember { mutableStateOf(false) }
     val selectedIds by viewModel?.selectedIds?.collectAsState() ?: remember { mutableStateOf(emptySet()) }
+    val isDirty by viewModel?.isDirty?.collectAsState() ?: remember { mutableStateOf(false) }
 
     // Derived Category Slices
+    val permissionRequest by viewModel?.permissionRequest?.collectAsState() ?: remember { mutableStateOf(null) }
+    val syncStatus by viewModel?.syncStatus?.collectAsState() ?: remember { mutableStateOf(null) }
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        viewModel?.consumePermissionRequest()
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            // Permission granted! Auto-retry the save operation
+            viewModel?.syncAllToExif(context)
+        }
+    }
+
+    LaunchedEffect(permissionRequest) {
+        permissionRequest?.let {
+            permissionLauncher.launch(it)
+        }
+    }
+
+    LaunchedEffect(syncStatus) {
+        syncStatus?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel?.consumeSyncStatus()
+        }
+    }
+
     val keepers = remember(analysisResults) { analysisResults.filter { it.score != -1f && it.isBestTake } }
     val forReview = remember(analysisResults) { analysisResults.filter { it.score != -1f && !it.isBestTake } }
     val notAnalyzed = remember(analysisResults) { analysisResults.filter { it.score == -1f } }
@@ -160,7 +188,9 @@ fun TimelineDetailScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
+                val isPhysicalEnabled = remember { com.memorycurator.app.data.local.UserPreferences(context).isPhysicalStorageEnabled }
                 TopAppBar(
                     title = {
                         Column {
@@ -251,6 +281,12 @@ fun TimelineDetailScreen(
                                     text = "Best Takes",
                                     color = Color.White
                                 )
+                            }
+                        }
+
+                        if (!isSelectionMode && isBestTakesActive && analysisResults.isNotEmpty() && isPhysicalEnabled && isDirty) {
+                            TextButton(onClick = { viewModel?.syncAllToExif(context) }) {
+                                Text("Save", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                             }
                         }
                     },

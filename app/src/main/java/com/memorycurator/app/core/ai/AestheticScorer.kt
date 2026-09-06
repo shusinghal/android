@@ -23,9 +23,11 @@ class AestheticScorer {
         bitmap: Bitmap,
         faces: List<Face>,
         labels: List<ImageLabel>,
-        subjectBounds: Rect? = null
+        subjectBounds: Rect? = null,
+        isDeep: Boolean = false,
+        nimaEngine: NIMAEngine? = null
     ): AestheticResult {
-        // 1. Semantic Intent Check
+        // ... (1. Semantic Intent Check stays the same)
         val intentLabels = setOf(
             "Prayer", "Spirituality", "Worship", "Meditation", 
             "Sleep", "Baby", "Cradle", "Sunset", "Candle", "Concert"
@@ -35,23 +37,25 @@ class AestheticScorer {
             intentLabels.any { intent -> label.text.contains(intent, ignoreCase = true) } 
         }
 
-        // 2. Composition Score (Rule of Thirds + Visual Salience)
+        // 2. Base Heuristics (Always calculated for safety/intentionality logic)
         val compositionScore = calculateComposition(bitmap, faces, subjectBounds)
-
-        // 3. Color Harmony & Vibrancy
         val colorScore = calculateColorHarmony(bitmap)
-
-        // 4. Contrast & Dynamic Range
         val contrastScore = calculateContrast(bitmap)
-
-        // 5. Brightness Distribution & Exposure Health
         val brightnessScore = calculateBrightnessDistribution(bitmap)
 
-        // Final weighting for the "Art Critic" logic
-        val finalScore = (compositionScore * 0.35f) + 
-                         (colorScore * 0.25f) + 
-                         (contrastScore * 0.20f) + 
-                         (brightnessScore * 0.20f)
+        val heuristicScore = (compositionScore * 0.35f) + 
+                             (colorScore * 0.25f) + 
+                             (contrastScore * 0.20f) + 
+                             (brightnessScore * 0.20f)
+
+        // 3. Deep Analysis Integration (NIMA)
+        val finalScore = if (isDeep && nimaEngine != null) {
+            // Blend NIMA (Neural) with Heuristics (Rule of Thirds/Exposure) for robustness
+            val nimaScore = nimaEngine.calculateAestheticScore(bitmap)
+            (nimaScore * 0.7f) + (heuristicScore * 0.3f)
+        } else {
+            heuristicScore
+        }
 
         // "Intentionality" Logic: 
         // If a photo is beautifully composed and has high semantic intent, 

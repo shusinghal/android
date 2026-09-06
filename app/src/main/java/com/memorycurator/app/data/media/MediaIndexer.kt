@@ -293,37 +293,40 @@ class MediaIndexer(
         
         var anyChanged = false
         
-        coroutineScope {
-            val deferreds = entities.map { entity ->
-                async {
-                    try {
-                        val exifData = ExifMetadataManager.readExifMetadata(context, Uri.parse(entity.uri))
-                        if (exifData != null) {
-                            val isDifferent = entity.aiScore != exifData.aiScore || 
-                                             entity.isBestTake != exifData.isBestTake ||
-                                             entity.rejectionReason != exifData.rejectionReason
-                                             
-                            if (isDifferent) {
-                                mediaDao.updateFullMetadata(
-                                    id = entity.id,
-                                    isBest = exifData.isBestTake,
-                                    score = exifData.aiScore,
-                                    reason = exifData.rejectionReason,
-                                    clusterId = exifData.clusterId,
-                                    originalFolder = exifData.originalFolder,
-                                    description = exifData.aiDescription,
-                                    faceCount = exifData.mainFaceCount
-                                )
-                                true
+        // Use small chunks to prevent OOM when reading many EXIFs in parallel
+        entities.chunked(25).forEach { chunk ->
+            coroutineScope {
+                val deferreds = chunk.map { entity ->
+                    async {
+                        try {
+                            val exifData = ExifMetadataManager.readExifMetadata(context, Uri.parse(entity.uri))
+                            if (exifData != null) {
+                                val isDifferent = entity.aiScore != exifData.aiScore || 
+                                                 entity.isBestTake != exifData.isBestTake ||
+                                                 entity.rejectionReason != exifData.rejectionReason
+                                                 
+                                if (isDifferent) {
+                                    mediaDao.updateFullMetadata(
+                                        id = entity.id,
+                                        isBest = exifData.isBestTake,
+                                        score = exifData.aiScore,
+                                        reason = exifData.rejectionReason,
+                                        clusterId = exifData.clusterId,
+                                        originalFolder = exifData.originalFolder,
+                                        description = exifData.aiDescription,
+                                        faceCount = exifData.mainFaceCount
+                                    )
+                                    true
+                                } else false
                             } else false
-                        } else false
-                    } catch (e: Exception) {
-                        false
+                        } catch (e: Exception) {
+                            false
+                        }
                     }
                 }
-            }
-            if (deferreds.awaitAll().any { it }) {
-                anyChanged = true
+                if (deferreds.awaitAll().any { it }) {
+                    anyChanged = true
+                }
             }
         }
         anyChanged

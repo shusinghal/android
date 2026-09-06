@@ -9,6 +9,7 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import com.memorycurator.app.data.local.DatabaseProvider
 import com.memorycurator.app.data.local.MediaEntity
+import com.memorycurator.app.data.local.UserPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -23,7 +24,6 @@ class MediaRepositoryImpl(
 ) : MediaRepository {
 
     private val mediaDao = DatabaseProvider.getDatabase(context).mediaDao()
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     override fun getPagedPhotos(bestTakesOnly: Boolean): Flow<PagingData<MediaPhoto>> {
         return Pager(
@@ -54,12 +54,16 @@ class MediaRepositoryImpl(
         return mediaDao.getMediaByIdsFlow(ids)
     }
 
-    override suspend fun saveAiResults(entities: List<MediaEntity>) {
+    override suspend fun saveAiResults(entities: List<MediaEntity>): List<Throwable> {
         mediaDao.insertAll(entities)
-        scope.launch {
+        
+        val errors = mutableListOf<Throwable>()
+        val userPrefs = UserPreferences(context)
+        
+        if (userPrefs.isPhysicalStorageEnabled) {
             entities.forEach { entity ->
                 if (entity.mimeType?.startsWith("video") != true) {
-                    ExifMetadataManager.writeExifMetadata(
+                    val error = ExifMetadataManager.writeExifMetadata(
                         context,
                         Uri.parse(entity.uri),
                         CurationExifData(
@@ -72,13 +76,15 @@ class MediaRepositoryImpl(
                             mainFaceCount = entity.mainFaceCount
                         )
                     )
+                    if (error != null) errors.add(error)
                 }
             }
         }
+        return errors
     }
 
-    override suspend fun updateBestTakeStatus(id: Long, isBest: Boolean) {
-        val entity = mediaDao.getMediaById(id) ?: return
+    override suspend fun updateBestTakeStatus(id: Long, isBest: Boolean): Throwable? {
+        val entity = mediaDao.getMediaById(id) ?: return null
         
         // If not analyzed, set to 1.0 (Keep) and add a reason
         val newScore = if (entity.aiScore == -1f) 1.0f else entity.aiScore
@@ -91,24 +97,57 @@ class MediaRepositoryImpl(
         // 1. Update Database with new score and reason, and update timestamp for recency
         mediaDao.updateMetadata(id, isBest, newScore, newReason, System.currentTimeMillis())
         
-        scope.launch {
+        val userPrefs = UserPreferences(context)
+        if (userPrefs.isPhysicalStorageEnabled && entity.mimeType?.startsWith("video") != true) {
+            // 2. Write to physical file metadata
+            return ExifMetadataManager.writeExifMetadata(
+                context,
+                Uri.parse(entity.uri),
+                CurationExifData(
+                    aiScore = newScore,
+                    isBestTake = isBest,
+                    rejectionReason = newReason,
+                    clusterId = entity.clusterId,
+                    originalFolder = entity.originalFolderName ?: entity.folderName,
+                    aiDescription = entity.aiDescription,
+                    mainFaceCount = entity.mainFaceCount
+                )
+            )
+        }
+        return null
+    }
+
+    override suspend fun syncToExif(ids: List<Long>): MediaRepository.SyncResult {
+        val entities = mediaDao.getMediaByIds(ids).filter { it.aiScore != -1f }
+        val exceptions = mutableListOf<Throwable>()
+        val failedUris = mutableListOf<Uri>()
+        var successCount = 0
+        
+        entities.forEach { entity ->
             if (entity.mimeType?.startsWith("video") != true) {
-                // 2. Write to physical file metadata
-                ExifMetadataManager.writeExifMetadata(
+                val uri = Uri.parse(entity.uri)
+                val error = ExifMetadataManager.writeExifMetadata(
                     context,
-                    Uri.parse(entity.uri),
+                    uri,
                     CurationExifData(
-                        aiScore = newScore,
-                        isBestTake = isBest,
-                        rejectionReason = newReason,
+                        aiScore = entity.aiScore,
+                        isBestTake = entity.isBestTake,
+                        rejectionReason = entity.rejectionReason,
                         clusterId = entity.clusterId,
                         originalFolder = entity.originalFolderName ?: entity.folderName,
                         aiDescription = entity.aiDescription,
                         mainFaceCount = entity.mainFaceCount
                     )
                 )
+                if (error != null) {
+                    exceptions.add(error)
+                    failedUris.add(uri)
+                } else {
+                    successCount++
+                }
             }
         }
+        return MediaRepository.SyncResult(successCount, failedUris, exceptions)
     }
 
     override suspend fun resetAiMetadata(ids: List<Long>) {

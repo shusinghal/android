@@ -38,6 +38,7 @@ import com.memorycurator.app.feature.timeline.ui.TimelineDetailScreen
 import com.memorycurator.app.feature.timeline.ui.TimelineScreen
 import com.memorycurator.app.ui.screens.AICurationScreen
 import com.memorycurator.app.ui.screens.OnboardingScreen
+import com.memorycurator.app.ui.screens.ProfileScreen
 import com.memorycurator.app.ui.gallery.GalleryViewModel
 import com.memorycurator.app.ui.theme.GlassTheme
 import com.memorycurator.app.ui.components.BlurBackground
@@ -291,11 +292,7 @@ fun MainNavigationContent(
                     }
 
                     "profile" -> {
-                        Text(
-                            text = "Profile Screen",
-                            color = Color.White,
-                            modifier = Modifier.padding(16.dp)
-                        )
+                        ProfileScreen()
                     }
                 }
             }

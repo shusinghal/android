@@ -29,8 +29,11 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import kotlin.math.abs
+import kotlin.math.max
 import kotlin.math.pow
 
 enum class RejectionReason {
@@ -137,9 +140,12 @@ interface ImageCurator {
     suspend fun analyzePhotos(
         context: Context, 
         photos: List<MediaPhoto>, 
+        isDeepAnalysis: Boolean = false,
         onProgress: (Int, Int) -> Unit,
         onResult: (CuratedResult) -> Unit = {}
     ): List<CuratedResult>
+
+    fun close()
 }
 
 class ImageCuratorImpl : ImageCurator {
@@ -163,134 +169,203 @@ class ImageCuratorImpl : ImageCurator {
     )
 
     private val aestheticScorer = AestheticScorer()
+    private var embeddingEngine: EmbeddingEngine? = null
+    private var nimaEngine: NIMAEngine? = null
+    private var nanoEngine: GeminiNanoEngine? = null
+    private var faceIdentityEngine: FaceIdentityEngine? = null
+    private var segmentationEngine: SegmentationEngine? = null
+    
+    private val aiSemaphore = Semaphore(3) // Limit concurrent AI tasks to prevent OOM
 
     data class PhotoMetadata(
         val labels: Set<String>, // Fix: Store string set including Color AI results
         val mainFaceCount: Int,
         val dateTaken: Long,
-        val visualSignature: FloatArray
+        val visualSignature: FloatArray,
+        val faceEmbeddings: List<FloatArray> = emptyList()
     )
 
     override suspend fun analyzePhotos(
         context: Context, 
         photos: List<MediaPhoto>,
+        isDeepAnalysis: Boolean,
         onProgress: (Int, Int) -> Unit,
         onResult: (CuratedResult) -> Unit
     ): List<CuratedResult> = withContext(Dispatchers.Default) {
+        if (isDeepAnalysis) {
+            if (embeddingEngine == null) embeddingEngine = EmbeddingEngine(context)
+            if (nimaEngine == null) nimaEngine = NIMAEngine(context)
+            if (nanoEngine == null) nanoEngine = GeminiNanoEngine(context)
+            if (faceIdentityEngine == null) faceIdentityEngine = FaceIdentityEngine(context)
+            if (segmentationEngine == null) segmentationEngine = SegmentationEngine()
+        }
+
         val photoMetadataCache = ConcurrentHashMap<Long, PhotoMetadata>()
         val progressCounter = AtomicInteger(0)
 
         val rawResults = coroutineScope {
             photos.map { photo ->
                 async {
-                    var orientedBitmap: Bitmap? = null
-                    try {
-                        orientedBitmap = loadOrientedBitmap(context, photo.contentUri)
-                        
-                        val image = InputImage.fromBitmap(orientedBitmap, 0)
-                        val allFaces = faceDetector.process(image).await()
-                        val labels = labeler.process(image).await()
-                        
-                        val detectedObjects = runCatching { 
-                            objectDetector.process(image).await() 
-                        }.getOrElse { emptyList() }
+                    aiSemaphore.withPermit {
+                        var orientedBitmap: Bitmap? = null
+                        try {
+                            orientedBitmap = loadOrientedBitmap(context, photo.contentUri)
+                            
+                            val image = InputImage.fromBitmap(orientedBitmap, 0)
+                            val allFaces = faceDetector.process(image).await()
+                            val labels = labeler.process(image).await()
+                            
+                            val detectedObjects = runCatching { 
+                                objectDetector.process(image).await() 
+                            }.getOrElse { emptyList() }
 
-                        val imgW = orientedBitmap.width.toFloat()
-                        val imgH = orientedBitmap.height.toFloat()
+                            val imgW = orientedBitmap.width.toFloat()
+                            val imgH = orientedBitmap.height.toFloat()
 
-                        val mainFaces = allFaces.filter { face ->
-                            val normBox = normalizeRect(face.boundingBox, imgW, imgH)
-                            val faceArea = normBox.width() * normBox.height()
-                            faceArea > 0.02f
-                        }.sortedByDescending { it.boundingBox.width() * it.boundingBox.height() }
-                         .take(4)
+                            val mainFaces = allFaces.filter { face ->
+                                val normBox = normalizeRect(face.boundingBox, imgW, imgH)
+                                val faceArea = normBox.width() * normBox.height()
+                                faceArea > 0.02f
+                            }.sortedByDescending { it.boundingBox.width() * it.boundingBox.height() }
+                             .take(4)
 
-                        val subjectAnalysis = extractSubjectAnalysis(
-                            photo = photo,
-                            labels = labels,
-                            faces = mainFaces,
-                            objects = detectedObjects,
-                            imgW = imgW,
-                            imgH = imgH
-                        )
+                            val subjectAnalysis = extractSubjectAnalysis(
+                                photo = photo,
+                                labels = labels,
+                                faces = mainFaces,
+                                objects = detectedObjects,
+                                imgW = imgW,
+                                imgH = imgH
+                            )
 
-                        val techMetrics = calculateTechnicalMetrics(orientedBitmap, subjectAnalysis)
-                        val colorLabels = extractColorLabels(orientedBitmap, subjectAnalysis.bounds)
-                        val allLabels = (labels.map { it.text } + colorLabels).toSet()
+                            val techMetrics = calculateTechnicalMetrics(orientedBitmap, subjectAnalysis)
+                            val colorLabels = extractColorLabels(orientedBitmap, subjectAnalysis.bounds)
+                            val allLabels = (labels.map { it.text } + colorLabels).toSet()
 
-                        val aestheticResult = aestheticScorer.calculateAestheticScore(
-                            bitmap = orientedBitmap, 
-                            faces = mainFaces, 
-                            labels = labels,
-                            subjectBounds = subjectAnalysis.bounds
-                        )
+                            val aestheticResult = aestheticScorer.calculateAestheticScore(
+                                bitmap = orientedBitmap, 
+                                faces = mainFaces, 
+                                labels = labels,
+                                subjectBounds = subjectAnalysis.bounds,
+                                isDeep = isDeepAnalysis,
+                                nimaEngine = nimaEngine
+                            )
 
-                        val semanticContent = buildSemanticDescription(
-                            subject = subjectAnalysis,
-                            labels = allLabels,
-                            faces = mainFaces,
-                            techMetrics = techMetrics,
-                            aestheticResult = aestheticResult
-                        )
-                        val visualSig = computeVisualSignature(orientedBitmap)
+                            val segmentationResult = if (isDeepAnalysis) {
+                                segmentationEngine?.analyzeSegmentation(orientedBitmap)
+                            } else null
 
-                        photoMetadataCache[photo.id] = PhotoMetadata(allLabels, mainFaces.size, photo.dateTaken, visualSig)
+                            val semanticContent = if (isDeepAnalysis) {
+                                val nanoDescription = nanoEngine?.generateDeepDescription(orientedBitmap)
+                                val segInfo = segmentationResult?.let { 
+                                    " | Subject: ${(it.subjectProminence * 100).toInt()}% of frame, Bg Clutter: ${(it.backgroundClutter * 100).toInt()}%"
+                                } ?: ""
+                                (nanoDescription ?: buildSemanticDescription(
+                                    subject = subjectAnalysis,
+                                    labels = allLabels,
+                                    faces = mainFaces,
+                                    techMetrics = techMetrics,
+                                    aestheticResult = aestheticResult,
+                                    isDeep = isDeepAnalysis
+                                )) + segInfo
+                            } else {
+                                buildSemanticDescription(
+                                    subject = subjectAnalysis,
+                                    labels = allLabels,
+                                    faces = mainFaces,
+                                    techMetrics = techMetrics,
+                                    aestheticResult = aestheticResult,
+                                    isDeep = isDeepAnalysis
+                                )
+                            }
+                            val visualSig = if (isDeepAnalysis) {
+                                embeddingEngine?.extractEmbedding(orientedBitmap) ?: computeVisualSignature(orientedBitmap, false)
+                            } else {
+                                computeVisualSignature(orientedBitmap, false)
+                            }
 
-                        val evaluation = evaluateQuality(
-                            faces = mainFaces, 
-                            techMetrics = techMetrics,
-                            aestheticResult = aestheticResult,
-                            subjectAnalysis = subjectAnalysis,
-                            width = imgW
-                        )
-                        
-                        val isBestTake = evaluation.score >= 0.6f && evaluation.reason == RejectionReason.NONE
-                        
-                        val finalReason = if (!isBestTake && evaluation.reason == RejectionReason.NONE) {
-                            RejectionReason.LOW_QUALITY
-                        } else {
-                            evaluation.reason
+                            val faceEmbeddings = if (isDeepAnalysis && mainFaces.isNotEmpty()) {
+                                mainFaces.map { face -> 
+                                    faceIdentityEngine?.extractFaceEmbedding(orientedBitmap, face.boundingBox) ?: FloatArray(0)
+                                }
+                            } else emptyList()
+
+                            photoMetadataCache[photo.id] = PhotoMetadata(
+                                labels = allLabels, 
+                                mainFaceCount = mainFaces.size, 
+                                dateTaken = photo.dateTaken, 
+                                visualSignature = visualSig,
+                                faceEmbeddings = faceEmbeddings
+                            )
+
+                            val evaluation = evaluateQuality(
+                                faces = mainFaces, 
+                                techMetrics = techMetrics,
+                                aestheticResult = aestheticResult,
+                                subjectAnalysis = subjectAnalysis,
+                                segmentationResult = segmentationResult,
+                                width = imgW,
+                                isDeep = isDeepAnalysis
+                            )
+                            
+                            val isBestTake = evaluation.score >= 0.6f && evaluation.reason == RejectionReason.NONE
+                            
+                            val finalReason = if (!isBestTake && evaluation.reason == RejectionReason.NONE) {
+                                RejectionReason.LOW_QUALITY
+                            } else {
+                                evaluation.reason
+                            }
+                            
+                            val result = CuratedResult(
+                                photo = photo,
+                                score = evaluation.score,
+                                isBestTake = isBestTake,
+                                rejectionReason = finalReason,
+                                aiDescription = semanticContent,
+                                breakdown = evaluation.breakdown,
+                                mainFaceCount = mainFaces.size
+                            )
+
+                            val currentProgress = progressCounter.incrementAndGet()
+                            onProgress(currentProgress, photos.size)
+
+                            result
+                        } catch (e: Exception) {
+                            val currentProgress = progressCounter.incrementAndGet()
+                            onProgress(currentProgress, photos.size)
+                            
+                            CuratedResult(
+                                photo = photo, 
+                                score = 0f, 
+                                isBestTake = false, 
+                                rejectionReason = RejectionReason.LOW_QUALITY,
+                                aiDescription = "Processing failed: ${e.message}"
+                            )
+                        } finally {
+                            orientedBitmap?.recycle()
                         }
-                        
-                        val result = CuratedResult(
-                            photo = photo,
-                            score = evaluation.score,
-                            isBestTake = isBestTake,
-                            rejectionReason = finalReason,
-                            aiDescription = semanticContent,
-                            breakdown = evaluation.breakdown,
-                            mainFaceCount = mainFaces.size
-                        )
-
-                        val currentProgress = progressCounter.incrementAndGet()
-                        onProgress(currentProgress, photos.size)
-
-                        result
-                    } catch (e: Exception) {
-                        val currentProgress = progressCounter.incrementAndGet()
-                        onProgress(currentProgress, photos.size)
-                        
-                        CuratedResult(
-                            photo = photo, 
-                            score = 0f, 
-                            isBestTake = false, 
-                            rejectionReason = RejectionReason.LOW_QUALITY,
-                            aiDescription = "Processing failed: ${e.message}"
-                        )
-                    } finally {
-                        orientedBitmap?.recycle()
                     }
                 }
             }.awaitAll()
         }
 
-        val clusteredResults = applyClustering(rawResults, photoMetadataCache)
+        val clusteredResults = applyClustering(rawResults, photoMetadataCache, isDeepAnalysis)
         
         clusteredResults.forEach { result ->
             onResult(result)
         }
 
         return@withContext clusteredResults
+    }
+
+    override fun close() {
+        embeddingEngine?.close()
+        nimaEngine?.close()
+        faceIdentityEngine?.close()
+        embeddingEngine = null
+        nimaEngine = null
+        faceIdentityEngine = null
+        segmentationEngine = null
     }
 
     private data class AnalysisEvaluation(
@@ -345,7 +420,7 @@ class ImageCuratorImpl : ImageCurator {
             )
         }
 
-        // 3. Object Detection (Requirement 1: Replaced Laplacian with ML Kit)
+        // 3. Object Detection
         val primaryObject = objects.maxByOrNull { it.boundingBox.width() * it.boundingBox.height() }
         if (primaryObject != null) {
             val normalized = normalizeRect(primaryObject.boundingBox, imgW, imgH)
@@ -393,23 +468,41 @@ class ImageCuratorImpl : ImageCurator {
         labels: Set<String>,
         faces: List<Face>,
         techMetrics: TechnicalMetrics,
-        aestheticResult: AestheticScorer.AestheticResult
+        aestheticResult: AestheticScorer.AestheticResult,
+        isDeep: Boolean
     ): String {
         val elements = mutableListOf<String>()
 
-        // 1. Identify all semantic elements (Labels)
-        val coreLabels = labels.filter { !it.startsWith("COLOR_") }.take(10)
+        if (isDeep) {
+            elements.add("AI Deep Analysis Active")
+            
+            val mood = when {
+                aestheticResult.overallScore > 0.8f -> "Professional masterpiece"
+                aestheticResult.overallScore > 0.6f -> "Artistically framed"
+                else -> "Standard capture"
+            }
+            elements.add("Mood: $mood")
+            
+            if (faces.isNotEmpty()) {
+                val faceDetails = faces.joinToString(", ") { face ->
+                    val smile = (face.smilingProbability ?: 0f) * 100
+                    val eyes = (((face.leftEyeOpenProbability ?: 1f) + (face.rightEyeOpenProbability ?: 1f)) / 2f) * 100
+                    "Person(Smile:${smile.toInt()}%, Eyes:${eyes.toInt()}%)"
+                }
+                elements.add("Faces: $faceDetails")
+            }
+        }
+
+        val coreLabels = labels.filter { !it.startsWith("COLOR_") }.take(if (isDeep) 20 else 10)
         if (coreLabels.isNotEmpty()) {
             elements.add(coreLabels.joinToString(", "))
         }
 
-        // 2. Identify Colors (Distinguishing factors)
         val colors = labels.filter { it.startsWith("COLOR_") }.map { it.removePrefix("COLOR_") }
         if (colors.isNotEmpty()) {
             elements.add("Colors: ${colors.joinToString(", ")}")
         }
 
-        // 3. Subject State & Expressions
         if (faces.isNotEmpty()) {
             val faceData = mutableListOf<String>()
             faceData.add("${faces.size} Face(s)")
@@ -420,20 +513,14 @@ class ImageCuratorImpl : ImageCurator {
             elements.add(faceData.joinToString(" "))
         }
 
-        // 4. What's happening (Actions & Scene Context)
         val actions = mutableListOf<String>()
         if (labels.any { it.contains("Outdoor", true) }) actions.add("Outdoor scene")
         if (labels.any { it.contains("Indoor", true) }) actions.add("Indoor scene")
-        if (labels.any { it.contains("Thread") || it.contains("Bracelet") } && labels.contains("Hand")) {
-            actions.add("Tying ceremony/Interaction")
-        }
-        if (labels.any { it.contains("Flower") || it.contains("Tradition") }) actions.add("Festive atmosphere")
         
         if (actions.isNotEmpty()) {
             elements.add("Activity: ${actions.joinToString(", ")}")
         }
 
-        // 5. Composition (Technical State)
         if (aestheticResult.overallScore > 0.7f) elements.add("Balanced framing")
         if (techMetrics.sharpness > 0.6f) elements.add("Sharp focus")
 
@@ -445,68 +532,58 @@ class ImageCuratorImpl : ImageCurator {
         techMetrics: TechnicalMetrics,
         aestheticResult: AestheticScorer.AestheticResult,
         subjectAnalysis: SubjectAnalysis,
-        width: Float
+        segmentationResult: SegmentationEngine.SegmentationResult?,
+        width: Float,
+        isDeep: Boolean
     ): AnalysisEvaluation {
         
-        // technicalScore weighted by exposure health and sharpness
         val technicalScore = (techMetrics.sharpness * 0.6f) + (techMetrics.exposureHealth * 0.4f)
 
-        // Hard Filters
         if (subjectAnalysis.category == SubjectCategory.UTILITY) {
             return AnalysisEvaluation(0.25f, RejectionReason.UTILITY, ScoreBreakdown(technicalScore, 0f, 0f, 0f))
         }
-        if (techMetrics.sharpness < 0.18f) {
+        if (techMetrics.sharpness < 0.15f) {
             return AnalysisEvaluation(0.2f, RejectionReason.BLURRY, ScoreBreakdown(technicalScore, 0f, 0f, 0f))
         }
-        if (techMetrics.exposureHealth < 0.35f) {
-            return AnalysisEvaluation(0.25f, RejectionReason.POOR_LIGHTING, ScoreBreakdown(technicalScore, 0f, 0f, 0f))
-        }
 
-        // Portrait Logic (Requirement 3: Non-smiling faces aren't penalized)
+        var expressionScore = 0.8f 
+        var eyesClosed = 0
+        
         if (faces.isNotEmpty()) {
             var totalExpr = 0f
-            var eyesClosed = 0
-            
             for (face in faces) {
                 val eyeOpen = ((face.leftEyeOpenProbability ?: 1f) + (face.rightEyeOpenProbability ?: 1f)) / 2f
                 val smile = face.smilingProbability ?: 0f
                 
-                // Baseline 0.75 if eyes are open, smile is a bonus
-                val exprScore = if (eyeOpen > 0.55f) {
-                    0.75f + (smile * 0.25f) 
-                } else {
-                    eyeOpen // Penalized for closed eyes
-                }
+                val exprScore = if (eyeOpen > 0.5f) 0.75f + (smile * 0.25f) else eyeOpen
                 totalExpr += exprScore
-                if (eyeOpen < 0.45f) eyesClosed++
+                if (eyeOpen < 0.4f) eyesClosed++
             }
-            
-            val avgExpr = totalExpr / faces.size
-            val collectiveCenter = faces.map { it.boundingBox.centerX() }.average().toFloat()
-            val symmetry = 1f - (abs(collectiveCenter - (width / 2f)) / (width / 2f)).coerceIn(0f, 1f)
-            
-            val rawScore = (avgExpr * 0.45f) + (technicalScore * 0.25f) + (aestheticResult.overallScore * 0.30f)
-            val reason = when {
-                eyesClosed > 0 && !aestheticResult.isIntentionalClosedEyes -> RejectionReason.EYES_CLOSED
-                avgExpr < 0.45f -> RejectionReason.BAD_EXPRESSION
-                rawScore < 0.55f -> RejectionReason.LOW_QUALITY
-                else -> RejectionReason.NONE
-            }
-            
-            return AnalysisEvaluation(rawScore, reason, ScoreBreakdown(technicalScore, avgExpr, aestheticResult.overallScore, symmetry))
+            expressionScore = totalExpr / faces.size
+        } else {
+            expressionScore = (subjectAnalysis.prominence * 0.5f) + 0.5f
         }
 
-        // Non-Human Logic
-        val prominenceBonus = (subjectAnalysis.prominence * 0.3f).coerceIn(0f, 0.3f)
-        val finalScore = (technicalScore * 0.4f) + (aestheticResult.overallScore * 0.4f) + prominenceBonus
+        val finalAesthetic = aestheticResult.overallScore
+        val prominenceBonus = (segmentationResult?.subjectProminence ?: 0f) * 0.15f
+        val clutterPenalty = (segmentationResult?.backgroundClutter ?: 0f) * 0.1f
         
+        val baseScore = (expressionScore * 0.35f) + (technicalScore * 0.25f) + (finalAesthetic * 0.40f)
+        val curatedScore = (baseScore + prominenceBonus - clutterPenalty).coerceIn(0f, 1f)
+
         val reason = when {
-            finalScore < 0.5f -> RejectionReason.LOW_QUALITY
-            subjectAnalysis.category == SubjectCategory.UNCLEAR && subjectAnalysis.prominence < 0.05f -> RejectionReason.NO_SUBJECT
+            eyesClosed > 0 && !aestheticResult.isIntentionalClosedEyes -> RejectionReason.EYES_CLOSED
+            expressionScore < 0.4f -> RejectionReason.BAD_EXPRESSION
+            techMetrics.exposureHealth < 0.3f -> RejectionReason.POOR_LIGHTING
+            finalAesthetic < 0.4f && isDeep -> RejectionReason.LOW_QUALITY
+            curatedScore < 0.5f -> RejectionReason.LOW_QUALITY
             else -> RejectionReason.NONE
         }
         
-        return AnalysisEvaluation(finalScore, reason, ScoreBreakdown(technicalScore, prominenceBonus, aestheticResult.overallScore, 0.5f))
+        val collectiveCenter = if (faces.isNotEmpty()) faces.map { it.boundingBox.centerX() }.average().toFloat() else width/2
+        val symmetry = 1f - (abs(collectiveCenter - (width / 2f)) / (width / 2f)).coerceIn(0f, 1f)
+        
+        return AnalysisEvaluation(curatedScore, reason, ScoreBreakdown(technicalScore, expressionScore, finalAesthetic, symmetry))
     }
 
     data class TechnicalMetrics(
@@ -525,7 +602,6 @@ class ImageCuratorImpl : ImageCurator {
         var highlightCount = 0
         var shadowCount = 0
         
-        // Requirement 4: Exposure & Dynamic Range Check
         for (p in pixels) {
             val r = (p shr 16) and 0xFF
             val g = (p shr 8) and 0xFF
@@ -538,7 +614,6 @@ class ImageCuratorImpl : ImageCurator {
         val lowRatio = shadowCount.toFloat() / pixels.size
         val exposureHealth = (1.0f - (highRatio * 1.5f + lowRatio * 1.2f)).coerceIn(0f, 1f)
         
-        // Laplacian Sharpness (Focused on subject if available)
         var lapVar = 0.0
         val bounds = subject.bounds ?: Rect(0, 0, w, h)
         
@@ -577,9 +652,9 @@ class ImageCuratorImpl : ImageCurator {
         return (0.299f * r + 0.587f * g + 0.114f * b) / 255f
     }
 
-    private fun computeVisualSignature(bitmap: Bitmap): FloatArray {
-        val size = 512 // Increased resolution for much better detail (1024x1024)
-        val sig = FloatArray(size * size * 3) // RGB (67,500 values)
+    private fun computeVisualSignature(bitmap: Bitmap, isDeep: Boolean = false): FloatArray {
+        val size = if (isDeep) 1024 else 512 
+        val sig = FloatArray(size * size * 3) 
         
         val scaled = Bitmap.createScaledBitmap(bitmap, size, size, true)
         val pixels = IntArray(size * size)
@@ -599,7 +674,6 @@ class ImageCuratorImpl : ImageCurator {
 
     private fun loadOrientedBitmap(context: Context, uri: Uri): Bitmap {
         return try {
-            // Fix: Opening separate streams for EXIF and Decoding to avoid FD position issues
             val orientation = context.contentResolver.openInputStream(uri)?.use { stream ->
                 ExifInterface(stream).getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
             } ?: ExifInterface.ORIENTATION_NORMAL
@@ -629,29 +703,33 @@ class ImageCuratorImpl : ImageCurator {
 
     private fun applyClustering(
         results: List<CuratedResult>, 
-        metadataCache: Map<Long, PhotoMetadata>
+        metadataCache: Map<Long, PhotoMetadata>,
+        isDeep: Boolean = false
     ): List<CuratedResult> {
         if (results.isEmpty()) return results
         val sorted = results.sortedBy { it.photo.dateTaken }
         val clustered = mutableListOf<CuratedResult>()
-        var currentClusterId: String? = null
+        
+        val searchWindow = if (isDeep) 15 else 3 
         
         for (i in sorted.indices) {
             val current = sorted[i]
-            val prev = if (i > 0) sorted[i-1] else null
-            val timeDiff = if (prev != null) abs(current.photo.dateTaken - prev.photo.dateTaken) else Long.MAX_VALUE
-            val isVisuallySimilar = if (prev != null) checkSemanticSimilarity(current.photo.id, prev.photo.id, metadataCache) else false
+            var foundClusterId: String? = null
+            
+            for (j in (i - 1) downTo max(0, i - searchWindow)) {
+                val prev = sorted[j]
+                val timeDiff = abs(current.photo.dateTaken - prev.photo.dateTaken)
+                val maxTimeDiff = if (isDeep) 300000L else 45000L 
+                
+                val isVisuallySimilar = checkSemanticSimilarity(current.photo.id, prev.photo.id, metadataCache, isDeep)
 
-            if (prev != null && (timeDiff < 3000 || (timeDiff < 45000 && isVisuallySimilar))) {
-                if (currentClusterId == null) {
-                    currentClusterId = "cluster_${prev.photo.id}"
-                    val lastIdx = clustered.size - 1
-                    clustered[lastIdx] = clustered[lastIdx].copy(clusterId = currentClusterId)
+                if (timeDiff < 3000 || (timeDiff < maxTimeDiff && isVisuallySimilar)) {
+                    foundClusterId = clustered.find { it.photo.id == prev.photo.id }?.clusterId ?: "cluster_${prev.photo.id}"
+                    break
                 }
-            } else {
-                currentClusterId = null
             }
-            clustered.add(current.copy(clusterId = currentClusterId))
+            
+            clustered.add(current.copy(clusterId = foundClusterId))
         }
         
         return clustered.groupBy { it.clusterId }.flatMap { (clusterId, items) ->
@@ -668,23 +746,38 @@ class ImageCuratorImpl : ImageCurator {
         }
     }
 
-    private fun checkSemanticSimilarity(id1: Long, id2: Long, cache: Map<Long, PhotoMetadata>): Boolean {
+    private fun checkSemanticSimilarity(id1: Long, id2: Long, cache: Map<Long, PhotoMetadata>, isDeep: Boolean = false): Boolean {
         val m1 = cache[id1] ?: return false
         val m2 = cache[id2] ?: return false
         
         if (m1.mainFaceCount != m2.mainFaceCount) return false
         
-        var mse = 0f
         val sig1 = m1.visualSignature
         val sig2 = m2.visualSignature
         
+        if (sig1.isEmpty() || sig2.isEmpty() || sig1.size != sig2.size) return false
+
         var isPerceptuallySimilar = false
-        if (sig1.size == sig2.size && sig1.isNotEmpty()) {
+
+        if (sig1.size > 1000) {
+            var dotProduct = 0f
+            var normA = 0f
+            var normB = 0f
+            for (i in sig1.indices) {
+                dotProduct += sig1[i] * sig2[i]
+                normA += sig1[i] * sig1[i]
+                normB += sig2[i] * sig2[i]
+            }
+            val similarity = dotProduct / (kotlin.math.sqrt(normA) * kotlin.math.sqrt(normB))
+            if (similarity > 0.90f) isPerceptuallySimilar = true
+        } else {
+            var mse = 0f
             for (i in sig1.indices) {
                 mse += (sig1[i] - sig2[i]).pow(2)
             }
             mse /= sig1.size
-            if (mse < 0.006f) isPerceptuallySimilar = true 
+            val targetMse = if (isDeep) 0.004f else 0.006f
+            if (mse < targetMse) isPerceptuallySimilar = true 
         }
         
         val l1 = m1.labels
@@ -694,28 +787,32 @@ class ImageCuratorImpl : ImageCurator {
             l1.intersect(l2).size.toFloat() / l1.union(l2).size
         } else 0f
         
-        // Final similarity requires both visual AND label match
-        // Mandate Color check for people to distinguish between similar-looking siblings
         val colorLabels1 = l1.filter { it.startsWith("COLOR_") }
         val colorLabels2 = l2.filter { it.startsWith("COLOR_") }
-        
         val hasDifferentColors = colorLabels1.isNotEmpty() && colorLabels2.isNotEmpty() && 
                                  colorLabels1.intersect(colorLabels2.toSet()).isEmpty()
 
-        // If MSE is borderline (0.003 - 0.01) and colors are different, they are different people
-        if (mse > 0.003f && hasDifferentColors && m1.mainFaceCount > 0) {
-            return false
-        }
+        if (hasDifferentColors && m1.mainFaceCount > 0) return false
 
-        val isSemanticallySimilar = labelSimilarity > 0.85f
+        val targetLabelSim = if (isDeep) 0.92f else 0.85f
+        val isSemanticallySimilar = labelSimilarity > targetLabelSim
 
-        return isPerceptuallySimilar || (mse < 0.012f && isSemanticallySimilar)
+        return isPerceptuallySimilar || (isSemanticallySimilar && labelSimilarity > 0.95f)
     }
 
-    /**
-     * AI Color Identification: Maps pixel samples to a human-readable color palette.
-     * Helps differentiate people based on clothing/environment.
-     */
+    private fun calculateCosineSimilarity(vec1: FloatArray, vec2: FloatArray): Float {
+        if (vec1.isEmpty() || vec2.isEmpty() || vec1.size != vec2.size) return 0f
+        var dotProduct = 0f
+        var normA = 0f
+        var normB = 0f
+        for (i in vec1.indices) {
+            dotProduct += vec1[i] * vec2[i]
+            normA += vec1[i] * vec1[i]
+            normB += vec2[i] * vec2[i]
+        }
+        return dotProduct / (kotlin.math.sqrt(normA) * kotlin.math.sqrt(normB))
+    }
+
     private fun extractColorLabels(bitmap: Bitmap, bounds: Rect?): List<String> {
         val target = bounds ?: Rect(0, 0, bitmap.width, bitmap.height)
         val samples = 6
@@ -739,7 +836,6 @@ class ImageCuratorImpl : ImageCurator {
             }
         }
         
-        // Return top 2 colors as labels
         return colorCounts.entries
             .sortedByDescending { it.value }
             .take(2)

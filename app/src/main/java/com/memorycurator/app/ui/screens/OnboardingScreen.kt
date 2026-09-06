@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
-import android.os.Environment
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -43,7 +42,6 @@ import com.memorycurator.app.ui.theme.MemoryCuratorTheme
 fun OnboardingScreen(onContinue: () -> Unit) {
     val context = LocalContext.current
     var showPermissionDialog by remember { mutableStateOf(false) }
-    var showStorageManagerDialog by remember { mutableStateOf(false) }
 
     val permissions = if (Build.VERSION.SDK_INT >= 33) {
         val list = mutableListOf(Manifest.permission.READ_MEDIA_IMAGES)
@@ -60,11 +58,7 @@ fun OnboardingScreen(onContinue: () -> Unit) {
     ) { granted ->
         showPermissionDialog = false
         if (granted.values.any { it }) {
-            if (Build.VERSION.SDK_INT >= 30 && !Environment.isExternalStorageManager()) {
-                showStorageManagerDialog = true
-            } else {
-                onContinue()
-            }
+            onContinue()
         }
     }
 
@@ -83,22 +77,7 @@ fun OnboardingScreen(onContinue: () -> Unit) {
         )
     }
 
-    if (showStorageManagerDialog) {
-        StorageManagerPermissionDialog(
-            onDismiss = { 
-                showStorageManagerDialog = false
-                onContinue() 
-            },
-            onGrant = {
-                showStorageManagerDialog = false
-                val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
-                    data = Uri.fromParts("package", context.packageName, null)
-                }
-                context.startActivity(intent)
-                // App will pause and resume, MainActivity will handle the rest or they'll be back here
-            }
-        )
-    }
+    // removed showStorageManagerDialog logic
 
     Box(modifier = Modifier.fillMaxSize()) {
         BlurBackground()
@@ -166,11 +145,7 @@ fun OnboardingScreen(onContinue: () -> Unit) {
                         ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
                     }
                     if (allGranted) {
-                        if (Build.VERSION.SDK_INT >= 30 && !Environment.isExternalStorageManager()) {
-                            showStorageManagerDialog = true
-                        } else {
-                            onContinue()
-                        }
+                        onContinue()
                     } else {
                         showPermissionDialog = true
                     }
@@ -252,62 +227,6 @@ fun MediaPermissionDialog(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Maybe Later", color = Color.White.copy(alpha = 0.3f))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun StorageManagerPermissionDialog(
-    onDismiss: () -> Unit,
-    onGrant: () -> Unit
-) {
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            shape = RoundedCornerShape(28.dp),
-            color = Color(0xFF1C1C1E),
-            tonalElevation = 8.dp
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Icon(
-                    imageVector = Icons.Default.AutoAwesome,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(48.dp)
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Save AI Metadata",
-                    color = Color.White,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = "To keep AI scores even if you delete the app, MemoryCurator needs permission to save AI scores directly into your photo properties. This requires 'All Files Access' on this device.",
-                    color = Color.White.copy(alpha = 0.7f),
-                    fontSize = 14.sp,
-                    textAlign = TextAlign.Center,
-                    lineHeight = 20.sp
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-                Button(
-                    onClick = onGrant,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp)
-                ) {
-                    Text("Enable All Files Access")
-                }
-                TextButton(
-                    onClick = onDismiss,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Skip (Metadata won't persist)", color = Color.White.copy(alpha = 0.5f))
                 }
             }
         }

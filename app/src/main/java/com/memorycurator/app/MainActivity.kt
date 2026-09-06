@@ -72,15 +72,6 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         if (::galleryViewModel.isInitialized) {
-            // Check for storage manager permission if not granted
-            if (Build.VERSION.SDK_INT >= 30 && !Environment.isExternalStorageManager()) {
-                val prefs = getSharedPreferences("prefs", MODE_PRIVATE)
-                val onboardingDone = !prefs.getBoolean("first_run", true)
-                if (onboardingDone) {
-                    checkAndRequestStorageManagerPermission()
-                }
-            }
-            
             // Comprehensive quick scan of the latest 100 items on return
             galleryViewModel.indexMedia(limit = 100)
         }
@@ -88,10 +79,7 @@ class MainActivity : ComponentActivity() {
 
     private fun checkAndRequestPermissions() {
         val permissions = if (Build.VERSION.SDK_INT >= 33) {
-            val list = mutableListOf(
-                Manifest.permission.READ_MEDIA_IMAGES,
-            //    Manifest.permission.READ_MEDIA_VIDEO
-            )
+            val list = mutableListOf(Manifest.permission.READ_MEDIA_IMAGES)
             if (Build.VERSION.SDK_INT >= 34) {
                 list.add("android.permission.READ_MEDIA_VISUAL_USER_SELECTED")
             }
@@ -110,19 +98,9 @@ class MainActivity : ComponentActivity() {
         if (missingPermissions.isNotEmpty()) {
             requestPermissionLauncher.launch(missingPermissions.toTypedArray())
         } else {
-            // Already have permissions, trigger indexing
             if (::galleryViewModel.isInitialized) {
                 galleryViewModel.indexMedia()
             }
-        }
-    }
-
-    private fun checkAndRequestStorageManagerPermission() {
-        if (!Environment.isExternalStorageManager()) {
-            val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
-                data = Uri.fromParts("package", packageName, null)
-            }
-            startActivity(intent)
         }
     }
 }

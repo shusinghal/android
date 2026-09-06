@@ -90,5 +90,17 @@ dependencies {
     implementation("com.google.mlkit:image-labeling:17.0.9")
     implementation("com.google.mlkit:face-detection:16.1.7")
     implementation("com.google.mlkit:object-detection:17.0.0")
+    implementation("com.google.mlkit:segmentation-selfie:16.0.0-beta6")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+
+    // LiteRT (New TensorFlow Lite) for Point 1: Vector Embeddings
+    implementation("com.google.ai.edge.litert:litert:2.2.0")
+
+    // Gemini Nano via ML Kit GenAI (Point 3: VQA)
+    implementation("com.google.mlkit:genai-prompt:1.0.0-beta2")
+
+    configurations.all {
+        exclude(group = "org.tensorflow", module = "tensorflow-lite")
+        exclude(group = "org.tensorflow", module = "tensorflow-lite-api")
+    }
 }
