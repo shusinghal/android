@@ -20,10 +20,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Print
+import androidx.compose.material.icons.filled.Wallpaper
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -176,7 +179,12 @@ fun CurationViewerScreen(
     allResults: List<CuratedResult>,
     initialIndex: Int,
     onToggleAction: (Long) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onFavorite: (CuratedResult) -> Unit = {},
+    onShare: (CuratedResult) -> Unit = {},
+    onEdit: (CuratedResult) -> Unit = {},
+    onPrint: (CuratedResult) -> Unit = {},
+    onSetAs: (CuratedResult) -> Unit = {}
 ) {
     if (results.isEmpty()) return
 
@@ -679,7 +687,62 @@ fun CurationViewerScreen(
                         fontWeight = FontWeight.Medium
                     )
 
-                    Spacer(modifier = Modifier.size(48.dp))
+                    var showMenu by remember { mutableStateOf(false) }
+                    Box {
+                        IconButton(onClick = { showMenu = true }) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = "Options",
+                                tint = Color.White
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false },
+                            modifier = Modifier.background(Color(0xFF2C2C2E))
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Favorite", color = Color.White) },
+                                leadingIcon = { Icon(Icons.Default.FavoriteBorder, null, tint = Color.White) },
+                                onClick = {
+                                    showMenu = false
+                                    activeItem?.let { onFavorite(it) }
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Share", color = Color.White) },
+                                leadingIcon = { Icon(Icons.Default.Share, null, tint = Color.White) },
+                                onClick = {
+                                    showMenu = false
+                                    activeItem?.let { onShare(it) }
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Edit", color = Color.White) },
+                                leadingIcon = { Icon(Icons.Default.Edit, null, tint = Color.White) },
+                                onClick = {
+                                    showMenu = false
+                                    activeItem?.let { onEdit(it) }
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Set as Wallpaper", color = Color.White) },
+                                leadingIcon = { Icon(Icons.Default.Wallpaper, null, tint = Color.White) },
+                                onClick = {
+                                    showMenu = false
+                                    activeItem?.let { onSetAs(it) }
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Print", color = Color.White) },
+                                leadingIcon = { Icon(Icons.Default.Print, null, tint = Color.White) },
+                                onClick = {
+                                    showMenu = false
+                                    activeItem?.let { onPrint(it) }
+                                }
+                            )
+                        }
+                    }
                 }
             }
 

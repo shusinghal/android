@@ -35,6 +35,11 @@ import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Print
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Wallpaper
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -99,6 +104,7 @@ fun TimelineDetailScreen(
 
     // Derived Category Slices
     val permissionRequest by viewModel?.permissionRequest?.collectAsState() ?: remember { mutableStateOf(null) }
+    val favoriteRequest by viewModel?.favoriteRequest?.collectAsState() ?: remember { mutableStateOf(null) }
     val syncStatus by viewModel?.syncStatus?.collectAsState() ?: remember { mutableStateOf(null) }
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -112,9 +118,21 @@ fun TimelineDetailScreen(
         }
     }
 
+    val favoriteLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { _ ->
+        viewModel?.consumeFavoriteRequest()
+    }
+
     LaunchedEffect(permissionRequest) {
         permissionRequest?.let {
             permissionLauncher.launch(it)
+        }
+    }
+
+    LaunchedEffect(favoriteRequest) {
+        favoriteRequest?.let {
+            favoriteLauncher.launch(it)
         }
     }
 
@@ -248,20 +266,62 @@ fun TimelineDetailScreen(
                                     tint = if (selectedIds.isNotEmpty()) Color.White else Color.White.copy(alpha = 0.4f)
                                 )
                             }
-                            IconButton(
-                                onClick = {
-                                    val uris = activePhotos
-                                        .filter { it.id in selectedIds }
-                                        .map { it.contentUri }
-                                    requestTrash(uris)
-                                },
-                                enabled = selectedIds.isNotEmpty()
-                            ) {
-                                Icon(
-                                    Icons.Default.Delete,
-                                    "Delete",
-                                    tint = if (selectedIds.isNotEmpty()) Color.White else Color.White.copy(alpha = 0.4f)
-                                )
+                            var showMenu by remember { mutableStateOf(false) }
+                            Box {
+                                IconButton(onClick = { showMenu = true }) {
+                                    Icon(Icons.Default.MoreVert, "More Options", tint = Color.White)
+                                }
+                                DropdownMenu(
+                                    expanded = showMenu,
+                                    onDismissRequest = { showMenu = false },
+                                    modifier = Modifier.background(Color(0xFF2C2C2E))
+                                ) {
+                                    val selectedPhotos = activePhotos.filter { it.id in selectedIds }
+                                    
+                                    DropdownMenuItem(
+                                        text = { Text("Favorite", color = Color.White) },
+                                        leadingIcon = { Icon(Icons.Default.FavoriteBorder, null, tint = Color.White) },
+                                        onClick = {
+                                            showMenu = false
+                                            viewModel?.toggleFavorite(context, selectedPhotos, true)
+                                        }
+                                    )
+                                    if (selectedIds.size == 1) {
+                                        DropdownMenuItem(
+                                            text = { Text("Edit", color = Color.White) },
+                                            leadingIcon = { Icon(Icons.Default.Edit, null, tint = Color.White) },
+                                            onClick = {
+                                                showMenu = false
+                                                editPhoto(context, selectedPhotos.first().contentUri)
+                                            }
+                                        )
+                                        DropdownMenuItem(
+                                            text = { Text("Set as Wallpaper", color = Color.White) },
+                                            leadingIcon = { Icon(Icons.Default.Wallpaper, null, tint = Color.White) },
+                                            onClick = {
+                                                showMenu = false
+                                                setAsWallpaper(context, selectedPhotos.first().contentUri)
+                                            }
+                                        )
+                                    }
+                                    DropdownMenuItem(
+                                        text = { Text("Print", color = Color.White) },
+                                        leadingIcon = { Icon(Icons.Default.Print, null, tint = Color.White) },
+                                        onClick = {
+                                            showMenu = false
+                                            printPhotos(context, selectedPhotos)
+                                        }
+                                    )
+                                    HorizontalDivider(color = Color.White.copy(alpha = 0.1f))
+                                    DropdownMenuItem(
+                                        text = { Text("Delete", color = MaterialTheme.colorScheme.error) },
+                                        leadingIcon = { Icon(Icons.Default.Delete, null, tint = MaterialTheme.colorScheme.error) },
+                                        onClick = {
+                                            showMenu = false
+                                            requestTrash(selectedPhotos.map { it.contentUri })
+                                        }
+                                    )
+                                }
                             }
                         } else if (isBestTakesActive && analysisResults.isNotEmpty()) {
                             TextButton(onClick = {
@@ -529,7 +589,12 @@ fun TimelineDetailScreen(
                 allResults = if (analysisResults.isNotEmpty()) analysisResults else viewerSourceList,
                 initialIndex = selectedIndex,
                 onToggleAction = { id -> viewModel?.toggleBestTake(id) },
-                onDismiss = { selectedIndex = -1 }
+                onDismiss = { selectedIndex = -1 },
+                onFavorite = { result -> viewModel?.toggleFavorite(context, listOf(result.photo), true) },
+                onShare = { result -> sharePhotos(context, listOf(result.photo.contentUri)) },
+                onEdit = { result -> editPhoto(context, result.photo.contentUri) },
+                onPrint = { result -> printPhotos(context, listOf(result.photo)) },
+                onSetAs = { result -> setAsWallpaper(context, result.photo.contentUri) }
             )
         }
     }
@@ -760,4 +825,58 @@ fun sharePhotos(context: Context, uris: List<Uri>) {
     val chooser = Intent.createChooser(intent, "Share with")
     chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     context.startActivity(chooser)
+}
+
+fun editPhoto(context: Context, uri: Uri) {
+    try {
+        val intent = Intent(Intent.ACTION_EDIT).apply {
+            setDataAndType(uri, "image/*")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        val chooser = Intent.createChooser(intent, "Edit with")
+        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(chooser)
+    } catch (e: Exception) {
+        android.util.Log.e("TimelineDetailScreen", "Failed to start edit intent, trying SEND fallback", e)
+        try {
+            val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "image/*"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            val chooser = Intent.createChooser(sendIntent, "Edit with")
+            chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(chooser)
+        } catch (e2: Exception) {
+            android.util.Log.e("TimelineDetailScreen", "All edit fallbacks failed", e2)
+        }
+    }
+}
+
+fun setAsWallpaper(context: Context, uri: Uri) {
+    try {
+        val intent = Intent(Intent.ACTION_ATTACH_DATA).apply {
+            addCategory(Intent.CATEGORY_DEFAULT)
+            setDataAndType(uri, "image/*")
+            putExtra("mimeType", "image/*")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        val chooser = Intent.createChooser(intent, "Set as")
+        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(chooser)
+    } catch (e: Exception) {
+        android.util.Log.e("TimelineDetailScreen", "Failed to start setAs intent", e)
+    }
+}
+
+fun printPhotos(context: Context, photos: List<MediaPhoto>) {
+    try {
+        if (photos.isEmpty()) return
+        val printHelper = androidx.print.PrintHelper(context)
+        printHelper.scaleMode = androidx.print.PrintHelper.SCALE_MODE_FIT
+        val photo = photos.first()
+        printHelper.printBitmap("MemoryCurator_${photo.id}", photo.contentUri)
+    } catch (e: Exception) {
+        android.util.Log.e("TimelineDetailScreen", "Failed to start print job", e)
+    }
 }

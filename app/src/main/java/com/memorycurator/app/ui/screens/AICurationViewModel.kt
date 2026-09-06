@@ -61,6 +61,9 @@ class AICurationViewModel(
     private val _permissionRequest = MutableStateFlow<IntentSenderRequest?>(null)
     val permissionRequest: StateFlow<IntentSenderRequest?> = _permissionRequest
 
+    private val _favoriteRequest = MutableStateFlow<IntentSenderRequest?>(null)
+    val favoriteRequest: StateFlow<IntentSenderRequest?> = _favoriteRequest
+
     private val _syncStatus = MutableStateFlow<String?>(null)
     val syncStatus: StateFlow<String?> = _syncStatus
 
@@ -368,6 +371,18 @@ class AICurationViewModel(
 
     fun consumeSyncStatus() {
         _syncStatus.value = null
+    }
+
+    fun toggleFavorite(context: Context, photos: List<MediaPhoto>, favorite: Boolean) {
+        val uris = photos.map { it.contentUri }
+        if (uris.isEmpty()) return
+        
+        val pendingIntent = MediaStore.createFavoriteRequest(context.contentResolver, uris, favorite)
+        _favoriteRequest.value = IntentSenderRequest.Builder(pendingIntent.intentSender).build()
+    }
+
+    fun consumeFavoriteRequest() {
+        _favoriteRequest.value = null
     }
 
     fun resetCuration(photos: List<MediaPhoto>) {

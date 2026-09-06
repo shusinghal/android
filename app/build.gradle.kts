@@ -85,6 +85,7 @@ dependencies {
     ksp("androidx.room:room-compiler:2.6.1")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.exifinterface:exifinterface:1.4.2")
+    implementation("androidx.print:print:1.1.0")
 
     // ML Kit for on-device AI
     implementation("com.google.mlkit:image-labeling:17.0.9")
