@@ -1,5 +1,12 @@
 package com.memorycurator.app.ui.screens
 
+import android.os.Build
+import android.content.Intent
+import android.provider.Settings
+import android.net.Uri
+import android.provider.MediaStore
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -80,6 +87,18 @@ fun ProfileScreen() {
             Spacer(modifier = Modifier.height(16.dp))
 
             var isPhysicalStorage by remember { mutableStateOf(userPrefs.isPhysicalStorageEnabled) }
+
+            val mediaManagementLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.StartActivityForResult()
+            ) { _ ->
+                val hasPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    MediaStore.canManageMedia(context)
+                } else true
+
+                isPhysicalStorage = hasPermission
+                userPrefs.isPhysicalStorageEnabled = hasPermission
+            }
+
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = Color.DarkGray.copy(alpha = 0.3f))
@@ -92,7 +111,7 @@ fun ProfileScreen() {
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Permanent File Curation",
+                                text = "Save AI score in file properties",
                                 color = Color.White,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Medium
@@ -105,9 +124,26 @@ fun ProfileScreen() {
                         }
                         Switch(
                             checked = isPhysicalStorage,
-                            onCheckedChange = {
-                                isPhysicalStorage = it
-                                userPrefs.isPhysicalStorageEnabled = it
+                            onCheckedChange = { checked ->
+                                if (checked) {
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                        if (!MediaStore.canManageMedia(context)) {
+                                            val intent = Intent(Settings.ACTION_REQUEST_MANAGE_MEDIA).apply {
+                                                data = Uri.parse("package:${context.packageName}")
+                                            }
+                                            mediaManagementLauncher.launch(intent)
+                                        } else {
+                                            isPhysicalStorage = true
+                                            userPrefs.isPhysicalStorageEnabled = true
+                                        }
+                                    } else {
+                                        isPhysicalStorage = true
+                                        userPrefs.isPhysicalStorageEnabled = true
+                                    }
+                                } else {
+                                    isPhysicalStorage = false
+                                    userPrefs.isPhysicalStorageEnabled = false
+                                }
                             }
                         )
                     }
@@ -139,7 +175,7 @@ fun ProfileScreen() {
                             if (isPhysicalStorage) {
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
-                                    text = "Note: Android will ask for permission every time we save changes to a file.",
+                                    text = "Note: Media Management permission enabled. Metadata will be saved physically.",
                                     color = MaterialTheme.colorScheme.tertiary,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Medium

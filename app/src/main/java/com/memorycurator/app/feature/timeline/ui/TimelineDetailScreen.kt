@@ -832,24 +832,13 @@ fun editPhoto(context: Context, uri: Uri) {
         val intent = Intent(Intent.ACTION_EDIT).apply {
             setDataAndType(uri, "image/*")
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
         }
         val chooser = Intent.createChooser(intent, "Edit with")
         chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(chooser)
     } catch (e: Exception) {
-        android.util.Log.e("TimelineDetailScreen", "Failed to start edit intent, trying SEND fallback", e)
-        try {
-            val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "image/*"
-                putExtra(Intent.EXTRA_STREAM, uri)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            }
-            val chooser = Intent.createChooser(sendIntent, "Edit with")
-            chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(chooser)
-        } catch (e2: Exception) {
-            android.util.Log.e("TimelineDetailScreen", "All edit fallbacks failed", e2)
-        }
+        android.util.Log.e("TimelineDetailScreen", "Failed to start edit intent", e)
     }
 }
 
