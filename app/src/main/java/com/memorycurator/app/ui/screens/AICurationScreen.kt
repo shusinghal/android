@@ -49,6 +49,7 @@ import com.memorycurator.app.data.media.MediaIndexer
 import com.memorycurator.app.data.media.MediaPhoto
 import com.memorycurator.app.data.media.MediaRepository
 import com.memorycurator.app.ui.theme.MemoryCuratorTheme
+import com.memorycurator.app.ui.navigation.LocalMediaNavigator
 
 @Composable
 fun AICurationScreen(
@@ -66,6 +67,7 @@ fun AICurationScreen(
         viewModel.setSessionPhotos(photos)
     }
 
+    val navigator = LocalMediaNavigator.current
     val isSelectionMode by viewModel.isSelectionMode.collectAsState()
     val selectedIds by viewModel.selectedIds.collectAsState()
     val isSyncing by viewModel.isSyncing.collectAsState()
@@ -166,10 +168,10 @@ fun AICurationScreen(
                 requestTrash(uris)
             },
             onShareSelected = {
-                val uris = analysisResults
+                val photos = analysisResults
                     .filter { it.photo.id in selectedIds }
-                    .map { it.photo.contentUri }
-                sharePhotos(context, uris)
+                    .map { it.photo }
+                navigator.share(context, photos)
             },
             onSelectAll = { viewModel.selectAll() },
             onCancelSelection = { viewModel.toggleSelectionMode(false) },
@@ -217,11 +219,7 @@ fun AICurationScreen(
                     initialIndex = selectedPhotoIndex,
                     onToggleAction = { id -> viewModel.toggleBestTake(id) },
                     onDismiss = { selectedPhotoIndex = -1 },
-                    onFavorite = { result -> viewModel.toggleFavorite(context, listOf(result.photo), true) },
-                    onShare = { result -> sharePhotos(context, listOf(result.photo.contentUri)) },
-                    onEdit = { result -> editPhoto(context, result.photo.contentUri) },
-                    onPrint = { result -> printPhotos(context, listOf(result.photo)) },
-                    onSetAs = { result -> setAsWallpaper(context, result.photo.contentUri) }
+                    onFavorite = { result -> viewModel.toggleFavorite(context, listOf(result.photo), true) }
                 )
             }
         }
@@ -519,6 +517,7 @@ fun CurationHeader(
     viewModel: AICurationViewModel
 ) {
     val context = LocalContext.current
+    val navigator = LocalMediaNavigator.current
     // Read directly to ensure it updates when coming back from Profile settings
     val isPhysicalEnabled = com.memorycurator.app.data.local.UserPreferences(context).isPhysicalStorageEnabled
 
@@ -575,7 +574,7 @@ fun CurationHeader(
                             leadingIcon = { Icon(Icons.Default.Edit, null, tint = Color.White) },
                             onClick = {
                                 showMenu = false
-                                editPhoto(context, selectedPhotos.first().photo.contentUri)
+                                navigator.edit(context, selectedPhotos.first().photo)
                             }
                         )
                         DropdownMenuItem(
@@ -583,7 +582,7 @@ fun CurationHeader(
                             leadingIcon = { Icon(Icons.Default.Wallpaper, null, tint = Color.White) },
                             onClick = {
                                 showMenu = false
-                                setAsWallpaper(context, selectedPhotos.first().photo.contentUri)
+                                navigator.setAsWallpaper(context, selectedPhotos.first().photo)
                             }
                         )
                     }
@@ -592,7 +591,7 @@ fun CurationHeader(
                         leadingIcon = { Icon(Icons.Default.Print, null, tint = Color.White) },
                         onClick = {
                             showMenu = false
-                            printPhotos(context, selectedPhotos.map { it.photo })
+                            navigator.print(context, selectedPhotos.first().photo)
                         }
                     )
                     HorizontalDivider(color = Color.White.copy(alpha = 0.1f))
@@ -771,66 +770,3 @@ fun AnalysisProgressPreview() {
     }
 }
 
-fun sharePhotos(context: Context, uris: List<Uri>) {
-    if (uris.isEmpty()) return
-    
-    val intent = if (uris.size == 1) {
-        Intent(Intent.ACTION_SEND).apply {
-            type = context.contentResolver.getType(uris[0]) ?: "image/*"
-            putExtra(Intent.EXTRA_STREAM, uris[0])
-        }
-    } else {
-        Intent(Intent.ACTION_SEND_MULTIPLE).apply {
-            type = "image/*"
-            putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(uris))
-        }
-    }
-    
-    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    val chooser = Intent.createChooser(intent, "Share with")
-    chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    context.startActivity(chooser)
-}
-
-fun editPhoto(context: Context, uri: Uri) {
-    try {
-        val intent = Intent(Intent.ACTION_EDIT).apply {
-            setDataAndType(uri, "image/*")
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-        }
-        val chooser = Intent.createChooser(intent, "Edit with")
-        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        context.startActivity(chooser)
-    } catch (e: Exception) {
-        android.util.Log.e("AICurationScreen", "Failed to start edit intent", e)
-    }
-}
-
-fun setAsWallpaper(context: Context, uri: Uri) {
-    try {
-        val intent = Intent(Intent.ACTION_ATTACH_DATA).apply {
-            addCategory(Intent.CATEGORY_DEFAULT)
-            setDataAndType(uri, "image/*")
-            putExtra("mimeType", "image/*")
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
-        val chooser = Intent.createChooser(intent, "Set as")
-        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        context.startActivity(chooser)
-    } catch (e: Exception) {
-        android.util.Log.e("AICurationScreen", "Failed to start setAs intent", e)
-    }
-}
-
-fun printPhotos(context: Context, photos: List<MediaPhoto>) {
-    try {
-        if (photos.isEmpty()) return
-        val printHelper = androidx.print.PrintHelper(context)
-        printHelper.scaleMode = androidx.print.PrintHelper.SCALE_MODE_FIT
-        val photo = photos.first()
-        printHelper.printBitmap("MemoryCurator_${photo.id}", photo.contentUri)
-    } catch (e: Exception) {
-        android.util.Log.e("AICurationScreen", "Failed to start print job", e)
-    }
-}

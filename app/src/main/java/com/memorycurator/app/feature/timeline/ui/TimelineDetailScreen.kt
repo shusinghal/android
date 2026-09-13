@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.BatchPrediction
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.CheckCircleOutline
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material.icons.filled.PlayCircle
@@ -71,6 +72,7 @@ import com.memorycurator.app.ui.screens.AICurationViewModelFactory
 import com.memorycurator.app.ui.screens.AnalysisProgressView
 import com.memorycurator.app.ui.screens.CurationViewerScreen
 import com.memorycurator.app.ui.theme.MemoryCuratorTheme
+import com.memorycurator.app.ui.navigation.LocalMediaNavigator
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -93,6 +95,7 @@ fun TimelineDetailScreen(
     } else null
 
     val context = LocalContext.current
+    val navigator = LocalMediaNavigator.current
     val analysisResults by viewModel?.analysisResults?.collectAsState() ?: remember { mutableStateOf(emptyList()) }
     val isAnalyzing by viewModel?.isAnalyzing?.collectAsState() ?: remember { mutableStateOf(false) }
     val isSyncing by viewModel?.isSyncing?.collectAsState() ?: remember { mutableStateOf(false) }
@@ -248,15 +251,19 @@ fun TimelineDetailScreen(
                     },
                     actions = {
                         if (isSelectionMode) {
+                            val idsToSelectCount = if (analysisResults.isNotEmpty()) analysisResults.size else activePhotos.size
+                            val isAllSelected = selectedIds.size == idsToSelectCount && idsToSelectCount > 0
                             IconButton(onClick = { viewModel?.selectAll() }) {
-                                Icon(Icons.Default.SelectAll, "Select All", tint = Color.White)
+                                Icon(
+                                    imageVector = if (isAllSelected) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
+                                    contentDescription = if (isAllSelected) "Deselect All" else "Select All",
+                                    tint = Color.White
+                                )
                             }
                             IconButton(
                                 onClick = {
-                                    val uris = activePhotos
-                                        .filter { it.id in selectedIds }
-                                        .map { it.contentUri }
-                                    sharePhotos(context, uris)
+                                    val photos = activePhotos.filter { it.id in selectedIds }
+                                    navigator.share(context, photos)
                                 },
                                 enabled = selectedIds.isNotEmpty()
                             ) {
@@ -292,7 +299,7 @@ fun TimelineDetailScreen(
                                             leadingIcon = { Icon(Icons.Default.Edit, null, tint = Color.White) },
                                             onClick = {
                                                 showMenu = false
-                                                editPhoto(context, selectedPhotos.first().contentUri)
+                                                navigator.edit(context, selectedPhotos.first())
                                             }
                                         )
                                         DropdownMenuItem(
@@ -300,7 +307,7 @@ fun TimelineDetailScreen(
                                             leadingIcon = { Icon(Icons.Default.Wallpaper, null, tint = Color.White) },
                                             onClick = {
                                                 showMenu = false
-                                                setAsWallpaper(context, selectedPhotos.first().contentUri)
+                                                navigator.setAsWallpaper(context, selectedPhotos.first())
                                             }
                                         )
                                     }
@@ -309,7 +316,7 @@ fun TimelineDetailScreen(
                                         leadingIcon = { Icon(Icons.Default.Print, null, tint = Color.White) },
                                         onClick = {
                                             showMenu = false
-                                            printPhotos(context, selectedPhotos)
+                                            navigator.print(context, selectedPhotos.first())
                                         }
                                     )
                                     HorizontalDivider(color = Color.White.copy(alpha = 0.1f))
@@ -590,11 +597,7 @@ fun TimelineDetailScreen(
                 initialIndex = selectedIndex,
                 onToggleAction = { id -> viewModel?.toggleBestTake(id) },
                 onDismiss = { selectedIndex = -1 },
-                onFavorite = { result -> viewModel?.toggleFavorite(context, listOf(result.photo), true) },
-                onShare = { result -> sharePhotos(context, listOf(result.photo.contentUri)) },
-                onEdit = { result -> editPhoto(context, result.photo.contentUri) },
-                onPrint = { result -> printPhotos(context, listOf(result.photo)) },
-                onSetAs = { result -> setAsWallpaper(context, result.photo.contentUri) }
+                onFavorite = { result -> viewModel?.toggleFavorite(context, listOf(result.photo), true) }
             )
         }
     }
@@ -803,69 +806,5 @@ fun PhotoGridItemPreview() {
             isSelected = false,
             isSelectionMode = false
         )
-    }
-}
-
-fun sharePhotos(context: Context, uris: List<Uri>) {
-    if (uris.isEmpty()) return
-
-    val intent = if (uris.size == 1) {
-        Intent(Intent.ACTION_SEND).apply {
-            type = context.contentResolver.getType(uris[0]) ?: "image/*"
-            putExtra(Intent.EXTRA_STREAM, uris[0])
-        }
-    } else {
-        Intent(Intent.ACTION_SEND_MULTIPLE).apply {
-            type = "image/*"
-            putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(uris))
-        }
-    }
-
-    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    val chooser = Intent.createChooser(intent, "Share with")
-    chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    context.startActivity(chooser)
-}
-
-fun editPhoto(context: Context, uri: Uri) {
-    try {
-        val intent = Intent(Intent.ACTION_EDIT).apply {
-            setDataAndType(uri, "image/*")
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-        }
-        val chooser = Intent.createChooser(intent, "Edit with")
-        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        context.startActivity(chooser)
-    } catch (e: Exception) {
-        android.util.Log.e("TimelineDetailScreen", "Failed to start edit intent", e)
-    }
-}
-
-fun setAsWallpaper(context: Context, uri: Uri) {
-    try {
-        val intent = Intent(Intent.ACTION_ATTACH_DATA).apply {
-            addCategory(Intent.CATEGORY_DEFAULT)
-            setDataAndType(uri, "image/*")
-            putExtra("mimeType", "image/*")
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
-        val chooser = Intent.createChooser(intent, "Set as")
-        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        context.startActivity(chooser)
-    } catch (e: Exception) {
-        android.util.Log.e("TimelineDetailScreen", "Failed to start setAs intent", e)
-    }
-}
-
-fun printPhotos(context: Context, photos: List<MediaPhoto>) {
-    try {
-        if (photos.isEmpty()) return
-        val printHelper = androidx.print.PrintHelper(context)
-        printHelper.scaleMode = androidx.print.PrintHelper.SCALE_MODE_FIT
-        val photo = photos.first()
-        printHelper.printBitmap("MemoryCurator_${photo.id}", photo.contentUri)
-    } catch (e: Exception) {
-        android.util.Log.e("TimelineDetailScreen", "Failed to start print job", e)
     }
 }

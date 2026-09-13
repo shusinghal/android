@@ -49,6 +49,7 @@ import com.memorycurator.app.data.media.MediaPhoto
 import com.memorycurator.app.ui.gallery.GalleryViewModel
 import com.memorycurator.app.ui.screens.CurationViewerScreen
 import com.memorycurator.app.ui.theme.MemoryCuratorTheme
+import com.memorycurator.app.ui.navigation.LocalMediaNavigator
 import kotlinx.coroutines.flow.flowOf
 import java.util.*
 
@@ -63,6 +64,8 @@ fun GalleryScreen(
         .uiState
         .collectAsStateWithLifecycle()
 
+    val context = LocalContext.current
+    val navigator = LocalMediaNavigator.current
     val isBestTakesOnly by viewModel.isBestTakesOnly.collectAsState()
 
     val photos =
@@ -313,7 +316,8 @@ fun GalleryScreen(
                     },
                     onDismiss = {
                         selectedIndex = -1
-                    }
+                    },
+                    onFavorite = { result -> /* Handle favorite in Gallery if needed */ }
                 )
             }
         }

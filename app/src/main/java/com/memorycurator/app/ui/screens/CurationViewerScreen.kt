@@ -63,10 +63,14 @@ import coil.request.ImageRequest
 import com.memorycurator.app.core.ai.CuratedResult
 import com.memorycurator.app.core.ai.RejectionReason
 import com.memorycurator.app.ui.components.VideoPlayer
+import com.memorycurator.app.ui.navigation.LocalMediaNavigator
 import com.memorycurator.app.ui.preview.PreviewStockPhotos
 import com.memorycurator.app.ui.theme.MemoryCuratorTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
@@ -180,11 +184,7 @@ fun CurationViewerScreen(
     initialIndex: Int,
     onToggleAction: (Long) -> Unit,
     onDismiss: () -> Unit,
-    onFavorite: (CuratedResult) -> Unit = {},
-    onShare: (CuratedResult) -> Unit = {},
-    onEdit: (CuratedResult) -> Unit = {},
-    onPrint: (CuratedResult) -> Unit = {},
-    onSetAs: (CuratedResult) -> Unit = {}
+    onFavorite: (CuratedResult) -> Unit = {}
 ) {
     if (results.isEmpty()) return
 
@@ -201,6 +201,8 @@ fun CurationViewerScreen(
 
     val activeItem = focusedClusterPhoto ?: currentMainItem
     val actualIsBestTake = activeItem?.isBestTake ?: false
+    val navigator = LocalMediaNavigator.current
+    val context = LocalContext.current
 
     // Fixing closure captures for toggling
     val currentOnConfirm by rememberUpdatedState(onToggleAction)
@@ -223,9 +225,15 @@ fun CurationViewerScreen(
     // UI-stable state that only updates when card is not in motion
     var displayIsBestTake by remember(activeItem?.photo?.id) { mutableStateOf(actualIsBestTake) }
     
-    LaunchedEffect(actualIsBestTake, swipeState.verticalOffset.value, swipeState.isDragging) {
-        if (swipeState.verticalOffset.value == 0f && !swipeState.isDragging) {
-            displayIsBestTake = actualIsBestTake
+    // Optimized motion observer: Updates display state only when card is idle
+    LaunchedEffect(swipeState, actualIsBestTake) {
+        snapshotFlow { 
+            swipeState.verticalOffset.value.absoluteValue < 0.5f && !swipeState.isDragging 
+        }
+        .distinctUntilChanged()
+        .filter { isIdle -> isIdle }
+        .collectLatest { 
+            displayIsBestTake = actualIsBestTake 
         }
     }
 
@@ -725,7 +733,7 @@ fun CurationViewerScreen(
                                 leadingIcon = { Icon(Icons.Default.Share, null, tint = Color.White) },
                                 onClick = {
                                     showMenu = false
-                                    activeItem?.let { onShare(it) }
+                                    activeItem?.let { navigator.share(context, listOf(it.photo)) }
                                 }
                             )
                             DropdownMenuItem(
@@ -733,7 +741,7 @@ fun CurationViewerScreen(
                                 leadingIcon = { Icon(Icons.Default.Edit, null, tint = Color.White) },
                                 onClick = {
                                     showMenu = false
-                                    activeItem?.let { onEdit(it) }
+                                    activeItem?.let { navigator.edit(context, it.photo) }
                                 }
                             )
                             DropdownMenuItem(
@@ -741,7 +749,7 @@ fun CurationViewerScreen(
                                 leadingIcon = { Icon(Icons.Default.Wallpaper, null, tint = Color.White) },
                                 onClick = {
                                     showMenu = false
-                                    activeItem?.let { onSetAs(it) }
+                                    activeItem?.let { navigator.setAsWallpaper(context, it.photo) }
                                 }
                             )
                             DropdownMenuItem(
@@ -749,7 +757,7 @@ fun CurationViewerScreen(
                                 leadingIcon = { Icon(Icons.Default.Print, null, tint = Color.White) },
                                 onClick = {
                                     showMenu = false
-                                    activeItem?.let { onPrint(it) }
+                                    activeItem?.let { navigator.print(context, it.photo) }
                                 }
                             )
                         }

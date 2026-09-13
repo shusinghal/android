@@ -25,6 +25,10 @@ import com.memorycurator.app.ui.theme.GlassTheme
 import com.memorycurator.app.ui.core.CoilConfig
 import coil.Coil
 
+import com.memorycurator.app.ui.navigation.LocalMediaNavigator
+import com.memorycurator.app.ui.navigation.DefaultMediaNavigator
+import androidx.compose.runtime.CompositionLocalProvider
+
 class MainActivity : ComponentActivity() {
 
     private lateinit var galleryViewModel: GalleryViewModel
@@ -62,9 +66,11 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             GlassTheme {
-                MainNavigation(
-                    viewModel = galleryViewModel
-                )
+                CompositionLocalProvider(LocalMediaNavigator provides DefaultMediaNavigator()) {
+                    MainNavigation(
+                        viewModel = galleryViewModel
+                    )
+                }
             }
         }
     }
