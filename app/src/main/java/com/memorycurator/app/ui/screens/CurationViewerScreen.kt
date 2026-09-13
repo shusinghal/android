@@ -200,7 +200,7 @@ fun CurationViewerScreen(
     var isZoomed by remember { mutableStateOf(false) }
 
     val activeItem = focusedClusterPhoto ?: currentMainItem
-    val isBestTake = activeItem?.isBestTake ?: false
+    val actualIsBestTake = activeItem?.isBestTake ?: false
 
     // Fixing closure captures for toggling
     val currentOnConfirm by rememberUpdatedState(onToggleAction)
@@ -219,6 +219,15 @@ fun CurationViewerScreen(
             }
         }
     )
+
+    // UI-stable state that only updates when card is not in motion
+    var displayIsBestTake by remember(activeItem?.photo?.id) { mutableStateOf(actualIsBestTake) }
+    
+    LaunchedEffect(actualIsBestTake, swipeState.verticalOffset.value, swipeState.isDragging) {
+        if (swipeState.verticalOffset.value == 0f && !swipeState.isDragging) {
+            displayIsBestTake = actualIsBestTake
+        }
+    }
 
     // Optimized O(1) cluster lookup
     val clusterMap = remember(allResults) {
@@ -258,7 +267,7 @@ fun CurationViewerScreen(
         }
     }
 
-    val actionColor = if (isBestTake) Color(0xFFEF5350) else Color(0xFF4CAF50)
+    val actionColor = if (displayIsBestTake) Color(0xFFEF5350) else Color(0xFF4CAF50)
     val dragDistancePx = with(density) { 300.dp.toPx() }
 
     Dialog(
@@ -291,12 +300,13 @@ fun CurationViewerScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .graphicsLayer {
+                        // Dampened alpha multiplier (2f instead of 5f) to prevent flickering during small wobbles
                         val horizontalOffset = mainPagerState.currentPageOffsetFraction.absoluteValue
-                        alpha = (1f - (horizontalOffset * 5f)).coerceIn(0f, 1f)
+                        alpha = (1f - (horizontalOffset * 2f)).coerceIn(0f, 1f)
                     }
                     .navigationBarsPadding()
             ) {
-                val isActive by remember {
+                val isActive by remember(swipeState) {
                     derivedStateOf {
                         swipeState.verticalOffset.value < -20f || swipeState.isLifted
                     }
@@ -311,7 +321,7 @@ fun CurationViewerScreen(
                         contentAlignment = Alignment.BottomCenter
                     ) {
                         val isManual = (activeItem?.score ?: 0f) == -1f
-                        val confirmText = if (isBestTake) "SWIPE UP AGAIN TO REMOVE" else if (isManual) "SWIPE UP AGAIN TO KEEP" else "SWIPE UP AGAIN TO INCLUDE"
+                        val confirmText = if (displayIsBestTake) "SWIPE UP AGAIN TO REMOVE" else if (isManual) "SWIPE UP AGAIN TO KEEP" else "SWIPE UP AGAIN TO INCLUDE"
                         Text(
                             text = confirmText,
                             color = actionColor.copy(alpha = 0.9f),
@@ -347,7 +357,8 @@ fun CurationViewerScreen(
                 state = mainPagerState,
                 key = { page -> results.getOrNull(page)?.photo?.id ?: page },
                 modifier = Modifier.fillMaxSize(),
-                userScrollEnabled = focusedClusterPhoto == null && !swipeState.isLifted && !swipeState.isDragging && !isZoomed,
+                // Improvement: Strictly lock horizontal scrolling if a vertical lift has started
+                userScrollEnabled = focusedClusterPhoto == null && !swipeState.isLifted && !swipeState.isDragging && !isZoomed && swipeState.verticalOffset.value == 0f,
                 pageSpacing = (-8).dp,
                 beyondViewportPageCount = 0,
                 contentPadding = PaddingValues(horizontal = 16.dp)
@@ -383,7 +394,7 @@ fun CurationViewerScreen(
                             // Accessibility support
                             customActions = listOf(
                                 CustomAccessibilityAction(
-                                    label = if (isBestTake) "Remove from Best Takes" else "Add to Best Takes",
+                                    label = if (displayIsBestTake) "Remove from Best Takes" else "Add to Best Takes",
                                     action = {
                                         activeItem?.let { currentOnConfirm(it.photo.id) }
                                         true
