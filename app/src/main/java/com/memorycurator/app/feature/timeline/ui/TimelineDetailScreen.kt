@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.MediaStore
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
@@ -125,6 +126,12 @@ fun TimelineDetailScreen(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) { _ ->
         viewModel?.consumeFavoriteRequest()
+    }
+
+    val editLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { _ ->
+        viewModel?.refresh()
     }
 
     LaunchedEffect(permissionRequest) {
@@ -299,7 +306,13 @@ fun TimelineDetailScreen(
                                             leadingIcon = { Icon(Icons.Default.Edit, null, tint = Color.White) },
                                             onClick = {
                                                 showMenu = false
-                                                navigator.edit(context, selectedPhotos.first())
+                                                try {
+                                                    val photo = selectedPhotos.first()
+                                                    val intent = navigator.getEditIntent(context, photo)
+                                                    editLauncher.launch(intent)
+                                                } catch (e: Exception) {
+                                                    Toast.makeText(context, "Could not open editor", Toast.LENGTH_SHORT).show()
+                                                }
                                             }
                                         )
                                         DropdownMenuItem(
@@ -597,7 +610,8 @@ fun TimelineDetailScreen(
                 initialIndex = selectedIndex,
                 onToggleAction = { id -> viewModel?.toggleBestTake(id) },
                 onDismiss = { selectedIndex = -1 },
-                onFavorite = { result -> viewModel?.toggleFavorite(context, listOf(result.photo), true) }
+                onFavorite = { result -> viewModel?.toggleFavorite(context, listOf(result.photo), true) },
+                onEditComplete = { viewModel?.refresh() }
             )
         }
     }

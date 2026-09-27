@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.MediaStore
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
@@ -116,6 +117,12 @@ fun AICurationScreen(
         viewModel.consumeFavoriteRequest()
     }
 
+    val editLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { _ ->
+        viewModel.refresh()
+    }
+
     LaunchedEffect(permissionRequest) {
         permissionRequest?.let {
             permissionLauncher.launch(it)
@@ -179,7 +186,8 @@ fun AICurationScreen(
             isDirty = isDirty,
             analysisResults = analysisResults,
             selectedIds = selectedIds,
-            viewModel = viewModel
+            viewModel = viewModel,
+            editLauncher = editLauncher
         )
 
         if (isAnalyzing && progress != null) {
@@ -219,7 +227,8 @@ fun AICurationScreen(
                     initialIndex = selectedPhotoIndex,
                     onToggleAction = { id -> viewModel.toggleBestTake(id) },
                     onDismiss = { selectedPhotoIndex = -1 },
-                    onFavorite = { result -> viewModel.toggleFavorite(context, listOf(result.photo), true) }
+                    onFavorite = { result -> viewModel.toggleFavorite(context, listOf(result.photo), true) },
+                    onEditComplete = { viewModel.refresh() }
                 )
             }
         }
@@ -514,7 +523,8 @@ fun CurationHeader(
     isDirty: Boolean,
     analysisResults: List<CuratedResult>,
     selectedIds: Set<Long>,
-    viewModel: AICurationViewModel
+    viewModel: AICurationViewModel,
+    editLauncher: androidx.activity.result.ActivityResultLauncher<Intent>? = null
 ) {
     val context = LocalContext.current
     val navigator = LocalMediaNavigator.current
@@ -574,7 +584,13 @@ fun CurationHeader(
                             leadingIcon = { Icon(Icons.Default.Edit, null, tint = Color.White) },
                             onClick = {
                                 showMenu = false
-                                navigator.edit(context, selectedPhotos.first().photo)
+                                try {
+                                    val photo = selectedPhotos.first().photo
+                                    val intent = navigator.getEditIntent(context, photo)
+                                    editLauncher?.launch(intent)
+                                } catch (e: Exception) {
+                                    Toast.makeText(context, "Could not open editor", Toast.LENGTH_SHORT).show()
+                                }
                             }
                         )
                         DropdownMenuItem(

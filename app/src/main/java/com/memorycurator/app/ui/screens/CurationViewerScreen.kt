@@ -1,7 +1,12 @@
 package com.memorycurator.app.ui.screens
 
 import android.net.Uri
+import android.content.Intent
+import android.content.ClipData
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -184,7 +189,8 @@ fun CurationViewerScreen(
     initialIndex: Int,
     onToggleAction: (Long) -> Unit,
     onDismiss: () -> Unit,
-    onFavorite: (CuratedResult) -> Unit = {}
+    onFavorite: (CuratedResult) -> Unit = {},
+    onEditComplete: () -> Unit = {}
 ) {
     if (results.isEmpty()) return
 
@@ -203,6 +209,12 @@ fun CurationViewerScreen(
     val actualIsBestTake = activeItem?.isBestTake ?: false
     val navigator = LocalMediaNavigator.current
     val context = LocalContext.current
+
+    val editLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { _ ->
+        onEditComplete()
+    }
 
     // Fixing closure captures for toggling
     val currentOnConfirm by rememberUpdatedState(onToggleAction)
@@ -736,14 +748,23 @@ fun CurationViewerScreen(
                                     activeItem?.let { navigator.share(context, listOf(it.photo)) }
                                 }
                             )
-                            DropdownMenuItem(
-                                text = { Text("Edit", color = Color.White) },
-                                leadingIcon = { Icon(Icons.Default.Edit, null, tint = Color.White) },
-                                onClick = {
-                                    showMenu = false
-                                    activeItem?.let { navigator.edit(context, it.photo) }
-                                }
-                            )
+                            if (activeItem?.photo?.isVideo == false) {
+                                DropdownMenuItem(
+                                    text = { Text("Edit", color = Color.White) },
+                                    leadingIcon = { Icon(Icons.Default.Edit, null, tint = Color.White) },
+                                    onClick = {
+                                        showMenu = false
+                                        try {
+                                            activeItem?.let { 
+                                                val intent = navigator.getEditIntent(context, it.photo)
+                                                editLauncher.launch(intent)
+                                            }
+                                        } catch (e: Exception) {
+                                            Toast.makeText(context, "Could not open editor", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                )
+                            }
                             DropdownMenuItem(
                                 text = { Text("Set as Wallpaper", color = Color.White) },
                                 leadingIcon = { Icon(Icons.Default.Wallpaper, null, tint = Color.White) },

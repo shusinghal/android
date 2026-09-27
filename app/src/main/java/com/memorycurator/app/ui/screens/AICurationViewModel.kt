@@ -424,6 +424,20 @@ class AICurationViewModel(
             }
         }
     }
+
+    fun refresh(photo: MediaPhoto? = null) {
+        viewModelScope.launch {
+            _isSyncing.value = true
+            withContext(Dispatchers.IO) {
+                if (photo != null) {
+                    mediaIndexer.indexUri(photo.contentUri)
+                } else {
+                    mediaIndexer.indexMedia()
+                }
+            }
+            _isSyncing.value = false
+        }
+    }
 }
 
 class AICurationViewModelFactory(
