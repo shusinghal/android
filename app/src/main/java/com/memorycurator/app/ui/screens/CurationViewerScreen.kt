@@ -17,6 +17,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import android.provider.MediaStore
+import androidx.activity.result.IntentSenderRequest
+import androidx.compose.material.icons.filled.Delete
+import com.memorycurator.app.ui.components.DeleteConfirmationDialog
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -214,6 +218,26 @@ fun CurationViewerScreen(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { _ ->
         onEditComplete()
+    }
+
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
+
+    val deleteLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            onEditComplete()
+            onDismiss()
+        }
+    }
+
+    fun requestTrash(uri: Uri) {
+        try {
+            val pendingIntent = MediaStore.createTrashRequest(context.contentResolver, listOf(uri), true)
+            deleteLauncher.launch(IntentSenderRequest.Builder(pendingIntent.intentSender).build())
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     // Fixing closure captures for toggling
@@ -782,6 +806,15 @@ fun CurationViewerScreen(
                                     activeItem?.let { navigator.print(context, it.photo) }
                                 }
                             )
+                            HorizontalDivider(color = Color.White.copy(alpha = 0.1f))
+                            DropdownMenuItem(
+                                text = { Text("Delete", color = MaterialTheme.colorScheme.error) },
+                                leadingIcon = { Icon(Icons.Default.Delete, null, tint = MaterialTheme.colorScheme.error) },
+                                onClick = {
+                                    showMenu = false
+                                    showDeleteConfirmation = true
+                                }
+                            )
                         }
                     }
                 }
@@ -789,6 +822,19 @@ fun CurationViewerScreen(
 
             // LAYER 7: Floating Badges (Always on Top) - REMOVED TO PREVENT COLLISION
             // Score and Reason moved to Header (Layer 6)
+
+            if (showDeleteConfirmation && activeItem != null) {
+                DeleteConfirmationDialog(
+                    itemCount = 1,
+                    onConfirm = {
+                        showDeleteConfirmation = false
+                        requestTrash(activeItem.photo.contentUri)
+                    },
+                    onDismiss = {
+                        showDeleteConfirmation = false
+                    }
+                )
+            }
         }
     }
 }

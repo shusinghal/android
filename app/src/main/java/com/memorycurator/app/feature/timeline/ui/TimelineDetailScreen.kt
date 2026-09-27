@@ -87,6 +87,7 @@ fun TimelineDetailScreen(
     var selectedIndex by remember { mutableIntStateOf(-1) }
     var isBestTakesActive by rememberSaveable { mutableStateOf(false) }
     var viewerSourceList by remember { mutableStateOf<List<CuratedResult>>(emptyList()) }
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
 
     val viewModel: AICurationViewModel? = if (repository != null && mediaIndexer != null) {
         viewModel(
@@ -344,7 +345,7 @@ fun TimelineDetailScreen(
                                         leadingIcon = { Icon(Icons.Default.Delete, null, tint = MaterialTheme.colorScheme.error) },
                                         onClick = {
                                             showMenu = false
-                                            requestTrash(selectedPhotos.map { it.contentUri })
+                                            showDeleteConfirmation = true
                                         }
                                     )
                                 }
@@ -618,6 +619,20 @@ fun TimelineDetailScreen(
                 onDismiss = { selectedIndex = -1 },
                 onFavorite = { result -> viewModel?.toggleFavorite(context, listOf(result.photo), true) },
                 onEditComplete = { viewModel?.refresh() }
+            )
+        }
+
+        if (showDeleteConfirmation) {
+            val selectedPhotos = activePhotos.filter { it.id in selectedIds }
+            com.memorycurator.app.ui.components.DeleteConfirmationDialog(
+                itemCount = selectedPhotos.size.coerceAtLeast(1),
+                onConfirm = {
+                    showDeleteConfirmation = false
+                    requestTrash(selectedPhotos.map { it.contentUri })
+                },
+                onDismiss = {
+                    showDeleteConfirmation = false
+                }
             )
         }
     }

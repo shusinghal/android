@@ -75,6 +75,7 @@ fun AICurationScreen(
     
     var selectedPhotoIndex by remember { mutableIntStateOf(-1) }
     var viewerSourceIsKeepers by remember { mutableStateOf(true) }
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
     val showAiLogic = true // Hardcoded for testing
 
     BackHandler(enabled = selectedPhotoIndex >= 0 || isSelectionMode) {
@@ -169,10 +170,7 @@ fun AICurationScreen(
             isSelectionMode = isSelectionMode,
             selectedCount = selectedIds.size,
             onDeleteSelected = {
-                val uris = analysisResults
-                    .filter { it.photo.id in selectedIds }
-                    .map { it.photo.contentUri }
-                requestTrash(uris)
+                showDeleteConfirmation = true
             },
             onShareSelected = {
                 val photos = analysisResults
@@ -231,6 +229,22 @@ fun AICurationScreen(
                     onEditComplete = { viewModel.refresh() }
                 )
             }
+        }
+
+        if (showDeleteConfirmation) {
+            com.memorycurator.app.ui.components.DeleteConfirmationDialog(
+                itemCount = selectedIds.size.coerceAtLeast(1),
+                onConfirm = {
+                    showDeleteConfirmation = false
+                    val uris = analysisResults
+                        .filter { it.photo.id in selectedIds }
+                        .map { it.photo.contentUri }
+                    requestTrash(uris)
+                },
+                onDismiss = {
+                    showDeleteConfirmation = false
+                }
+            )
         }
     }
 }
