@@ -760,6 +760,7 @@ fun CurationViewerScreen(
                                                 editLauncher.launch(intent)
                                             }
                                         } catch (e: Exception) {
+                                            android.util.Log.e("CurationViewerScreen", "Failed to open editor", e)
                                             Toast.makeText(context, "Could not open editor", Toast.LENGTH_SHORT).show()
                                         }
                                     }

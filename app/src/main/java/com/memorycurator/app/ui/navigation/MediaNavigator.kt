@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import android.webkit.MimeTypeMap
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.memorycurator.app.data.media.MediaPhoto
 import java.util.ArrayList
@@ -29,7 +28,6 @@ class DefaultMediaNavigator : MediaNavigator {
             Intent(Intent.ACTION_SEND).apply {
                 val mime = resolveMimeType(context, uris[0])
                 setDataAndType(uris[0], mime)
-                type = mime
                 putExtra(Intent.EXTRA_STREAM, uris[0])
             }
         } else {
@@ -61,20 +59,73 @@ class DefaultMediaNavigator : MediaNavigator {
     override fun getEditIntent(context: Context, photo: MediaPhoto): Intent {
         val uri = photo.contentUri
         val mimeType = resolveMimeType(context, uri)
+        val pm = context.packageManager
 
+        Log.d(TAG, "[MediaNavigatorDebug] photo.id: ${photo.id}, uri: $uri, mimeType: $mimeType, isVideo: ${photo.isVideo}")
+
+        // 1. Standard EDIT intent
         val editIntent = Intent(Intent.ACTION_EDIT).apply {
             setDataAndType(uri, mimeType)
             addCategory(Intent.CATEGORY_DEFAULT)
             putExtra(Intent.EXTRA_STREAM, uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
             clipData = ClipData.newRawUri("Photo", uri)
         }
 
-        // Return the chooser with proper flags and clipData attached to BOTH intents
-        val chooser = Intent.createChooser(editIntent, "Edit Photo").apply {
+        // 2. Google Camera / OEM Editor intent
+        val cameraEditorIntent = Intent("com.android.camera.action.EDITOR").apply {
+            setDataAndType(uri, mimeType)
+            addCategory(Intent.CATEGORY_DEFAULT)
+            putExtra(Intent.EXTRA_STREAM, uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            clipData = ClipData.newRawUri("Photo", uri)
+        }
+
+        // 3. SEND intent (Markup / Draw / Sharing Editors)
+        val sendIntent = Intent(Intent.ACTION_SEND).apply {
+            setDataAndType(uri, mimeType)
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            clipData = ClipData.newRawUri("Photo", uri)
+        }
+
+        fun queryAndLog(intent: Intent, actionName: String): List<android.content.pm.ResolveInfo> {
+            val list = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                pm.queryIntentActivities(intent, android.content.pm.PackageManager.ResolveInfoFlags.of(0))
+            } else {
+                @Suppress("DEPRECATION")
+                pm.queryIntentActivities(intent, 0)
+            }
+            Log.d(TAG, "[MediaNavigatorDebug] Found ${list.size} handlers for $actionName:")
+            for (info in list) {
+                Log.d(TAG, "[MediaNavigatorDebug]   -> ${info.activityInfo.packageName} / ${info.activityInfo.name}")
+            }
+            return list
+        }
+
+        val editActivities = queryAndLog(editIntent, "ACTION_EDIT")
+        val cameraEditorActivities = queryAndLog(cameraEditorIntent, "com.android.camera.action.EDITOR")
+        queryAndLog(sendIntent, "ACTION_SEND")
+
+        // Pick primary intent based on handlers found on this device
+        val primaryIntent: Intent = when {
+            editActivities.isNotEmpty() -> editIntent
+            cameraEditorActivities.isNotEmpty() -> cameraEditorIntent
+            else -> editIntent
+        }
+
+        val secondaryIntent: Intent = when {
+            primaryIntent === editIntent && cameraEditorActivities.isNotEmpty() -> cameraEditorIntent
+            primaryIntent === cameraEditorIntent && editActivities.isNotEmpty() -> editIntent
+            else -> cameraEditorIntent
+        }
+
+        val chooser = Intent.createChooser(primaryIntent, "Edit Photo").apply {
+            val bundle = android.os.Bundle().apply {
+                putParcelableArray(Intent.EXTRA_INITIAL_INTENTS, arrayOf<android.os.Parcelable>(secondaryIntent))
+            }
+            putExtras(bundle)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             clipData = ClipData.newRawUri("Photo", uri)
         }
 
@@ -88,7 +139,6 @@ class DefaultMediaNavigator : MediaNavigator {
 
         try {
             val intent = Intent(Intent.ACTION_ATTACH_DATA).apply {
-                addCategory(Intent.CATEGORY_DEFAULT)
                 setDataAndType(uri, mimeType)
                 putExtra("mimeType", mimeType)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -114,11 +164,8 @@ class DefaultMediaNavigator : MediaNavigator {
         }
     }
 
-    /**
-     * Resolves the actual MIME type (e.g. image/jpeg, image/png) from ContentResolver.
-     */
     private fun resolveMimeType(context: Context, uri: Uri): String {
-        return context.contentResolver.getType(uri) ?: "image/jpeg"
+        return context.contentResolver.getType(uri) ?: "image/*"
     }
 
     private fun attachClipData(intent: Intent, uris: List<Uri>) {

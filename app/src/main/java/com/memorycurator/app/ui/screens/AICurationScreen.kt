@@ -585,10 +585,13 @@ fun CurationHeader(
                             onClick = {
                                 showMenu = false
                                 try {
-                                    val photo = selectedPhotos.first().photo
-                                    val intent = navigator.getEditIntent(context, photo)
-                                    editLauncher?.launch(intent)
+                                    val photo = selectedPhotos.firstOrNull()?.photo
+                                    if (photo != null) {
+                                        val intent = navigator.getEditIntent(context, photo)
+                                        editLauncher?.launch(intent)
+                                    }
                                 } catch (e: Exception) {
+                                    android.util.Log.e("AICurationScreen", "Failed to open editor", e)
                                     Toast.makeText(context, "Could not open editor", Toast.LENGTH_SHORT).show()
                                 }
                             }
@@ -598,7 +601,9 @@ fun CurationHeader(
                             leadingIcon = { Icon(Icons.Default.Wallpaper, null, tint = Color.White) },
                             onClick = {
                                 showMenu = false
-                                navigator.setAsWallpaper(context, selectedPhotos.first().photo)
+                                selectedPhotos.firstOrNull()?.photo?.let { photo ->
+                                    navigator.setAsWallpaper(context, photo)
+                                }
                             }
                         )
                     }

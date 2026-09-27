@@ -307,10 +307,13 @@ fun TimelineDetailScreen(
                                             onClick = {
                                                 showMenu = false
                                                 try {
-                                                    val photo = selectedPhotos.first()
-                                                    val intent = navigator.getEditIntent(context, photo)
-                                                    editLauncher.launch(intent)
+                                                    val photo = selectedPhotos.firstOrNull() ?: activePhotos.firstOrNull { it.id in selectedIds }
+                                                    if (photo != null) {
+                                                        val intent = navigator.getEditIntent(context, photo)
+                                                        editLauncher.launch(intent)
+                                                    }
                                                 } catch (e: Exception) {
+                                                    android.util.Log.e("TimelineDetailScreen", "Failed to open editor", e)
                                                     Toast.makeText(context, "Could not open editor", Toast.LENGTH_SHORT).show()
                                                 }
                                             }
@@ -320,7 +323,10 @@ fun TimelineDetailScreen(
                                             leadingIcon = { Icon(Icons.Default.Wallpaper, null, tint = Color.White) },
                                             onClick = {
                                                 showMenu = false
-                                                navigator.setAsWallpaper(context, selectedPhotos.first())
+                                                val photo = selectedPhotos.firstOrNull() ?: activePhotos.firstOrNull { it.id in selectedIds }
+                                                if (photo != null) {
+                                                    navigator.setAsWallpaper(context, photo)
+                                                }
                                             }
                                         )
                                     }

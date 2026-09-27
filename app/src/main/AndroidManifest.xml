@@ -16,8 +16,16 @@
             <data android:mimeType="image/*" />
         </intent>
         <intent>
+            <action android:name="android.intent.action.EDIT" />
+            <data android:mimeType="video/*" />
+        </intent>
+        <intent>
             <action android:name="com.android.camera.action.EDITOR" />
             <data android:mimeType="image/*" />
+        </intent>
+        <intent>
+            <action android:name="com.android.camera.action.EDITOR" />
+            <data android:mimeType="video/*" />
         </intent>
         <intent>
             <action android:name="android.intent.action.VIEW" />
@@ -29,6 +37,14 @@
         </intent>
         <intent>
             <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="image/*" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="video/*" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SEND_MULTIPLE" />
             <data android:mimeType="image/*" />
         </intent>
     </queries>
