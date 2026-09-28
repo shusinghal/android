@@ -11,24 +11,15 @@ object DatabaseProvider {
     fun getDatabase(
         context: Context
     ): AppDatabase {
-
         return database ?: synchronized(this) {
-
-            val instance = Room.databaseBuilder(
-
+            database ?: Room.databaseBuilder(
                 context.applicationContext,
-
                 AppDatabase::class.java,
-
                 "memory_curator_db"
-
             )
                 .fallbackToDestructiveMigration()
                 .build()
-
-            database = instance
-
-            instance
+                .also { database = it }
         }
     }
 }
