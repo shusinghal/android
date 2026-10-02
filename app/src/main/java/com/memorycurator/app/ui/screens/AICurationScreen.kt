@@ -170,7 +170,10 @@ fun AICurationScreen(
             isSelectionMode = isSelectionMode,
             selectedCount = selectedIds.size,
             onDeleteSelected = {
-                showDeleteConfirmation = true
+                val uris = analysisResults
+                    .filter { it.photo.id in selectedIds }
+                    .map { it.photo.contentUri }
+                requestTrash(uris)
             },
             onShareSelected = {
                 val photos = analysisResults
@@ -231,6 +234,7 @@ fun AICurationScreen(
             }
         }
 
+        /*
         if (showDeleteConfirmation) {
             com.memorycurator.app.ui.components.DeleteConfirmationDialog(
                 itemCount = selectedIds.size.coerceAtLeast(1),
@@ -246,6 +250,7 @@ fun AICurationScreen(
                 }
             )
         }
+        */
     }
 }
 }

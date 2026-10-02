@@ -345,7 +345,8 @@ fun TimelineDetailScreen(
                                         leadingIcon = { Icon(Icons.Default.Delete, null, tint = MaterialTheme.colorScheme.error) },
                                         onClick = {
                                             showMenu = false
-                                            showDeleteConfirmation = true
+                                            val selectedPhotos = activePhotos.filter { it.id in selectedIds }
+                                            requestTrash(selectedPhotos.map { it.contentUri })
                                         }
                                     )
                                 }
@@ -622,6 +623,7 @@ fun TimelineDetailScreen(
             )
         }
 
+        /*
         if (showDeleteConfirmation) {
             val selectedPhotos = activePhotos.filter { it.id in selectedIds }
             com.memorycurator.app.ui.components.DeleteConfirmationDialog(
@@ -635,6 +637,7 @@ fun TimelineDetailScreen(
                 }
             )
         }
+        */
     }
 }
 

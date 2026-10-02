@@ -812,7 +812,7 @@ fun CurationViewerScreen(
                                 leadingIcon = { Icon(Icons.Default.Delete, null, tint = MaterialTheme.colorScheme.error) },
                                 onClick = {
                                     showMenu = false
-                                    showDeleteConfirmation = true
+                                    activeItem?.let { requestTrash(it.photo.contentUri) }
                                 }
                             )
                         }
@@ -823,6 +823,7 @@ fun CurationViewerScreen(
             // LAYER 7: Floating Badges (Always on Top) - REMOVED TO PREVENT COLLISION
             // Score and Reason moved to Header (Layer 6)
 
+            /*
             if (showDeleteConfirmation && activeItem != null) {
                 DeleteConfirmationDialog(
                     itemCount = 1,
@@ -835,6 +836,7 @@ fun CurationViewerScreen(
                     }
                 )
             }
+            */
         }
     }
 }
