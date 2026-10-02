@@ -44,7 +44,10 @@ fun OnboardingScreen(onContinue: () -> Unit) {
     var showPermissionDialog by remember { mutableStateOf(false) }
 
     val permissions = if (Build.VERSION.SDK_INT >= 33) {
-        val list = mutableListOf(Manifest.permission.READ_MEDIA_IMAGES)
+        val list = mutableListOf(
+            Manifest.permission.READ_MEDIA_IMAGES,
+            Manifest.permission.POST_NOTIFICATIONS
+        )
         if (Build.VERSION.SDK_INT >= 34) {
             list.add("android.permission.READ_MEDIA_VISUAL_USER_SELECTED")
         }

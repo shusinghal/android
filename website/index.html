@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Footage - Private On-Device AI Gallery & Memory Curator</title>
+    <meta name="description" content="Footage is a next-gen Android gallery app powered by on-device AI. Score photo quality, detect best takes, cluster memories, and search offline with 100% privacy.">
+    <meta name="keywords" content="Footage, MemoryCurator, Gallery App, Android Gallery, On-device AI, Photo Quality Scorer, Best Take Selector, Local AI Gallery, Private Photo Manager">
+    <meta name="author" content="Footage Team">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://footage-app.com/">
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Footage - Private On-Device AI Gallery">
+    <meta property="og:description" content="Rediscover your best memories with instant on-device AI curation. Zero cloud uploads. 100% private.">
+    <meta property="og:image" content="assets/hero-mockup.jpg">
+    <meta property="og:url" content="https://footage-app.com/">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Footage - Private On-Device AI Gallery">
+    <meta name="twitter:description" content="Instant on-device photo scoring and memory curation for Android. Completely private.">
+    <meta name="twitter:image" content="assets/hero-mockup.jpg">
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Structured Data (JSON-LD) for SEO & AI Crawlers -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Footage",
+      "operatingSystem": "Android",
+      "applicationCategory": "PhotographyApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "Footage is a smart on-device AI gallery app for Android that automatically curates your best memories, rates image quality, and keeps all data 100% private.",
+      "author": {
+        "@type": "Person",
+        "name": "Footage Developer",
+        "email": "shu22691@gmail.com"
+      }
+    }
+    </script>
+</head>
+<body>
+    <div class="ambient-background">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+        <div class="glow-orb orb-3"></div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="#" class="brand-logo">
+                <span class="logo-icon">✨</span>
+                <span class="brand-name">FOOTAGE</span>
+            </a>
+            <nav class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#privacy">Privacy</a>
+                <a href="privacy.html" class="nav-link-secondary">Privacy Policy</a>
+            </nav>
+            <a href="#waitlist" class="btn-primary-sm">Get Early Access</a>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-container">
+                <div class="hero-content">
+                    <div class="badge-tag">
+                        <span class="pulse-dot"></span>
+                        <span>Coming Soon for Android</span>
+                    </div>
+                    <h1>Your Memories,<br><span class="gradient-text">Curated Privately by AI</span></h1>
+                    <p class="hero-description">
+                        Footage intelligently analyzes your photos directly on your device. Auto-select best takes, filter blur, score aesthetic quality, and relive highlights—with <strong>0% cloud upload</strong>.
+                    </p>
+
+                    <!-- Waitlist Form -->
+                    <div class="waitlist-card" id="waitlist">
+                        <form id="interestForm" class="waitlist-form">
+                            <input type="email" id="userEmail" placeholder="Enter your email address" required autocomplete="email">
+                            <button type="submit" class="btn-submit">
+                                <span>Join Waitlist</span>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                            </button>
+                        </form>
+                        <div id="formSuccess" class="form-success hidden">
+                            <span class="success-icon">🎉</span>
+                            <div>
+                                <strong>You're on the list!</strong>
+                                <p>We'll notify you the moment Footage hits the Play Store.</p>
+                            </div>
+                        </div>
+
+                        <!-- Live Counter -->
+                        <div class="tracker-counter">
+                            <div class="counter-avatars">
+                                <span class="avatar av-1">⚡</span>
+                                <span class="avatar av-2">📸</span>
+                                <span class="avatar av-3">✨</span>
+                            </div>
+                            <div class="counter-text">
+                                <span class="counter-number" id="liveCounter">1,482</span> people waiting for early access
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-visual">
+                    <div class="phone-frame-wrapper">
+                        <img src="assets/hero-mockup.jpg" alt="Footage App Mockup displaying photo timeline with AI quality scores" class="hero-image">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Grid -->
+        <section id="features" class="section-padding">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-subtitle">SMART FEATURES</span>
+                    <h2>Intelligent Curation Without Cloud Vulnerabilities</h2>
+                    <p>Powered by LiteRT, ML Kit, and localized computer vision right on your smartphone.</p>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-card glass-card">
+                        <div class="feature-icon">⭐</div>
+                        <h3>Aesthetic Scoring</h3>
+                        <p>Deep neural models score lighting, composition, and focus so your top shots automatically shine.</p>
+                    </div>
+
+                    <div class="feature-card glass-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Best Take Selector</h3>
+                        <p>Group rapid bursts, identify closed eyes or motion blurs, and surface the single perfect shot effortlessly.</p>
+                    </div>
+
+                    <div class="feature-card glass-card">
+                        <div class="feature-icon">🔒</div>
+                        <h3>100% Local Privacy</h3>
+                        <p>No photos ever touch a server. Scanning, facial indexing, and clustering run 100% offline on-device.</p>
+                    </div>
+
+                    <div class="feature-card glass-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Instant Local Search</h3>
+                        <p>Search objects, locations, and moments at lighting speed with native spatial indexing.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works / Flow Section -->
+        <section id="how-it-works" class="section-padding flow-section">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-subtitle">UNDER THE HOOD</span>
+                    <h2>How Footage Works</h2>
+                    <p>A seamless 3-step pipeline designed for zero privacy compromises.</p>
+                </div>
+
+                <div class="flow-visual-card glass-card">
+                    <img src="assets/ai-flow.jpg" alt="AI Photo Curation Workflow infographic showing 3 steps from scanning to scoring to best memory highlighting" class="flow-image">
+                </div>
+
+                <div class="steps-container">
+                    <div class="step-box">
+                        <div class="step-num">01</div>
+                        <h4>On-Device Scan</h4>
+                        <p>Scans your local device storage cleanly using Android MediaStore APIs.</p>
+                    </div>
+                    <div class="step-box">
+                        <div class="step-num">02</div>
+                        <h4>Neural Analysis</h4>
+                        <p>LiteRT evaluates quality, expression, and composition in hardware-accelerated batches.</p>
+                    </div>
+                    <div class="step-box">
+                        <div class="step-num">03</div>
+                        <h4>Smart Timeline</h4>
+                        <p>Your library is organized into beautiful glassmorphic stories and highlights.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Privacy Section -->
+        <section id="privacy" class="section-padding privacy-highlight">
+            <div class="container">
+                <div class="privacy-box glass-card">
+                    <div class="privacy-content">
+                        <span class="shield-badge">🛡️ Strict Zero Data Collection</span>
+                        <h2>Your Private Life Stays On Your Phone</h2>
+                        <p>Unlike cloud galleries that harvest metadata or train massive central models on your personal photos, Footage operates entirely inside your device's sandbox. We collect zero photos, zero telemetry, and zero facial biometric data.</p>
+                        <div class="privacy-bullets">
+                            <div class="p-bullet"><span>✓</span> No Account Creation Required</div>
+                            <div class="p-bullet"><span>✓</span> Works 100% Offline</div>
+                            <div class="p-bullet"><span>✓</span> Fully Compliant with Google Play Data Safety</div>
+                        </div>
+                        <a href="privacy.html" class="btn-secondary">Read Full Privacy Policy</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-brand">
+                <span class="brand-name">FOOTAGE</span>
+                <p>Private on-device AI memory curator for Android.</p>
+            </div>
+            <div class="footer-links">
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="mailto:shu22691@gmail.com">Contact Developer (shu22691@gmail.com)</a>
+            </div>
+            <div class="footer-copyright">
+                &copy; 2026 Footage. All rights reserved. Contact: <a href="mailto:shu22691@gmail.com">shu22691@gmail.com</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

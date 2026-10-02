@@ -1,7 +1,9 @@
 package com.memorycurator.app.ui.screens
 
+import android.Manifest
 import android.os.Build
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.provider.Settings
 import android.net.Uri
 import android.provider.MediaStore
@@ -18,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import com.memorycurator.app.data.local.UserPreferences
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,6 +29,14 @@ fun ProfileScreen() {
     val context = LocalContext.current
     val userPrefs = remember { UserPreferences(context) }
     var isDeepAnalysis by remember { mutableStateOf(userPrefs.isDeepAnalysisEnabled) }
+    var isNotifications by remember { mutableStateOf(userPrefs.isNotificationsEnabled) }
+
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        isNotifications = granted
+        userPrefs.isNotificationsEnabled = granted
+    }
 
     Scaffold(
         topBar = {
@@ -42,6 +53,64 @@ fun ProfileScreen() {
                 .padding(padding)
                 .padding(16.dp)
         ) {
+            Text(
+                text = "Notifications & Alerts",
+                color = Color.White,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = Color.DarkGray.copy(alpha = 0.3f))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Enable Notifications",
+                            color = Color.White,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Text(
+                            text = if (isNotifications) "Receiving alerts for curation and analysis" else "Notifications turned off",
+                            color = Color.White.copy(alpha = 0.6f),
+                            fontSize = 12.sp
+                        )
+                    }
+                    Switch(
+                        checked = isNotifications,
+                        onCheckedChange = { checked ->
+                            if (checked) {
+                                if (Build.VERSION.SDK_INT >= 33) {
+                                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                                        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                    } else {
+                                        isNotifications = true
+                                        userPrefs.isNotificationsEnabled = true
+                                    }
+                                } else {
+                                    isNotifications = true
+                                    userPrefs.isNotificationsEnabled = true
+                                }
+                            } else {
+                                isNotifications = false
+                                userPrefs.isNotificationsEnabled = false
+                            }
+                        }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             Text(
                 text = "AI Analysis Settings",
                 color = Color.White,
@@ -74,7 +143,7 @@ fun ProfileScreen() {
                             fontSize = 12.sp
                         )
                     }
-            Switch(
+                    Switch(
                         checked = isDeepAnalysis,
                         onCheckedChange = {
                             isDeepAnalysis = it
@@ -87,17 +156,6 @@ fun ProfileScreen() {
             Spacer(modifier = Modifier.height(16.dp))
 
             var isPhysicalStorage by remember { mutableStateOf(userPrefs.isPhysicalStorageEnabled) }
-
-            val mediaManagementLauncher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.StartActivityForResult()
-            ) { _ ->
-                val hasPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    MediaStore.canManageMedia(context)
-                } else true
-
-                isPhysicalStorage = hasPermission
-                userPrefs.isPhysicalStorageEnabled = hasPermission
-            }
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -125,25 +183,8 @@ fun ProfileScreen() {
                         Switch(
                             checked = isPhysicalStorage,
                             onCheckedChange = { checked ->
-                                if (checked) {
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                                        if (!MediaStore.canManageMedia(context)) {
-                                            val intent = Intent(Settings.ACTION_REQUEST_MANAGE_MEDIA).apply {
-                                                data = Uri.parse("package:${context.packageName}")
-                                            }
-                                            mediaManagementLauncher.launch(intent)
-                                        } else {
-                                            isPhysicalStorage = true
-                                            userPrefs.isPhysicalStorageEnabled = true
-                                        }
-                                    } else {
-                                        isPhysicalStorage = true
-                                        userPrefs.isPhysicalStorageEnabled = true
-                                    }
-                                } else {
-                                    isPhysicalStorage = false
-                                    userPrefs.isPhysicalStorageEnabled = false
-                                }
+                                isPhysicalStorage = checked
+                                userPrefs.isPhysicalStorageEnabled = checked
                             }
                         )
                     }
@@ -175,7 +216,7 @@ fun ProfileScreen() {
                             if (isPhysicalStorage) {
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
-                                    text = "Note: Media Management permission enabled. Metadata will be saved physically.",
+                                    text = "Note: Media Management permission handling enabled. Metadata will be saved physically.",
                                     color = MaterialTheme.colorScheme.tertiary,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Medium

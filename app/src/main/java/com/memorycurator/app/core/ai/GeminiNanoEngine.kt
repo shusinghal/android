@@ -8,17 +8,23 @@ import kotlinx.coroutines.tasks.await
 
 /**
  * Point 3: Gemini Nano for Deep Semantic Description (VQA)
- * Uses on-device GenAI via Android AICore.
+ * Uses on-device GenAI via Android AICore with graceful fallback on unsupported hardware.
  */
 class GeminiNanoEngine(private val context: Context) {
     
-    private val client: GenerativeModel by lazy {
-        Generation.getClient()
+    private val client: GenerativeModel? by lazy {
+        try {
+            Generation.getClient()
+        } catch (e: Exception) {
+            android.util.Log.w("GeminiNano", "GenerativeModel client not available on this device: ${e.message}")
+            null
+        }
     }
     
     suspend fun generateDeepDescription(bitmap: Bitmap): String? {
+        val generativeClient = client ?: return null
         return try {
-            val status = client.checkStatus()
+            val status = generativeClient.checkStatus()
             if (status == FeatureStatus.AVAILABLE) {
                 val prompt = "Describe this image in detail for a gallery app. " +
                              "Include subjects, their expressions, clothing colors, and the overall scene " +
@@ -29,11 +35,9 @@ class GeminiNanoEngine(private val context: Context) {
                     TextPart(prompt)
                 ).build()
                 
-                val response = client.generateContent(request)
+                val response = generativeClient.generateContent(request)
                 response.candidates.firstOrNull()?.text
             } else if (status == FeatureStatus.DOWNLOADABLE) {
-                // If model is downloadable, start download but return null for this run
-                // client.download() // In production, we'd trigger and track download
                 null
             } else {
                 null

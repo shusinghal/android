@@ -64,11 +64,14 @@ class MainActivity : ComponentActivity() {
 
         // Removed automatic checkAndRequestPermissions() to defer it to OnboardingScreen
 
+        val openTimeline = intent?.getBooleanExtra("OPEN_TIMELINE", false) == true
+
         setContent {
             GlassTheme {
                 CompositionLocalProvider(LocalMediaNavigator provides DefaultMediaNavigator()) {
                     MainNavigation(
-                        viewModel = galleryViewModel
+                        viewModel = galleryViewModel,
+                        openTimelineFresh = openTimeline
                     )
                 }
             }
@@ -80,12 +83,18 @@ class MainActivity : ComponentActivity() {
         if (::galleryViewModel.isInitialized) {
             // Comprehensive quick scan of the latest 100 items on return
             galleryViewModel.indexMedia(limit = 100)
+            
+            // Check and send memory notification if criteria are met
+            com.memorycurator.app.data.notifications.MemoryNotifications.checkAndSendMemoryNotification(applicationContext)
         }
     }
 
     private fun checkAndRequestPermissions() {
         val permissions = if (Build.VERSION.SDK_INT >= 33) {
-            val list = mutableListOf(Manifest.permission.READ_MEDIA_IMAGES)
+            val list = mutableListOf(
+                Manifest.permission.READ_MEDIA_IMAGES,
+                Manifest.permission.POST_NOTIFICATIONS
+            )
             if (Build.VERSION.SDK_INT >= 34) {
                 list.add("android.permission.READ_MEDIA_VISUAL_USER_SELECTED")
             }

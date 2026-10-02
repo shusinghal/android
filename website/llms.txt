@@ -1,0 +1,17 @@
+# Footage App - Private On-Device AI Gallery
+
+> Footage (also known as MemoryCurator) is an Android gallery app that uses local, hardware-accelerated on-device AI to curate memories, score photo quality, detect best takes, and cluster facial identities—without uploading photos to any cloud servers.
+
+## Key Features
+- **100% On-Device AI:** Runs LiteRT and ML Kit locally. Zero cloud data transfer.
+- **Aesthetic Quality Scoring:** Automatically evaluates compositions, lighting, and focus.
+- **Best Take Detection:** Groups photo bursts and filters out closed eyes and motion blurs.
+- **Privacy-First Architecture:** Operates completely offline without requiring any user registration.
+
+## Developer Information
+- **Contact Email:** shu22691@gmail.com
+- **Platform:** Android (Targeting Android 15 / API 35)
+- **Status:** Coming Soon on Google Play Store
+
+## Documentation & Privacy Policy
+- Privacy Policy: https://footage-app.com/privacy.html

@@ -34,12 +34,7 @@ android {
         freeCompilerArgs += listOf("-Xskip-metadata-version-check")
     }
 
-    packaging {
-        jniLibs {
-            // Ensures compatibility with 16 KB page size devices by extracting native libraries
-            useLegacyPackaging = true
-        }
-    }
+
 
     testOptions {
         unitTests.all {

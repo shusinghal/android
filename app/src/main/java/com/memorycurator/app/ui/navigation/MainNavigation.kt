@@ -46,7 +46,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun MainNavigation(
-    viewModel: GalleryViewModel
+    viewModel: GalleryViewModel,
+    openTimelineFresh: Boolean = false
 ) {
     val context = LocalContext.current
 
@@ -99,6 +100,16 @@ fun MainNavigation(
     var selectedMapGroup by remember { mutableStateOf<TimelineGroup?>(null) }
     
     var curationPhotos by remember { mutableStateOf<List<com.memorycurator.app.data.media.MediaPhoto>?>(null) }
+
+    LaunchedEffect(openTimelineFresh) {
+        if (openTimelineFresh) {
+            selectedRoute = BottomNavItem.Timeline.route
+            selectedTimelineGroup = null
+            selectedAlbumGroup = null
+            selectedMapGroup = null
+            curationPhotos = null
+        }
+    }
     
     val timelineListState = rememberLazyListState()
     val galleryGridState = rememberLazyGridState()
