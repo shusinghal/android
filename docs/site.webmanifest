@@ -1,0 +1,11 @@
+{
+  "name":"Footage",
+  "short_name":"Footage",
+  "description":"Find your best photos and post with confidence.",
+  "start_url":"/android/",
+  "scope":"/android/",
+  "display":"standalone",
+  "background_color":"#08090c",
+  "theme_color":"#08090c",
+  "icons":[{"src":"assets/favicon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}

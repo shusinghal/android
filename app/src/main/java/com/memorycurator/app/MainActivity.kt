@@ -28,6 +28,11 @@ import coil.Coil
 import com.memorycurator.app.ui.navigation.LocalMediaNavigator
 import com.memorycurator.app.ui.navigation.DefaultMediaNavigator
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import java.util.concurrent.TimeUnit
+import com.memorycurator.app.data.notifications.MemoryNotificationWorker
 
 class MainActivity : ComponentActivity() {
 
@@ -65,6 +70,16 @@ class MainActivity : ComponentActivity() {
         // Removed automatic checkAndRequestPermissions() to defer it to OnboardingScreen
 
         val openTimeline = intent?.getBooleanExtra("OPEN_TIMELINE", false) == true
+
+        // Schedule periodic background work for automatic memory notifications
+        val notificationWorkRequest = PeriodicWorkRequestBuilder<MemoryNotificationWorker>(
+            6, TimeUnit.HOURS
+        ).build()
+        WorkManager.getInstance(applicationContext).enqueueUniquePeriodicWork(
+            "MemoryNotificationWork",
+            ExistingPeriodicWorkPolicy.KEEP,
+            notificationWorkRequest
+        )
 
         setContent {
             GlassTheme {

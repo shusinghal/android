@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.memorycurator.app.data.local.UserPreferences
+import com.memorycurator.app.ui.components.GlassCard
+import com.memorycurator.app.ui.components.GlassSurface
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,14 +63,11 @@ fun ProfileScreen() {
                 modifier = Modifier.padding(vertical = 8.dp)
             )
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color.DarkGray.copy(alpha = 0.3f))
+            GlassCard(
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -119,14 +118,11 @@ fun ProfileScreen() {
                 modifier = Modifier.padding(vertical = 8.dp)
             )
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color.DarkGray.copy(alpha = 0.3f))
+            GlassCard(
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -157,72 +153,69 @@ fun ProfileScreen() {
 
             var isPhysicalStorage by remember { mutableStateOf(userPrefs.isPhysicalStorageEnabled) }
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color.DarkGray.copy(alpha = 0.3f))
+            GlassCard(
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "Save AI score in file properties",
-                                color = Color.White,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Medium
-                            )
-                            Text(
-                                text = if (isPhysicalStorage) "Writing tags to Image properties" else "Storing results in App Database",
-                                color = Color.White.copy(alpha = 0.6f),
-                                fontSize = 12.sp
-                            )
-                        }
-                        Switch(
-                            checked = isPhysicalStorage,
-                            onCheckedChange = { checked ->
-                                isPhysicalStorage = checked
-                                userPrefs.isPhysicalStorageEnabled = checked
-                            }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Save AI score in file properties",
+                            color = Color.White,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Text(
+                            text = if (isPhysicalStorage) "Writing tags to Image properties" else "Storing results in App Database",
+                            color = Color.White.copy(alpha = 0.6f),
+                            fontSize = 12.sp
                         )
                     }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Surface(
-                        color = Color.White.copy(alpha = 0.05f),
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            Text(
-                                text = "Why this is recommended:",
-                                color = MaterialTheme.colorScheme.secondary,
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "• Privacy: Your AI ratings stay with your photos, even if you delete the app.\n" +
-                                       "• Compatibility: Pro gallery apps and desktops can read these AI tags.\n" +
-                                       "• Portability: When you move photos to a new phone, your work is preserved.",
-                                color = Color.White.copy(alpha = 0.7f),
-                                fontSize = 11.sp,
-                                lineHeight = 16.sp
-                            )
-                            
-                            if (isPhysicalStorage) {
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = "Note: Media Management permission handling enabled. Metadata will be saved physically.",
-                                    color = MaterialTheme.colorScheme.tertiary,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Medium
-                                )
-                            }
+                    Switch(
+                        checked = isPhysicalStorage,
+                        onCheckedChange = { checked ->
+                            isPhysicalStorage = checked
+                            userPrefs.isPhysicalStorageEnabled = checked
                         }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                GlassCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    backgroundColor = Color.Black.copy(alpha = 0.3f),
+                    borderColor = Color.White.copy(alpha = 0.1f),
+                    cornerRadius = 12.dp,
+                    padding = 12.dp
+                ) {
+                    Text(
+                        text = "Why this is recommended:",
+                        color = MaterialTheme.colorScheme.secondary,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "• Privacy: Your AI ratings stay with your photos, even if you delete the app.\n" +
+                               "• Compatibility: Pro gallery apps and desktops can read these AI tags.\n" +
+                               "• Portability: When you move photos to a new phone, your work is preserved.",
+                        color = Color.White.copy(alpha = 0.7f),
+                        fontSize = 11.sp,
+                        lineHeight = 16.sp
+                    )
+                    
+                    if (isPhysicalStorage) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Note: Metadata will be saved physically to image properties.",
+                            color = MaterialTheme.colorScheme.tertiary,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium
+                        )
                     }
                 }
             }
@@ -230,19 +223,19 @@ fun ProfileScreen() {
             Spacer(modifier = Modifier.height(24.dp))
             
             if (isDeepAnalysis) {
-                Surface(
-                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f),
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth()
+                GlassCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    backgroundColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f),
+                    borderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                    cornerRadius = 12.dp,
+                    padding = 12.dp
                 ) {
-                    Row(modifier = Modifier.padding(12.dp)) {
-                        Text(
-                            text = "Note: Deep analysis can take up to 60 seconds per image but provides professional-grade results.",
-                            color = MaterialTheme.colorScheme.primary,
-                            fontSize = 12.sp,
-                            lineHeight = 16.sp
-                        )
-                    }
+                    Text(
+                        text = "Note: Deep analysis can take up to 60 seconds per image but provides professional-grade results.",
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 12.sp,
+                        lineHeight = 16.sp
+                    )
                 }
             }
         }

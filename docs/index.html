@@ -1,376 +1,519 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Footage - Rediscover Your Best Memories Without Gallery Stress</title>
-    <meta name="description" content="Footage by Shivayu Consultants automatically surfaces your best vacation shots, pre-sorts blurry clutter for 1-tap deletion, and keeps 100% of your photos private on your phone. 100% Free with Zero Ads & Zero Trackers.">
-    <meta name="keywords" content="Footage, Shivayu Consultants, Photo Curator, Android Gallery, Best Vacation Photos, Photo Storage Cleaner, Private Photo Manager, Save Cloud Storage, Free Photo App">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Footage — Too many takes. One photo worth posting.</title>
+    <meta name="description" content="Took 40 photos of a moment? Footage uses private on-device AI to instantly surface your single best take—and pre-sorts blurry clutter for 1-tap deletion. 100% free with zero ads or trackers.">
+    <meta name="keywords" content="Footage, best photo app, photo curator, best takes, photo selector, vacation photo organizer, burst photo cleaner, duplicate photo cleanup, Android photo app, private AI gallery, Shivayu Consultants, save cloud storage">
     <meta name="author" content="Shivayu Consultants">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://footage-app.com/">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="theme-color" content="#FBFBFC">
+    <meta name="color-scheme" content="light">
+    <link rel="canonical" href="https://shusinghal.github.io/android/">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="preload" as="image" href="assets/hero-ui.jpg" fetchpriority="high">
 
-    <!-- Social Media Meta -->
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Footage by Shivayu Consultants - Private On-Device Photo Curator">
-    <meta property="og:description" content="Instantly filter your best vacation photos and clear pre-sorted clutter—100% offline on your phone. 100% Free with zero ads or trackers.">
-    <meta property="og:image" content="assets/hero-mockup.jpg">
-    <meta property="og:url" content="https://footage-app.com/">
+    <meta property="og:site_name" content="Footage">
+    <meta property="og:title" content="Footage — Too many takes. One photo worth posting.">
+    <meta property="og:description" content="Find your best takes from vacation photo bursts in seconds. Pre-sorted 1-tap cleanup. 100% on-device AI. 100% free.">
+    <meta property="og:url" content="https://shusinghal.github.io/android/">
+    <meta property="og:image" content="https://shusinghal.github.io/android/assets/footage-visual.png">
+    <meta property="og:image:width" content="1024">
+    <meta property="og:image:height" content="1536">
+    <meta property="og:image:alt" content="Footage AI photo curator showing best take selection">
 
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Footage by Shivayu Consultants - Private Photo Curator">
-    <meta name="twitter:description" content="Instantly surface your best photos and clean up phone clutter. 100% free and private.">
-    <meta name="twitter:image" content="assets/hero-mockup.jpg">
+    <meta name="twitter:title" content="Footage — Too many takes. One photo worth posting.">
+    <meta name="twitter:description" content="Too many takes. One post. Footage spots the strongest photos on your phone with zero cloud uploads. 100% free.">
+    <meta name="twitter:image" content="https://shusinghal.github.io/android/assets/footage-visual.png">
 
-    <!-- Fonts & Stylesheet -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Styles -->
     <link rel="stylesheet" href="styles.css">
 
-    <!-- Structured Data -->
+    <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "Footage",
-      "operatingSystem": "Android",
-      "applicationCategory": "PhotographyApplication",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "description": "Footage is a smart on-device photo curator for Android developed by Shivayu Consultants. It automatically surfaces your best vacation memories, pre-sorts bad pics for instant cleanup, and operates 100% free with zero ads, zero trackers, and complete local privacy.",
-      "author": {
-        "@type": "Organization",
-        "name": "Shivayu Consultants",
-        "email": "shu22691@gmail.com"
-      }
+      "@graph": [
+        {
+          "@type": "SoftwareApplication",
+          "@id": "https://shusinghal.github.io/android/#app",
+          "name": "Footage",
+          "applicationCategory": "PhotographyApplication",
+          "operatingSystem": "Android",
+          "description": "Footage is a smart, on-device AI photo curator. It automatically surfaces your best vacation memories, pre-sorts bad shots for 1-tap cleanup, and keeps 100% of your data private.",
+          "url": "https://shusinghal.github.io/android/",
+          "image": "https://shusinghal.github.io/android/assets/footage-visual.png",
+          "isAccessibleForFree": true,
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "featureList": [
+            "Best takes selection",
+            "Burst photo review",
+            "1-tap pre-sorted cleanup",
+            "On-device AI curation",
+            "Zero cloud uploads",
+            "No ad tracking",
+            "No analytics tracking"
+          ],
+          "author": {
+            "@type": "Organization",
+            "name": "Shivayu Consultants",
+            "email": "shu22691@gmail.com"
+          },
+          "sameAs": ["https://github.com/shusinghal/android"]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://shusinghal.github.io/android/#website",
+          "url": "https://shusinghal.github.io/android/",
+          "name": "Footage",
+          "description": "Private on-device AI photo curator for Android."
+        }
+      ]
     }
     </script>
 </head>
 <body>
-    <!-- Vibrant Ambient Lighting -->
-    <div class="ambient-lighting">
-        <div class="light-orb orb-amber"></div>
-        <div class="light-orb orb-rose"></div>
-        <div class="light-orb orb-emerald"></div>
+    <!-- Subtle Ambient Color Washes -->
+    <div class="ambient-lighting-layer" aria-hidden="true">
+        <div class="ambient-wash wash-top-right"></div>
+        <div class="ambient-wash wash-mid-left"></div>
+        <div class="ambient-wash wash-bottom-right"></div>
     </div>
 
     <!-- Navigation Bar -->
     <header class="navbar">
-        <div class="nav-container">
-            <a href="#" class="brand-logo">
-                <span class="logo-spark">✨</span>
-                <span class="brand-name">FOOTAGE</span>
+        <div class="wrap nav-container">
+            <a href="#home" class="brand" aria-label="Footage home">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+                </div>
+                <span>footage</span>
             </a>
-            <nav class="nav-links">
-                <a href="#why">The Problem</a>
+            <nav class="nav-links" aria-label="Primary navigation">
+                <a href="#home">Home</a>
                 <a href="#how">How It Works</a>
-                <a href="#what">Features</a>
-                <a href="#trust">100% Free & Trust</a>
-                <a href="#privacy">Privacy Moat</a>
-                <a href="privacy.html" class="nav-link-secondary">Privacy Policy</a>
+                <a href="#features">Features</a>
+                <a href="#privacy">Privacy</a>
+                <a href="https://github.com/shusinghal/android" target="_blank" rel="noopener">GitHub</a>
+                <a href="#early-access" class="btn-nav-cta">Early Access</a>
             </nav>
-            <a href="#waitlist" class="btn-primary">Get Early Access</a>
         </div>
     </header>
 
     <main>
-        <!-- HERO: The Emotional Connection -->
-        <section class="hero-section">
-            <div class="hero-container">
-                <div class="hero-content">
-                    <div class="hero-pill-badge">
-                        <span class="live-pulse-dot"></span>
-                        <span>By Shivayu Consultants • 100% Free & Private</span>
-                    </div>
-                    <h1 class="hero-title">
-                        Your best memories shouldn't get lost in a sea of <span class="highlight-amber">500 photos.</span>
-                    </h1>
-                    <p class="hero-subtext">
-                        You take photos to capture moments that matter. But sorting through vacation bursts, blurred takes, and duplicate shots shouldn't feel like a second job. <strong>Footage brings your standout photos to light—effortlessly, privately, and right on your phone.</strong>
-                    </p>
+        <!-- =========================================================
+             HERO SECTION: Sells within 30 Seconds
+             ========================================================= -->
+        <section id="home" class="wrap hero">
+            <div class="hero-content reveal">
+                <div class="hero-badge">
+                    <span class="pulse-dot"></span>
+                    <span>100% On-Device AI • Coming Soon for Android</span>
+                </div>
+                <h1 class="hero-headline">
+                    Too many takes.<br>
+                    <span class="gradient-headline">One photo worth posting.</span>
+                </h1>
+                <p class="hero-subtitle">
+                    You clicked 40 photos at sunset. Footage uses <strong>private on-device AI</strong> to instantly surface the single standout take—and pre-sorts blurry clutter for <strong>1-tap deletion</strong>. Zero cloud uploads. Completely free.
+                </p>
 
-                    <!-- Early Access Form -->
-                    <div class="waitlist-card" id="waitlist">
-                        <form id="interestForm" class="waitlist-form">
-                            <input type="email" id="userEmail" placeholder="Enter your email for early access" required autocomplete="email">
-                            <button type="submit" class="btn-submit">
-                                <span>Get Early Access</span>
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                            </button>
-                        </form>
-                        <div id="formSuccess" class="form-success hidden">
-                            <span class="success-icon">🎉</span>
-                            <div>
-                                <strong>You're on the list!</strong>
-                                <p>We'll notify you as soon as Footage launches on Google Play.</p>
-                            </div>
+                <!-- Waitlist Form (Connected to Google Sheets Webhook) -->
+                <div class="waitlist-card" id="early-access">
+                    <form id="interestForm" class="waitlist-form">
+                        <input type="email" id="userEmail" class="waitlist-input" placeholder="Enter your email address" required autocomplete="email">
+                        <button type="submit" class="btn-submit">
+                            <span>Get Early Access</span>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </button>
+                    </form>
+                    <div id="formSuccess" class="form-success hidden">
+                        <span style="font-size: 1.5rem;">🎉</span>
+                        <div>
+                            <strong style="color: var(--text-heading); display: block; font-size: 0.95rem;">You're on the early access list!</strong>
+                            <span style="font-size: 0.85rem; color: var(--text-body);">We'll notify you the moment Footage launches on Google Play.</span>
                         </div>
+                    </div>
 
-                        <div class="counter-strip">
+                    <div class="waitlist-meta">
+                        <div class="meta-avatars">
                             <div class="avatar-stack">
                                 <span class="avatar-bubble">⭐</span>
                                 <span class="avatar-bubble">📸</span>
                                 <span class="avatar-bubble">✨</span>
                             </div>
-                            <div class="counter-text">
-                                Join <span class="counter-num" id="liveCounter">1,482</span> people reclaiming their camera rolls
+                            <span class="meta-text"><strong id="liveCounter">1,482</strong> waiting for Android launch</span>
+                        </div>
+                        <span style="color: var(--accent-emerald); font-weight: 700; font-size: 0.84rem;">100% Free Forever</span>
+                    </div>
+                </div>
+
+                <div class="hero-proof-pills">
+                    <div class="proof-pill">
+                        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+                        <span>100% On-Device AI</span>
+                    </div>
+                    <div class="proof-pill">
+                        <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
+                        <span>Saves Cloud Storage Bills</span>
+                    </div>
+                    <div class="proof-pill">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                        <span>Zero Ads • Zero Trackers</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hero Visual Showcase -->
+            <div class="hero-visual reveal">
+                <div class="mockup-container">
+                    <!-- Floating Highlight Tag: The Winner Take -->
+                    <div class="floating-badge badge-top-left">
+                        <span class="badge-title">AI Winner Detected</span>
+                        <span class="badge-desc">⭐ 9.8 Score · Best Take</span>
+                    </div>
+
+                    <!-- Main Phone Frame with Real App Interface -->
+                    <div class="phone-device-frame">
+                        <img src="assets/hero-ui.jpg" alt="Footage App interface displaying intelligent Best Take curation" class="phone-screen-img" width="540" height="720">
+                    </div>
+
+                    <!-- Floating Tag: Pre-sorted Cleanup -->
+                    <div class="floating-badge badge-bottom-right">
+                        <span class="badge-title">1-Tap Cleanup Ready</span>
+                        <span class="badge-desc">🧹 4 Bad Takes · Free 145 MB</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             SECTION 1: THE REAL HUMAN PROBLEM (The 30-Sec AHA Moment)
+             ========================================================= -->
+        <section id="problem" class="problem-section">
+            <div class="wrap problem-grid">
+                <div class="problem-copy reveal">
+                    <div class="eyebrow">THE CAMERA-ROLL PROBLEM</div>
+                    <h2>You don't need more photos.<br><span class="gradient-headline">You need the right ones.</span></h2>
+                    <p style="color: var(--text-body); font-size: 1.05rem; line-height: 1.65;">
+                        You come back from a vacation, family dinner, or weekend trip with 400 photos. You just want to share the 5 great ones. Instead, you're stuck in a digital attic scrolling past 395 identical bursts, closed eyes, and pocket snaps.
+                    </p>
+
+                    <div class="problem-cards">
+                        <div class="problem-item">
+                            <div class="problem-icon-wrap">🏖️</div>
+                            <div>
+                                <h4>The Post-Vacation Overwhelm</h4>
+                                <p>Taking 50 shots at a landmark is easy. Finding the single shot where everyone smiled without squinting takes 45 minutes of manual scrolling.</p>
+                            </div>
+                        </div>
+
+                        <div class="problem-item">
+                            <div class="problem-icon-wrap">⏳</div>
+                            <div>
+                                <h4>The 10-Minute Zooming Comparison</h4>
+                                <p>Zooming into 15 near-identical burst shots to check whether someone blinked drains all the joy out of capturing life's best memories.</p>
+                            </div>
+                        </div>
+
+                        <div class="problem-item">
+                            <div class="problem-icon-wrap">💸</div>
+                            <div>
+                                <h4>Paying to Store Digital Trash</h4>
+                                <p>Cloud services automatically back up all 45 blurry duplicate takes—and then demand a $2.99/month subscription upgrade when your cloud fills up.</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="hero-visual-wrapper">
-                    <div class="app-frame">
-                        <img src="assets/hero-mockup.jpg" alt="Footage App showing curated best vacation takes and pre-sorted photo cleanup" class="app-mockup-img">
+                <!-- Interactive Burst Visualization -->
+                <div class="burst-comparison-card surface-card reveal">
+                    <div style="font-size: 0.85rem; font-weight: 800; color: var(--accent-blue); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px;">
+                        Interactive Burst Inspector (5 Takes of Same Moment)
+                    </div>
+                    <div class="burst-photos-wall" aria-label="A burst pile of 5 similar photos where Footage detects the single winner take">
+                        <img class="burst-shot s1" src="assets/shot-a.jpg" alt="Burst photo take with slight blur" width="160" height="170">
+                        <img class="burst-shot s2" src="assets/shot-b.jpg" alt="Burst photo take with closed eyes" width="116" height="156">
+                        <img class="burst-shot s3" src="assets/shot-c.jpg" alt="Burst photo take with poor lighting" width="138" height="160">
+                        <img class="burst-shot s4" src="assets/shot-d.jpg" alt="Burst photo duplicate take" width="145" height="165">
+                        <div class="burst-shot s5">
+                            <img src="assets/shot-e.jpg" alt="The winning best take photo with sharp smile and perfect lighting" style="width:100%; height:100%; object-fit:cover; border-radius:10px;">
+                            <span class="burst-badge-winner">BEST TAKE ★</span>
+                        </div>
+                    </div>
+
+                    <div class="burst-caption-bar">
+                        <div class="burst-caption-left">
+                            <span class="burst-stat-pill pill-winner">1 Standout Winner</span>
+                            <span style="font-size: 0.88rem; color: var(--text-heading); font-weight: 700;">Eyes open · Golden hour</span>
+                        </div>
+                        <div>
+                            <span class="burst-stat-pill pill-trash">4 Pre-Sorted for Deletion (Free 32MB)</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- CIRCLE 1: THE WHY (The Real Problem) -->
-        <section id="why" class="section-padding why-section circle-section">
-            <div class="container">
-                <div class="text-center">
-                    <span class="section-label">WHY WE BUILT FOOTAGE</span>
-                    <h2 class="section-heading">Why Has Photo Storage Become Such a Chore?</h2>
-                    <p class="section-subheading">
-                        Smartphones gave us the power to capture every moment. But they also created an overwhelming digital attic that drains your time, phone storage, and wallet.
+        <!-- =========================================================
+             SECTION 2: THE 3-STEP WORKFLOW (Shoot -> Filter -> Post & Clean)
+             ========================================================= -->
+        <section id="how" class="workflow-section">
+            <div class="wrap">
+                <div class="center-flex text-center reveal">
+                    <div class="eyebrow">HOW FOOTAGE WORKS</div>
+                    <h2 class="section-title">Shoot → Footage → Post & Clean</h2>
+                    <p class="section-desc">
+                        No manual tagging. No cloud lag. The simple part of sharing memories finally stays simple.
                     </p>
                 </div>
 
-                <div class="story-grid">
-                    <!-- Problem 1 -->
-                    <div class="story-card glass-card">
-                        <div class="story-icon-wrap">🏖️</div>
-                        <h3>The Post-Vacation Overwhelm</h3>
-                        <p>
-                            You return from a wonderful trip with 600 photos. You want to share the 5 best shots with friends or family, but finding them means scrolling past 595 identical angles, accidental pocket snaps, and sun flares.
-                        </p>
-                    </div>
+                <div class="steps-grid">
+                    <!-- Step 01 -->
+                    <article class="step-card surface-card reveal">
+                        <span class="step-num-badge">01 / SHOOT</span>
+                        <div class="step-visual-box">
+                            <img src="assets/travel-winner.jpg" alt="Young travelers enjoying a scenic vacation moment" loading="lazy" width="950" height="534">
+                        </div>
+                        <h3>Capture the moment freely.</h3>
+                        <p>Take 10, 20, or 40 shots on vacation without worrying about picking the winner in the moment. Live in the experience.</p>
+                    </article>
 
-                    <!-- Problem 2 -->
-                    <div class="story-card glass-card">
-                        <div class="story-icon-wrap">⏳</div>
-                        <h3>Hours Wasted Picking "The One"</h3>
-                        <p>
-                            Did someone blink? Is the lighting off? You spend your evening zooming into 12 near-identical burst shots to spot the single frame where everyone smiled.
-                        </p>
-                    </div>
+                    <!-- Step 02 -->
+                    <article class="step-card surface-card reveal">
+                        <span class="step-num-badge">02 / FILTER</span>
+                        <div class="step-visual-box">
+                            <img src="assets/hero-ui.jpg" alt="Footage neural model highlighting standout best take" loading="lazy" width="540" height="720">
+                        </div>
+                        <h3>Footage spots the best take.</h3>
+                        <p>Hardware-accelerated on-device AI evaluates composition, focus, expressions, and lighting to surface the single winning shot.</p>
+                    </article>
 
-                    <!-- Problem 3 -->
-                    <div class="story-card glass-card">
-                        <div class="story-icon-wrap">💸</div>
-                        <h3>Paying to Store Digital Trash</h3>
-                        <p>
-                            Cloud storage providers charge you a monthly subscription to store thousands of blurry duplicates you'll never look at again. You're paying money to store clutter.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Emotional Truth Quote -->
-                <div class="quote-banner">
-                    <p>"We believe your photos should bring you joy when you look back—not gallery anxiety or monthly storage bills."</p>
+                    <!-- Step 03 -->
+                    <article class="step-card surface-card reveal">
+                        <span class="step-num-badge">03 / POST & CLEAN</span>
+                        <div class="step-visual-box">
+                            <img src="assets/family-winner.jpg" alt="Curated happy family vacation photo ready to share" loading="lazy" width="950" height="712">
+                        </div>
+                        <h3>Share & purge in one tap.</h3>
+                        <p>Share your best shot with confidence. Bad takes, blurs, and closed eyes are pre-grouped so you can free gigabytes with a single tap.</p>
+                    </article>
                 </div>
             </div>
         </section>
 
-        <!-- CIRCLE 2: THE HOW (The Frictionless Solution) -->
-        <section id="how" class="section-padding how-section circle-section">
-            <div class="container">
-                <div class="text-center">
-                    <span class="section-label">HOW FOOTAGE FIXES IT</span>
-                    <h2 class="section-heading">What If Your Gallery Curated Itself?</h2>
-                    <p class="section-subheading">
-                        Instead of expecting you to spend hours organizing pictures one by one, Footage works quietly in the background right on your smartphone.
-                    </p>
-                </div>
-
-                <div class="how-cards-container">
-                    <!-- Step 1 -->
-                    <div class="how-card glass-card">
-                        <span class="how-step-badge">Step 1</span>
-                        <h3>1. It Reviews Your Shots Quietly</h3>
-                        <p>
-                            Footage scans your gallery locally without modifying your original files. No uploading, no waiting for cloud processing.
-                        </p>
-                    </div>
-
-                    <!-- Step 2 -->
-                    <div class="how-card glass-card">
-                        <span class="how-step-badge">Step 2</span>
-                        <h3>2. It Surfaces Golden Takes</h3>
-                        <p>
-                            It automatically ranks composition, focus, lighting, and expressions so your standout vacation pics rise to the top instantly.
-                        </p>
-                    </div>
-
-                    <!-- Step 3 -->
-                    <div class="how-card glass-card">
-                        <span class="how-step-badge">Step 3</span>
-                        <h3>3. It Pre-Sorts the Clutter</h3>
-                        <p>
-                            Blurry shots, eyes-closed takes, and duplicate bursts are pre-grouped into a clean-up bin so you can clear gigabytes in one tap.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="flow-visual-card glass-card" style="margin-top: 50px;">
-                    <img src="assets/ai-flow.jpg" alt="Footage On-Device Workflow Diagram" class="flow-image">
-                </div>
-            </div>
-        </section>
-
-        <!-- CIRCLE 3: THE WHAT (Product Features & Benefits) -->
-        <section id="what" class="section-padding what-section circle-section">
-            <div class="container">
-                <div class="text-center">
-                    <span class="section-label">THE FOOTAGE EXPERIENCE</span>
-                    <h2 class="section-heading">Everything You Need to Love Your Photos Again</h2>
-                    <p class="section-subheading">
-                        Built for real people who want to capture life, keep their storage clean, and protect their personal privacy.
+        <!-- =========================================================
+             SECTION 3: 4 CORE CAPABILITIES & THE FOOTAGE MOAT
+             ========================================================= -->
+        <section id="features" class="features-section">
+            <div class="wrap">
+                <div class="center-flex text-center reveal">
+                    <div class="eyebrow">THE FOOTAGE MOAT</div>
+                    <h2 class="section-title">Designed for Real Life. Built for Privacy.</h2>
+                    <p class="section-desc">
+                        Generic gallery apps dump raw files on you or sell cloud space. Footage does the heavy curation right inside your phone.
                     </p>
                 </div>
 
                 <div class="features-grid">
                     <!-- Feature 1 -->
-                    <div class="feature-box glass-card">
-                        <span class="feature-pill pill-amber">Vacation Filter</span>
-                        <h3>Instant Best Take Selection</h3>
-                        <p>
-                            Took 30 shots at a landmark? Footage identifies the single picture with perfect lighting and zero blinks so you can post or edit right away.
-                        </p>
+                    <div class="feature-box surface-card reveal">
+                        <span class="feature-tag tag-emerald">Vacation Filter</span>
+                        <div class="feature-icon-box">👑</div>
+                        <h3>AI Best Take Engine</h3>
+                        <p>Took 30 shots in front of a monument? Our neural aesthetic scorer analyzes focus, smile detection, and lighting to surface the standout shot instantly.</p>
                     </div>
 
                     <!-- Feature 2 -->
-                    <div class="feature-box glass-card">
-                        <span class="feature-pill pill-rose">Smart Cleanup</span>
-                        <h3>Pre-Sorted Storage Purge</h3>
-                        <p>
-                            Bad photos are already grouped for you. Reclaim gigabytes of space when your phone storage gets tight—with zero risk of deleting your favorites.
-                        </p>
+                    <div class="feature-box surface-card reveal">
+                        <span class="feature-tag tag-coral">Pre-Sorted Cleanup</span>
+                        <div class="feature-icon-box">🧹</div>
+                        <h3>1-Tap Storage Recovery</h3>
+                        <p>When storage gets tight, blurry takes, accidental pocket shots, and duplicate bursts are already pre-grouped. Free gigabytes safely without touching keepers.</p>
                     </div>
 
                     <!-- Feature 3 -->
-                    <div class="feature-box glass-card">
-                        <span class="feature-pill pill-emerald">100% Local Moat</span>
+                    <div class="feature-box surface-card reveal">
+                        <span class="feature-tag tag-blue">100% Local Moat</span>
+                        <div class="feature-icon-box">🛡️</div>
                         <h3>Strict On-Device Privacy</h3>
-                        <p>
-                            Your photos stay on your device where they belong. No cloud servers, no account logins, zero tracking, works 100% offline.
-                        </p>
+                        <p>Powered by local LiteRT and ML Kit. All image analysis, facial clustering, and quality scoring run 100% offline inside your Android sandbox. Zero server uploads.</p>
                     </div>
 
                     <!-- Feature 4 -->
-                    <div class="feature-box glass-card">
-                        <span class="feature-pill pill-amber">Wallet Saver</span>
-                        <h3>Cut Cloud Storage Bills</h3>
-                        <p>
-                            By keeping only your best photos synced to the cloud, you stop paying monthly fees for 200GB+ storage upgrades.
-                        </p>
+                    <div class="feature-box surface-card reveal">
+                        <span class="feature-tag tag-amber">Cloud Cost Destroyer</span>
+                        <div class="feature-icon-box">💰</div>
+                        <h3>Save Cloud Storage Bills</h3>
+                        <p>Purging photo clutter locally before auto-sync stops endless Google Photos & iCloud tier upgrades, saving up to $120 every year in cloud subscription fees.</p>
                     </div>
                 </div>
 
-                <!-- Impact Card -->
-                <div class="impact-card">
-                    <div class="impact-info">
-                        <h3>Keep What You Love. Ditch the Rest.</h3>
+                <!-- Storage Savings Banner -->
+                <div class="savings-banner reveal">
+                    <div class="savings-info">
+                        <h3>Ditch 70% of Storage Bloat Without Losing a Memory</h3>
                         <p>
-                            On an average trip, 70% of photos taken are burst variations, blurs, or minor test shots. Footage keeps your memories crystal clear and your phone storage free.
+                            On an average 7-day trip, users take over 500 photos. Over 350 of those are bursts, blurs, or minor test variations. Footage keeps your memories crystal clear and your phone storage free.
                         </p>
                     </div>
-                    <div class="impact-stats">
-                        <div class="stat-box">
-                            <div class="stat-value">3.5 GB</div>
-                            <div class="stat-label">Average Storage Saved Per Trip</div>
+                    <div class="savings-stats">
+                        <div class="stat-item">
+                            <div class="stat-num">3.5 GB</div>
+                            <div class="stat-desc">Avg. Storage Freed per Trip</div>
                         </div>
-                        <div class="stat-box">
-                            <div class="stat-value">$0</div>
-                            <div class="stat-label">Cloud Uploads or Data Risk</div>
+                        <div class="stat-item">
+                            <div class="stat-num">$0</div>
+                            <div class="stat-desc">Cloud Uploads or Data Risk</div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- SHIVAYU CONSULTANTS TRUST & 100% FREE COMMITMENT -->
+        <!-- =========================================================
+             SECTION 4: PRIVACY MOAT SECTION
+             ========================================================= -->
+        <section id="privacy" class="privacy-section">
+            <div class="wrap">
+                <div class="privacy-banner reveal">
+                    <div>
+                        <div class="eyebrow" style="color: var(--accent-emerald);">PRIVACY BY DESIGN</div>
+                        <h2 style="font-size: clamp(2rem, 3.5vw, 2.8rem); margin-bottom: 16px;">
+                            Your Camera Roll Stays on Your Phone.
+                        </h2>
+                        <p style="color: var(--text-body); font-size: 1.05rem; line-height: 1.65;">
+                            Unlike big tech galleries that upload your personal life to remote servers, Footage operates 100% within your Android sandbox. We collect zero photos, zero telemetry, and zero facial biometrics.
+                        </p>
+
+                        <div class="privacy-bullets">
+                            <div class="privacy-bullet">
+                                <span class="bullet-check">✓</span>
+                                <span><strong>Works 100% Offline:</strong> No internet connection required to score or clean.</span>
+                            </div>
+                            <div class="privacy-bullet">
+                                <span class="bullet-check">✓</span>
+                                <span><strong>No Account Needed:</strong> Open the app and start curating immediately.</span>
+                            </div>
+                            <div class="privacy-bullet">
+                                <span class="bullet-check">✓</span>
+                                <span><strong>Google Play Data Safety:</strong> Fully compliant with strict zero-collection policies.</span>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+                            <a href="#early-access" class="btn-submit" style="padding: 12px 24px; text-decoration: none;">Get Early Access</a>
+                            <a href="privacy.html" class="btn-secondary">Read Privacy Policy</a>
+                        </div>
+                    </div>
+
+                    <div class="privacy-banner-visual">
+                        <img src="assets/privacy-visual.png" alt="Footage On-Device Privacy Architecture" loading="lazy" width="980" height="235">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             SECTION 5: TRUST & 100% FREE BY SHIVAYU CONSULTANTS (AT END)
+             ========================================================= -->
         <section id="trust" class="trust-section">
-            <div class="container">
-                <div class="trust-card glass-card">
-                    <span class="trust-badge-tag">🤝 BUILT WITH INTEGRITY BY SHIVAYU CONSULTANTS</span>
+            <div class="wrap">
+                <div class="trust-card reveal">
+                    <div class="trust-badge">
+                        <span>CRAFTED WITH INTEGRITY BY SHIVAYU CONSULTANTS</span>
+                    </div>
                     <h2>Genuinely 100% Free. No Ads. No Trackers. No Hidden Catch.</h2>
                     <p>
-                        Most "free" apps on the internet come with an invisible tax—your private data gets tracked, your screen gets cluttered with annoying pop-up ads, or core features are locked behind paywalls.
+                        Most "free" apps on the internet come with an invisible tax: your personal photos get scanned for advertising, your screen is spammed with popup videos, or core features are locked behind subscriptions.
                         <br><br>
-                        We developed Footage under <strong>Shivayu Consultants</strong> with a different commitment: your personal memories belong to you, not advertisers or data brokers. Footage is <strong>completely free to use—forever</strong>. No ads interrupting your view, zero analytics trackers monitoring your habits, zero in-app purchases, and no subscription traps. Just a clean, fast, private photo curator built to give you back control of your camera roll.
+                        We developed Footage under <strong>Shivayu Consultants</strong> with an uncompromising standard: your memories belong to you, not advertisers or data brokers. Footage is <strong>completely free to use—forever</strong>. No ad networks, zero analytics trackers, zero in-app purchases, and no subscription traps.
                     </p>
 
-                    <div class="trust-pillars-grid">
-                        <div class="trust-pillar-item">
-                            <div class="trust-pillar-icon">🚫</div>
+                    <div class="trust-pillars">
+                        <div class="pillar-item">
+                            <div class="pillar-icon">🚫</div>
                             <h4>Zero Ads</h4>
                             <p>No pop-ups, banner ads, or video interruptions ever.</p>
                         </div>
-                        <div class="trust-pillar-item">
-                            <div class="trust-pillar-icon">🔒</div>
+                        <div class="pillar-item">
+                            <div class="pillar-icon">🔒</div>
                             <h4>Zero Trackers</h4>
                             <p>No third-party telemetry, analytics, or behavioral tracking.</p>
                         </div>
-                        <div class="trust-pillar-item">
-                            <div class="trust-pillar-icon">💳</div>
+                        <div class="pillar-item">
+                            <div class="pillar-icon">💳</div>
                             <h4>Zero Subscriptions</h4>
-                            <p>No paywalls, in-app purchases, or monthly hidden fees.</p>
+                            <p>No paywalls, in-app purchases, or hidden billing traps.</p>
                         </div>
-                        <div class="trust-pillar-item">
-                            <div class="trust-pillar-icon">✨</div>
+                        <div class="pillar-item">
+                            <div class="pillar-icon">✨</div>
                             <h4>100% Unlocked</h4>
-                            <p>Every single feature is fully available to everyone for free.</p>
+                            <p>Every single curation feature is fully available to everyone.</p>
                         </div>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- PRIVACY GUARANTEE -->
-        <section id="privacy" class="privacy-section">
-            <div class="container">
-                <div class="privacy-banner glass-card">
-                    <span class="privacy-badge-pill">🛡️ Strict On-Device Privacy Commitment</span>
-                    <h2>Your Memories Belong to You. Not a Cloud Server.</h2>
-                    <p>
-                        Unlike tech giants that scan your private family photos on remote servers, Footage operates entirely inside your phone's sandbox. We collect zero photos, zero personal telemetry, and zero face data.
-                    </p>
-                    <div class="privacy-checks">
-                        <div class="check-item"><span>✓</span> 100% Offline Functionality</div>
-                        <div class="check-item"><span>✓</span> Zero User Registration Required</div>
-                        <div class="check-item"><span>✓</span> Google Play Data Safety Compliant</div>
-                    </div>
-                    <a href="privacy.html" class="btn-secondary">Read Our Full Privacy Policy</a>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- FOOTER -->
+    <!-- Footer -->
     <footer class="footer">
-        <div class="container footer-content">
+        <div class="wrap footer-content">
             <div class="footer-brand">
-                <span class="brand-name">FOOTAGE</span>
-                <p>The private, on-device photo curator for Android.</p>
-                <p class="footer-company-credit">Developed by Shivayu Consultants</p>
+                <a href="#home" class="brand" aria-label="Footage home">
+                    <div class="brand-icon" style="width: 28px; height: 28px;">
+                        <svg viewBox="0 0 24 24" style="width: 16px; height: 16px;"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+                    </div>
+                    <span>footage</span>
+                </a>
+                <span class="footer-tagline">Private on-device photo curator for Android.</span>
+                <span class="footer-credit">Developed with integrity by Shivayu Consultants</span>
             </div>
+
             <div class="footer-links">
                 <a href="privacy.html">Privacy Policy</a>
-                <a href="mailto:shu22691@gmail.com">Contact Developer (shu22691@gmail.com)</a>
+                <a href="terms.html">Terms of Use</a>
+                <a href="https://github.com/shusinghal/android" target="_blank" rel="noopener">GitHub</a>
+                <a href="mailto:shu22691@gmail.com">Contact Developer</a>
             </div>
-            <div class="footer-copy">
-                &copy; 2026 Footage by Shivayu Consultants. All rights reserved. Contact: <a href="mailto:shu22691@gmail.com">shu22691@gmail.com</a>
-            </div>
+        </div>
+
+        <div class="wrap footer-bottom">
+            &copy; 2026 Footage. Developed by Shivayu Consultants. All rights reserved. Zero ads · Zero trackers · 100% Free.
         </div>
     </footer>
 
+    <!-- Script: Google Sheets Webhook + Scroll Reveal -->
     <script src="script.js"></script>
+    <script>
+    // Silky smooth scroll reveal
+    (function(){
+        const reveals = document.querySelectorAll('.reveal');
+        if (!('IntersectionObserver' in window)) {
+            reveals.forEach(el => el.classList.add('visible'));
+            return;
+        }
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+        reveals.forEach(el => observer.observe(el));
+    })();
+    </script>
 </body>
 </html>

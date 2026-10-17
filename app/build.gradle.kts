@@ -81,6 +81,7 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.exifinterface:exifinterface:1.4.2")
     implementation("androidx.print:print:1.1.0")
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
 
     // ML Kit for on-device AI
     implementation("com.google.mlkit:image-labeling:17.0.9")

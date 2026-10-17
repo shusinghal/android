@@ -36,6 +36,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import com.memorycurator.app.ui.components.BlurBackground
+import com.memorycurator.app.ui.components.GlassCard
+import com.memorycurator.app.ui.components.GlassSurface
 import com.memorycurator.app.ui.theme.MemoryCuratorTheme
 
 @Composable
@@ -180,13 +182,14 @@ fun MediaPermissionDialog(
     onOpenSettings: () -> Unit
 ) {
     Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            shape = RoundedCornerShape(28.dp),
-            color = Color(0xFF1C1C1E),
-            tonalElevation = 8.dp
+        GlassSurface(
+            modifier = Modifier.fillMaxWidth(),
+            cornerRadius = 28.dp,
+            backgroundColor = Color(0xFF1C1C1E).copy(alpha = 0.9f),
+            borderColor = Color.White.copy(alpha = 0.22f),
+            padding = 24.dp
         ) {
             Column(
-                modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Icon(
@@ -206,7 +209,7 @@ fun MediaPermissionDialog(
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = "MemoryCurator needs access to your photos to help you find your best memories using on-device AI. Your photos never leave your device.",
-                    color = Color.White.copy(alpha = 0.7f),
+                    color = Color.White.copy(alpha = 0.75f),
                     fontSize = 14.sp,
                     textAlign = TextAlign.Center,
                     lineHeight = 20.sp
@@ -223,13 +226,13 @@ fun MediaPermissionDialog(
                     onClick = onOpenSettings,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Go to Settings", color = Color.White.copy(alpha = 0.5f))
+                    Text("Go to Settings", color = Color.White.copy(alpha = 0.6f))
                 }
                 TextButton(
                     onClick = onDismiss,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Maybe Later", color = Color.White.copy(alpha = 0.3f))
+                    Text("Maybe Later", color = Color.White.copy(alpha = 0.4f))
                 }
             }
         }
@@ -238,21 +241,21 @@ fun MediaPermissionDialog(
 
 @Composable
 fun ExpectationItem(icon: ImageVector, title: String, description: String) {
-    Box(
+    GlassCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(Color.White.copy(alpha = 0.05f))
-            .border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(20.dp))
-            .padding(16.dp)
+            .padding(vertical = 8.dp),
+        cornerRadius = 20.dp,
+        backgroundColor = Color.White.copy(alpha = 0.06f),
+        borderColor = Color.White.copy(alpha = 0.16f),
+        padding = 16.dp
     ) {
         Row(verticalAlignment = Alignment.Top) {
-            Icon(icon, null, tint = Color.White.copy(alpha = 0.9f), modifier = Modifier.size(24.dp))
+            Icon(icon, null, tint = Color.White.copy(alpha = 0.95f), modifier = Modifier.size(24.dp))
             Spacer(modifier = Modifier.width(16.dp))
             Column {
                 Text(text = title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text(text = description, color = Color.White.copy(alpha = 0.6f), fontSize = 14.sp, lineHeight = 20.sp)
+                Text(text = description, color = Color.White.copy(alpha = 0.7f), fontSize = 14.sp, lineHeight = 20.sp)
             }
         }
     }

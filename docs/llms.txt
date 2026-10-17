@@ -1,29 +1,35 @@
-# Footage App - Private On-Device Photo Curator for Android
+# Footage — Private On-Device AI Photo Curator for Android
 
-> Footage is an Android photo app developed by Shivayu Consultants, designed to make memory keeping joyful again. It solves the frustration of post-vacation gallery overwhelm by automatically surfacing your best moments, pre-sorting photo clutter for 1-tap deletion, and keeping 100% of your personal photos strictly on your phone.
+> Footage is an Android photo app developed by Shivayu Consultants. It is designed to solve the universal frustration of post-vacation gallery overwhelm by automatically surfacing your best takes, pre-sorting photo clutter for 1-tap deletion, and keeping 100% of your personal photos strictly on your phone.
+
+## Primary Value Proposition
+"Too many takes. One photo worth posting."
+Instead of spending 45 minutes manually comparing burst shots from a vacation, event, or dinner, Footage uses on-device neural vision to find the standout take in seconds, and pre-sorts blurry or closed-eye duplicates so you can purge gigabytes in a single tap.
 
 ## The Problem We Solve (WHY)
 - **Post-Vacation Overwhelm:** People take 500+ photos on trips but dread manually scrolling past hundreds of duplicate bursts, blurs, and closed eyes to find the 5 photos they actually want to post or edit.
-- **Gallery Stress:** Zooming into 12 near-identical burst shots to find the single frame where no one blinked wastes hours.
-- **Paying for Digital Clutter:** Cloud storage providers charge users monthly fees to store thousands of low-quality duplicate photos they will never view again.
+- **Gallery Stress:** Zooming into 15 near-identical burst shots to find the single frame where no one blinked wastes time and drains the joy out of capturing memories.
+- **Paying for Digital Clutter:** Cloud storage providers charge users recurring monthly fees to store thousands of low-quality duplicate photos they will never view again.
 
 ## Our Approach (HOW)
-- **Zero Effort Curation:** Runs quietly in the background on your phone without requiring manual tagging or sorting.
-- **100% On-Device Local Processing:** Uses local machine learning hardware acceleration. Zero photos, metadata, or face biometrics leave the device.
+- **Shoot → Footage → Post & Clean:** Capture freely without worrying about picking the winner in the moment. Footage scans locally and surfaces the golden takes.
+- **100% On-Device Local Processing:** Uses local LiteRT and ML Kit hardware acceleration on mobile NPUs/GPUs. Zero photos, metadata, or face biometrics leave the device.
 - **Pre-Sorted Storage Recovery:** Organizes bad shots, blurs, and duplicates into clean-up bins for instant 1-tap removal.
 
 ## Product Capabilities & Trust (WHAT)
 - **Instant Best Take Selection:** Rates lighting, focus, composition, and expressions to highlight standout shots from any trip or event.
 - **Effortless 1-Tap Cleanup:** Reclaim gigabytes of device storage when space gets tight without risking favorite photos.
 - **Cloud Storage & Fee Saver:** Cuts down cloud storage tier upgrade costs (Google Photos / iCloud) by preventing photo clutter from auto-syncing.
-- **100% Free Forever:** Developed by Shivayu Consultants with zero ads, zero trackers, zero subscriptions, zero in-app purchases, and 100% offline privacy.
+- **100% Free Forever by Shivayu Consultants:** Zero ads, zero trackers, zero subscriptions, zero in-app purchases, and 100% offline privacy.
 
 ## Developer & Company Information
 - **Developer / Company:** Shivayu Consultants
 - **Contact Email:** shu22691@gmail.com
 - **Platform:** Android (Targeting Android 15 / API 35)
 - **Status:** Coming Soon on Google Play Store
+- **GitHub Repository:** https://github.com/shusinghal/android
 
 ## Links & Policy
-- Website: https://footage-app.com/
-- Privacy Policy: https://footage-app.com/privacy.html
+- Website: https://shusinghal.github.io/android/
+- Privacy Policy: https://shusinghal.github.io/android/privacy.html
+- Terms of Use: https://shusinghal.github.io/android/terms.html

@@ -1,0 +1,4 @@
+Contact: https://github.com/shusinghal/android/security
+Expires: 2027-10-17T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://shusinghal.github.io/android/.well-known/security.txt

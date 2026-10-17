@@ -43,6 +43,10 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Wallpaper
 import androidx.compose.material3.*
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -529,19 +533,30 @@ fun TimelineDetailScreen(
                                                     onClick = {
                                                         viewModel?.filterBestTakes(context, unanalyzedPhotos)
                                                     },
-                                                    shape = RoundedCornerShape(12.dp),
-                                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
-                                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f))
+                                                    shape = RoundedCornerShape(14.dp),
+                                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
                                                 ) {
                                                     Row(
-                                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                                        modifier = Modifier
+                                                            .graphicsLayer(compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.Offscreen)
+                                                            .drawWithCache {
+                                                                onDrawWithContent {
+                                                                    drawContent()
+                                                                    drawRect(
+                                                                        color = Color.White.copy(alpha = 0.15f),
+                                                                        blendMode = BlendMode.Overlay
+                                                                    )
+                                                                }
+                                                            }
+                                                            .padding(horizontal = 10.dp, vertical = 5.dp),
                                                         verticalAlignment = Alignment.CenterVertically
                                                     ) {
                                                         Icon(
                                                             imageVector = Icons.Default.AutoAwesome,
                                                             contentDescription = "Best Takes",
                                                             tint = MaterialTheme.colorScheme.primary,
-                                                            modifier = Modifier.size(12.dp)
+                                                            modifier = Modifier.size(13.dp)
                                                         )
                                                         Spacer(Modifier.width(4.dp))
                                                         Text(
@@ -704,11 +719,23 @@ fun PhotoGridItem(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 4.dp),
-                color = Color.Black.copy(alpha = 0.6f),
-                shape = RoundedCornerShape(12.dp)
+                color = Color.Black.copy(alpha = 0.75f),
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.18f))
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                    modifier = Modifier
+                        .graphicsLayer(compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.Offscreen)
+                        .drawWithCache {
+                            onDrawWithContent {
+                                drawContent()
+                                drawRect(
+                                    color = Color.White.copy(alpha = 0.12f),
+                                    blendMode = BlendMode.Overlay
+                                )
+                            }
+                        }
+                        .padding(horizontal = 8.dp, vertical = 3.dp),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {

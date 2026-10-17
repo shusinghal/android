@@ -22,4 +22,4 @@ Allow: /
 User-agent: PerplexityBot
 Allow: /
 
-Sitemap: https://footage-app.com/sitemap.xml
+Sitemap: https://shusinghal.github.io/android/sitemap.xml
