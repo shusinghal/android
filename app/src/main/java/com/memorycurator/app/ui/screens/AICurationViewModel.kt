@@ -270,10 +270,8 @@ class AICurationViewModel(
                         entity
                     }
                 }
-                val errors = repository.saveAiResults(updatedEntities)
-                // We don't pass context here because filterBestTakes is often automatic.
-                // If it fails, users can use the "Save to Files" button to trigger batch permission.
-                handleSecurityExceptions(null, MediaRepository.SyncResult(0, emptyList(), errors))
+                val syncResult = repository.saveAiResults(updatedEntities)
+                handleSecurityExceptions(context, syncResult)
                 
                 // If analysis finished, we are "dirty" until manual Save
                 _isDirty.value = true

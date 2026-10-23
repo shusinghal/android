@@ -748,7 +748,7 @@ fun AICurationScreenPreview() {
                 override fun getArchivedPhotos() = kotlinx.coroutines.flow.flowOf(emptyList<MediaPhoto>())
                 override suspend fun getMediaEntities(ids: List<Long>) = emptyList<com.memorycurator.app.data.local.MediaEntity>()
                 override fun getMediaEntitiesFlow(ids: List<Long>) = kotlinx.coroutines.flow.flowOf(emptyList<com.memorycurator.app.data.local.MediaEntity>())
-                override suspend fun saveAiResults(entities: List<com.memorycurator.app.data.local.MediaEntity>) = emptyList<Throwable>()
+                override suspend fun saveAiResults(entities: List<com.memorycurator.app.data.local.MediaEntity>) = MediaRepository.SyncResult(0, emptyList(), emptyList())
                 override suspend fun updateBestTakeStatus(id: Long, isBest: Boolean): Throwable? = null
                 override suspend fun syncToExif(ids: List<Long>) = MediaRepository.SyncResult(0, emptyList(), emptyList())
                 override suspend fun resetAiMetadata(ids: List<Long>) {}

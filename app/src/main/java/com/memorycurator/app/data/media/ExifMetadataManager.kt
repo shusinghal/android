@@ -19,12 +19,15 @@ data class CurationExifData(
 
 object ExifMetadataManager {
     private const val TAG = "ExifMetadataManager"
+    private const val DEBUG_TAG = "EXIF_DEBUG"
 
     /**
      * Writes AI curation metadata to the photo's EXIF header using Scoped Storage compatible methods.
      * Returns null on success, or a Throwable (like RecoverableSecurityException) if permission is needed.
      */
     fun writeExifMetadata(context: Context, uri: Uri, metadata: CurationExifData): Throwable? {
+        Log.d(DEBUG_TAG, "=== START writing EXIF metadata for uri: $uri ===")
+        Log.d(DEBUG_TAG, "Metadata: score=${metadata.aiScore}, isBest=${metadata.isBestTake}, reason=${metadata.rejectionReason}")
         try {
             val json = JSONObject().apply {
                 put("aiScore", metadata.aiScore.toDouble())
@@ -36,16 +39,21 @@ object ExifMetadataManager {
                 put("mainFaceCount", metadata.mainFaceCount)
             }.toString()
 
+            Log.d(DEBUG_TAG, "Serialized EXIF JSON payload: $json")
+
             // For modern Android, we must use openFileDescriptor with "rw" mode
             context.contentResolver.openFileDescriptor(uri, "rw")?.use { pfd ->
                 val exif = ExifInterface(pfd.fileDescriptor)
                 exif.setAttribute(ExifInterface.TAG_USER_COMMENT, json)
                 exif.saveAttributes()
-                Log.d(TAG, "Successfully wrote EXIF metadata to $uri")
+                Log.d(DEBUG_TAG, "SUCCESS: Wrote EXIF UserComment to uri: $uri")
                 return null
-            }
+            } ?: Log.w(DEBUG_TAG, "WARNING: FileDescriptor was null for uri: $uri")
+        } catch (e: android.app.RecoverableSecurityException) {
+            Log.e(DEBUG_TAG, "RecoverableSecurityException writing EXIF to uri: $uri", e)
+            return e
         } catch (e: Exception) {
-            Log.e(TAG, "Error writing EXIF metadata to $uri", e)
+            Log.e(DEBUG_TAG, "ERROR writing EXIF metadata to uri: $uri", e)
             return e
         }
         return Exception("Failed to open file descriptor")
@@ -57,7 +65,9 @@ object ExifMetadataManager {
     fun readExifMetadata(inputStream: InputStream): CurationExifData? {
         try {
             val exif = ExifInterface(inputStream)
-            val jsonString = exif.getAttribute(ExifInterface.TAG_USER_COMMENT) ?: return null
+            val jsonString = exif.getAttribute(ExifInterface.TAG_USER_COMMENT)
+            Log.d(DEBUG_TAG, "Read EXIF UserComment string: $jsonString")
+            if (jsonString == null) return null
             
             // Clean JSON string if some systems add prefixes (like ASCII)
             val cleanedJson = if (jsonString.startsWith("ASCII")) {
@@ -72,7 +82,7 @@ object ExifMetadataManager {
                 val json = JSONObject(cleanedJson)
                 if (!json.has("aiScore")) return null
                 
-                CurationExifData(
+                val data = CurationExifData(
                     aiScore = json.optDouble("aiScore", -1.0).toFloat(),
                     isBestTake = json.optBoolean("isBestTake", false),
                     rejectionReason = if (json.isNull("rejectionReason")) null else json.optString("rejectionReason"),
@@ -81,11 +91,14 @@ object ExifMetadataManager {
                     aiDescription = if (json.isNull("aiDescription")) null else json.optString("aiDescription"),
                     mainFaceCount = json.optInt("mainFaceCount", 0)
                 )
+                Log.d(DEBUG_TAG, "SUCCESS parsed EXIF CurationExifData: $data")
+                data
             } catch (e: Exception) {
+                Log.e(DEBUG_TAG, "ERROR parsing EXIF JSON: $cleanedJson", e)
                 null
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error reading EXIF metadata from stream", e)
+            Log.e(DEBUG_TAG, "Error reading EXIF metadata from stream", e)
         }
         return null
     }

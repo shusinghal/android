@@ -15,7 +15,7 @@ interface MediaRepository {
 
     fun getMediaEntitiesFlow(ids: List<Long>): Flow<List<MediaEntity>>
     
-    suspend fun saveAiResults(entities: List<MediaEntity>): List<Throwable>
+    suspend fun saveAiResults(entities: List<MediaEntity>): SyncResult
     
     suspend fun updateBestTakeStatus(id: Long, isBest: Boolean): Throwable?
     

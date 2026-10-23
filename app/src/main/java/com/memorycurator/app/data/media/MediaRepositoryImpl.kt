@@ -54,37 +54,45 @@ class MediaRepositoryImpl(
         return mediaDao.getMediaByIdsFlow(ids)
     }
 
-    override suspend fun saveAiResults(entities: List<MediaEntity>): List<Throwable> {
+    override suspend fun saveAiResults(entities: List<MediaEntity>): MediaRepository.SyncResult {
         mediaDao.insertAll(entities)
         
         val userPrefs = UserPreferences(context)
+        val failedUris = mutableListOf<Uri>()
+        val securityExceptions = mutableListOf<Throwable>()
+        var successCount = 0
+        android.util.Log.d("EXIF_DEBUG", "saveAiResults: isPhysicalStorageEnabled = ${userPrefs.isPhysicalStorageEnabled}, entities count = ${entities.size}")
         
         if (userPrefs.isPhysicalStorageEnabled) {
             entities.forEach { entity ->
                 if (entity.mimeType?.startsWith("video") != true) {
-                    try {
-                        ExifMetadataManager.writeExifMetadata(
-                            context,
-                            Uri.parse(entity.uri),
-                            CurationExifData(
-                                aiScore = entity.aiScore,
-                                isBestTake = entity.isBestTake,
-                                rejectionReason = entity.rejectionReason,
-                                clusterId = entity.clusterId,
-                                originalFolder = entity.originalFolderName ?: entity.folderName,
-                                aiDescription = entity.aiDescription,
-                                mainFaceCount = entity.mainFaceCount
-                            )
+                    val uri = Uri.parse(entity.uri)
+                    val res = ExifMetadataManager.writeExifMetadata(
+                        context,
+                        uri,
+                        CurationExifData(
+                            aiScore = entity.aiScore,
+                            isBestTake = entity.isBestTake,
+                            rejectionReason = entity.rejectionReason,
+                            clusterId = entity.clusterId,
+                            originalFolder = entity.originalFolderName ?: entity.folderName,
+                            aiDescription = entity.aiDescription,
+                            mainFaceCount = entity.mainFaceCount
                         )
-                    } catch (e: SecurityException) {
-                        android.util.Log.w("MediaRepository", "Failed to write EXIF for ${entity.uri} - Security Restriction", e)
-                    } catch (e: Exception) {
-                        android.util.Log.e("MediaRepository", "EXIF write failed for ${entity.uri}", e)
+                    )
+                    if (res != null) {
+                        android.util.Log.e("EXIF_DEBUG", "saveAiResults: writeExifMetadata returned throwable for $uri", res)
+                        failedUris.add(uri)
+                        securityExceptions.add(res)
+                    } else {
+                        successCount++
                     }
                 }
             }
+        } else {
+            android.util.Log.d("EXIF_DEBUG", "saveAiResults: Skipping EXIF write because isPhysicalStorageEnabled is false.")
         }
-        return emptyList()
+        return MediaRepository.SyncResult(successCount, failedUris, securityExceptions)
     }
 
     override suspend fun updateBestTakeStatus(id: Long, isBest: Boolean): Throwable? {
@@ -102,25 +110,28 @@ class MediaRepositoryImpl(
         mediaDao.updateMetadata(id, isBest, newScore, newReason, System.currentTimeMillis())
         
         val userPrefs = UserPreferences(context)
+        android.util.Log.d("EXIF_DEBUG", "updateBestTakeStatus: isPhysicalStorageEnabled = ${userPrefs.isPhysicalStorageEnabled}, id = $id, isBest = $isBest")
         if (userPrefs.isPhysicalStorageEnabled && entity.mimeType?.startsWith("video") != true) {
             // 2. Write to physical file metadata
-            try {
-                ExifMetadataManager.writeExifMetadata(
-                    context,
-                    Uri.parse(entity.uri),
-                    CurationExifData(
-                        aiScore = newScore,
-                        isBestTake = isBest,
-                        rejectionReason = newReason,
-                        clusterId = entity.clusterId,
-                        originalFolder = entity.originalFolderName ?: entity.folderName,
-                        aiDescription = entity.aiDescription,
-                        mainFaceCount = entity.mainFaceCount
-                    )
+            val res = ExifMetadataManager.writeExifMetadata(
+                context,
+                Uri.parse(entity.uri),
+                CurationExifData(
+                    aiScore = newScore,
+                    isBestTake = isBest,
+                    rejectionReason = newReason,
+                    clusterId = entity.clusterId,
+                    originalFolder = entity.originalFolderName ?: entity.folderName,
+                    aiDescription = entity.aiDescription,
+                    mainFaceCount = entity.mainFaceCount
                 )
-            } catch (e: SecurityException) {
-                android.util.Log.w("MediaRepository", "Failed to update EXIF for ${entity.uri} - Security Restriction")
+            )
+            if (res != null) {
+                android.util.Log.e("EXIF_DEBUG", "updateBestTakeStatus: writeExifMetadata returned throwable for ${entity.uri}", res)
+                return res
             }
+        } else {
+            android.util.Log.d("EXIF_DEBUG", "updateBestTakeStatus: Skipping EXIF write (isPhysicalStorageEnabled=${userPrefs.isPhysicalStorageEnabled}).")
         }
         return null
     }
